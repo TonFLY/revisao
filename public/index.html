@@ -164,6 +164,7 @@
 
   <div class="tabs">
     <div class="tab active" onclick="goTab('study')">Estudar</div>
+    <div class="tab" onclick="goTab('decoreba')">Decoreba</div>
     <div class="tab" onclick="goTab('list')">Questões</div>
     <div class="tab" onclick="goTab('add')">Adicionar</div>
   </div>
@@ -171,14 +172,31 @@
   <!-- ── STUDY ── -->
   <div class="panel active" id="panel-study">
     <div class="fc-wrap">
-      <div class="fc-controls" id="fc-ctrl">
-        <button onclick="startStudy('all')"     id="f-all"     class="active-filter">Todas</button>
+      <div class="fc-controls">
+        <button onclick="startStudy('all')"      id="f-all"  class="active-filter">Todas</button>
         <button onclick="startStudy('pendente')" id="f-pend">Pendentes</button>
         <button onclick="startStudy('errei')"    id="f-err">Só erros</button>
         <button onclick="startStudy('revisar')"  id="f-rev">Revisar</button>
         <button onclick="startStudy('shuffle')"  id="f-shuf">Embaralhar</button>
       </div>
       <div id="fc"></div>
+    </div>
+  </div>
+
+  <!-- ── DECOREBA ── -->
+  <div class="panel" id="panel-decoreba">
+    <div class="fc-wrap">
+      <div style="background:#fff3e0;border:1px solid #ffe0b2;border-radius:8px;padding:8px 14px;margin-bottom:14px;font-size:13px;color:#e65100;">
+        🧠 <strong>Modo Decoreba</strong> — questões cujo tópico começa com "Decoreba"
+      </div>
+      <div class="fc-controls">
+        <button onclick="startDecoreba('all')"      id="d-all"  class="active-filter">Todas</button>
+        <button onclick="startDecoreba('pendente')" id="d-pend">Pendentes</button>
+        <button onclick="startDecoreba('errei')"    id="d-err">Só erros</button>
+        <button onclick="startDecoreba('revisar')"  id="d-rev">Revisar</button>
+        <button onclick="startDecoreba('shuffle')"  id="d-shuf">Embaralhar</button>
+      </div>
+      <div id="dc"></div>
     </div>
   </div>
 
@@ -311,11 +329,12 @@
 
   // ── tabs ─────────────────────────────────────────────────
   function goTab(name) {
-    document.querySelectorAll('.tab').forEach((t,i)=> t.classList.toggle('active',['study','list','add'][i]===name));
+    document.querySelectorAll('.tab').forEach((t,i)=> t.classList.toggle('active',['study','decoreba','list','add'][i]===name));
     document.querySelectorAll('.panel').forEach(p=> p.classList.remove('active'));
     document.getElementById('panel-'+name).classList.add('active');
-    if (name==='list') renderList();
-    if (name==='study') renderCard();
+    if (name==='list')     renderList();
+    if (name==='study')    renderCard();
+    if (name==='decoreba') startDecoreba('all');
   }
 
   // ── STUDY ────────────────────────────────────────────────
@@ -419,6 +438,116 @@
   }
 
   function nextCard() { sIdx++; renderCard(); }
+
+  // ── DECOREBA ────────────────────────────────────────────
+  let dQueue = [], dIdx = 0, dAnswered = false;
+
+  function isDecoreba(q) { return q.topic && q.topic.toLowerCase().startsWith('decoreba'); }
+
+  function startDecoreba(mode) {
+    ['all','pend','err','rev','shuf'].forEach(k => {
+      const el = document.getElementById('d-'+k);
+      if (el) el.classList.remove('active-filter');
+    });
+
+    const base = qs.filter(isDecoreba);
+    let pool;
+
+    if (mode === 'shuffle') {
+      document.getElementById('d-shuf').classList.add('active-filter');
+      pool = [...base];
+      for (let i=pool.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+    } else {
+      const id = mode==='all'?'d-all':mode==='pendente'?'d-pend':mode==='errei'?'d-err':'d-rev';
+      document.getElementById(id).classList.add('active-filter');
+      pool = mode==='all' ? [...base] : base.filter(q=>q.status===mode);
+    }
+
+    dQueue = pool; dIdx = 0; dAnswered = false;
+    renderDecorebaCard();
+  }
+
+  function renderDecorebaCard() {
+    const el = document.getElementById('dc');
+    if (!dQueue.length) {
+      el.innerHTML = '<div class="empty">Nenhuma questão Decoreba neste filtro.</div>';
+      return;
+    }
+    if (dIdx >= dQueue.length) {
+      el.innerHTML = `<div class="fc-card" style="text-align:center;padding:40px;">
+        <div style="font-size:32px;margin-bottom:12px;">🎉</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Sessão concluída!</div>
+        <div style="font-size:14px;color:#57606a;margin-bottom:20px;">Você revisou ${dQueue.length} questão(ões).</div>
+        <button class="btn bp" onclick="startDecoreba('all')">Recomeçar</button>
+      </div>`;
+      return;
+    }
+    dAnswered = false;
+    const q   = dQueue[dIdx];
+    const pct = Math.round(dIdx / dQueue.length * 100);
+    const opts = [
+      { letter:'A', text: q.option_a },
+      { letter:'B', text: q.option_b },
+      { letter:'C', text: q.option_c },
+      { letter:'D', text: q.option_d },
+    ];
+    el.innerHTML = `
+      <div class="fc-progress">${dIdx+1} / ${dQueue.length}</div>
+      <div class="fc-bar-wrap"><div class="fc-bar" style="width:${pct}%"></div></div>
+      <div class="fc-card">
+        <div class="fc-meta">
+          <span class="badge bt">${h(q.topic)}</span>
+          <span class="badge bd-${q.difficulty}">${q.difficulty}</span>
+          <span class="badge bs-${q.status}">${q.status}</span>
+        </div>
+        <div class="fc-question">${h(q.question)}</div>
+        <div class="fc-options">
+          ${opts.map(o=>`
+            <button class="fc-opt" id="dopt-${o.letter}" onclick="pickDecoreba(${q.id},'${o.letter}')">
+              <span class="letter">${o.letter}</span>
+              <span>${h(o.text)}</span>
+            </button>`).join('')}
+        </div>
+        <div class="fc-result" id="dc-result"></div>
+        <div class="fc-explanation" id="dc-exp">${q.explanation ? '<strong>Explicação:</strong> ' + h(q.explanation) : ''}</div>
+        <button class="fc-next" id="dc-next" onclick="nextDecorebaCard()">Próxima →</button>
+      </div>`;
+  }
+
+  async function pickDecoreba(qid, letter) {
+    if (dAnswered) return;
+    dAnswered = true;
+    const q       = dQueue[dIdx];
+    const correct = (q.correct || '').toUpperCase();
+    const isRight = letter === correct;
+    const status  = isRight ? 'acertei' : 'errei';
+
+    ['A','B','C','D'].forEach(l => {
+      const btn = document.getElementById('dopt-'+l);
+      if (!btn) return;
+      btn.disabled = true;
+      if (l === correct) btn.classList.add('correct');
+      else if (l === letter && !isRight) btn.classList.add('wrong');
+    });
+
+    const res = document.getElementById('dc-result');
+    res.textContent   = isRight ? '✓ Correto!' : `✗ Errado! A resposta correta é ${correct}`;
+    res.className     = 'fc-result ' + (isRight ? 'acertei' : 'errei');
+    res.style.display = 'block';
+
+    if (q.explanation) document.getElementById('dc-exp').classList.add('show');
+    document.getElementById('dc-next').style.display = 'block';
+
+    try {
+      const updated = await apiFetch(`${API}/${qid}`, { method:'PUT', body: JSON.stringify({...q, status}) });
+      Object.assign(q, updated);
+      const orig = qs.find(x=>x.id===qid);
+      if (orig) Object.assign(orig, updated);
+      renderStats();
+    } catch(e) { console.error(e); }
+  }
+
+  function nextDecorebaCard() { dIdx++; renderDecorebaCard(); }
 
   // ── LIST ─────────────────────────────────────────────────
   function renderList() {
