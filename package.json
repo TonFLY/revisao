@@ -1,7 +1,6 @@
 {
   "name": "dp300-review",
   "version": "1.0.0",
-  "type": "module",
   "dependencies": {
     "mssql": "^10.0.4"
   }

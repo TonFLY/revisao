@@ -1,4 +1,4 @@
-import sql from 'mssql';
+const sql = require('mssql');
 
 const config = {
   server  : process.env.DB_HOST,
@@ -15,7 +15,7 @@ async function getPool() {
   return pool;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -24,13 +24,11 @@ export default async function handler(req, res) {
   try {
     const db = await getPool();
 
-    // GET /api/questions
     if (req.method === 'GET') {
       const r = await db.request().query('SELECT * FROM dp300_questions ORDER BY created_at DESC');
       return res.status(200).json(r.recordset);
     }
 
-    // POST /api/questions
     if (req.method === 'POST') {
       const { question, option_a, option_b, option_c, option_d, correct, explanation, topic, difficulty } = req.body;
       const r = await db.request()
@@ -54,4 +52,4 @@ export default async function handler(req, res) {
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
-}
+};
