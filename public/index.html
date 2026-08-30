@@ -250,6 +250,18 @@
   </div>
 </div>
 
+<!-- import progress modal -->
+<div class="modal-bg" id="impModal">
+  <div class="modal" style="text-align:center;max-width:360px;">
+    <div style="font-size:15px;font-weight:700;margin-bottom:16px;">Importando questões…</div>
+    <div style="background:#e5e7eb;border-radius:6px;height:10px;overflow:hidden;margin-bottom:10px;">
+      <div id="impBar" style="height:100%;background:#1a237e;border-radius:6px;width:0%;transition:width .2s;"></div>
+    </div>
+    <div id="impTxt" style="font-size:13px;color:#57606a;">Preparando…</div>
+    <div id="impErr" style="font-size:12px;color:#c62828;margin-top:8px;max-height:80px;overflow-y:auto;text-align:left;"></div>
+  </div>
+</div>
+
 <script>
   const API = '/api/questions';
   let qs = [], sQueue = [], sIdx = 0, answered = false;
@@ -506,15 +518,55 @@
   }
   async function importJSON(e) {
     const file = e.target.files[0]; if (!file) return;
-    const data = JSON.parse(await file.text());
-    const arr  = data.questions || data;
-    if (!Array.isArray(arr)) { alert('Arquivo inválido.'); return; }
-    if (!confirm(`Importar ${arr.length} questões para o banco?`)) return;
-    for (const q of arr) {
-      try { const c = await apiFetch(API,{method:'POST',body:JSON.stringify(q)}); qs.unshift(c); } catch {}
+
+    let data;
+    try { data = JSON.parse(await file.text()); }
+    catch { alert('Arquivo JSON inválido.'); e.target.value=''; return; }
+
+    const arr = data.questions || data;
+    if (!Array.isArray(arr)) { alert('Formato inválido.'); e.target.value=''; return; }
+    if (!confirm(`Importar ${arr.length} questão(ões) para o banco?`)) { e.target.value=''; return; }
+
+    // abre modal de progresso
+    const modal = document.getElementById('impModal');
+    const bar   = document.getElementById('impBar');
+    const txt   = document.getElementById('impTxt');
+    const errEl = document.getElementById('impErr');
+    bar.style.width = '0%';
+    txt.textContent = `0 / ${arr.length}`;
+    errEl.textContent = '';
+    modal.classList.add('open');
+
+    let ok = 0, fail = 0;
+    const errors = [];
+
+    for (let i = 0; i < arr.length; i++) {
+      const q = arr[i];
+      const pct = Math.round(((i + 1) / arr.length) * 100);
+      bar.style.width = pct + '%';
+      txt.textContent = `${i + 1} / ${arr.length} — ${pct}%`;
+
+      try {
+        const c = await apiFetch(API, { method:'POST', body: JSON.stringify(q) });
+        qs.unshift(c);
+        ok++;
+      } catch(err) {
+        fail++;
+        errors.push(`#${i+1}: ${err.message}`);
+        if (errors.length <= 5) errEl.innerHTML = errors.map(s=>`• ${s}`).join('<br/>');
+      }
     }
-    renderStats(); startStudy('all'); alert('Importação concluída!');
-    e.target.value='';
+
+    bar.style.width = '100%';
+    txt.textContent = `Concluído! ✓ ${ok} importadas${fail ? ` · ✗ ${fail} erros` : ''}`;
+
+    setTimeout(() => {
+      modal.classList.remove('open');
+      renderStats();
+      startStudy('all');
+    }, 1800);
+
+    e.target.value = '';
   }
 
   // ── helpers ──────────────────────────────────────────────
