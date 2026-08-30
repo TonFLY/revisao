@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DP-300 Review</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system,"Segoe UI",system-ui,sans-serif; background:#f0f2f5; color:#1f2328; }
+
+    /* header */
+    header {
+      background:#1a237e; color:#fff; height:52px; padding:0 20px;
+      display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:50; box-shadow:0 2px 6px rgba(0,0,0,.3);
+    }
+    header h1 { font-size:16px; font-weight:700; }
+    .hbtn { background:rgba(255,255,255,.15); color:#fff; border:1px solid rgba(255,255,255,.3); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:12px; }
+    .hbtn:hover { background:rgba(255,255,255,.28); }
+
+    /* layout */
+    .wrap { max-width:900px; margin:0 auto; padding:18px 14px; }
+
+    /* stats */
+    .stats { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+    .sc { flex:1; min-width:90px; background:#fff; border:1px solid #e5e7eb; border-radius:8px; padding:10px 14px; text-align:center; }
+    .sc .n { font-size:24px; font-weight:700; color:#1a237e; }
+    .sc .l { font-size:11px; color:#57606a; }
+    .sc.g .n{color:#2e7d32} .sc.o .n{color:#e65100} .sc.r .n{color:#c62828}
+
+    /* tabs */
+    .tabs { display:flex; gap:4px; }
+    .tab { padding:7px 16px; border-radius:8px 8px 0 0; border:1px solid #e5e7eb; border-bottom:none; background:#e9ecef; cursor:pointer; font-size:13px; font-weight:600; color:#57606a; }
+    .tab.active { background:#fff; color:#1a237e; }
+    .panel { display:none; background:#fff; border:1px solid #e5e7eb; border-radius:0 10px 10px 10px; padding:20px; }
+    .panel.active { display:block; }
+
+    /* form */
+    .fg { display:flex; flex-direction:column; gap:4px; margin-bottom:10px; }
+    .fg label { font-size:11px; font-weight:700; color:#57606a; text-transform:uppercase; letter-spacing:.4px; }
+    input, select, textarea { padding:8px 10px; border:1px solid #d0d7de; border-radius:6px; font-size:13px; font-family:inherit; width:100%; }
+    input:focus, select:focus, textarea:focus { outline:none; border-color:#1a237e; box-shadow:0 0 0 3px rgba(26,35,126,.1); }
+    textarea { resize:vertical; min-height:68px; }
+    .g2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .g4 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+    /* buttons */
+    .btn { padding:8px 18px; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit; }
+    .bp { background:#1a237e; color:#fff; } .bp:hover { background:#283593; }
+    .bs { background:#f7f8fa; border:1px solid #d0d7de; color:#1f2328; }
+
+    /* filters */
+    .filters { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+    .filters input { flex:1; min-width:150px; }
+
+    /* question list */
+    .qlist { display:flex; flex-direction:column; gap:10px; }
+    .qi { border:1px solid #e5e7eb; border-left:4px solid #b0bec5; border-radius:8px; padding:14px 16px; }
+    .qi.s-acertei { border-left-color:#2e7d32; }
+    .qi.s-errei   { border-left-color:#c62828; }
+    .qi.s-revisar { border-left-color:#e65100; }
+    .qi-meta { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+    .badge { font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; text-transform:uppercase; }
+    .bt { background:#e8eaf6; color:#1a237e; }
+    .bd-facil   { background:#e8f5e9; color:#2e7d32; }
+    .bd-medio   { background:#fff3e0; color:#e65100; }
+    .bd-dificil { background:#ffebee; color:#c62828; }
+    .bs-acertei { background:#e8f5e9; color:#2e7d32; }
+    .bs-revisar { background:#fff3e0; color:#e65100; }
+    .bs-errei   { background:#ffebee; color:#c62828; }
+    .bs-pendente{ background:#f5f5f5; color:#757575; }
+    .qi-q { font-size:14px; font-weight:600; margin-bottom:8px; line-height:1.45; }
+    .qi-opts { display:grid; grid-template-columns:1fr 1fr; gap:6px; font-size:13px; margin-bottom:8px; }
+    .qi-opt { background:#f7f8fa; border:1px solid #e5e7eb; border-radius:6px; padding:6px 10px; }
+    .qi-opt.correct { background:#e8f5e9; border-color:#a5d6a7; font-weight:600; color:#1b5e20; }
+    .qi-actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:6px; }
+    .btn-sm { padding:4px 10px; font-size:12px; border:none; border-radius:6px; cursor:pointer; font-family:inherit; font-weight:600; }
+    .bsm-s { background:#f7f8fa; border:1px solid #d0d7de; }
+    .bsm-r { background:#c62828; color:#fff; }
+
+    /* ── FLASHCARD (study mode) ── */
+    .fc-wrap { max-width:680px; margin:0 auto; }
+    .fc-controls { display:flex; gap:8px; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
+    .fc-controls button { padding:6px 16px; border:1px solid #d0d7de; border-radius:6px; background:#fff; cursor:pointer; font-size:12px; font-family:inherit; }
+    .fc-controls button.active-filter { background:#1a237e; color:#fff; border-color:#1a237e; }
+
+    .fc-progress { font-size:12px; color:#57606a; text-align:center; margin-bottom:6px; }
+    .fc-bar-wrap { height:5px; background:#e5e7eb; border-radius:3px; margin-bottom:20px; }
+    .fc-bar { height:100%; background:#1a237e; border-radius:3px; transition:width .3s; }
+
+    .fc-card {
+      background:#fff; border:1px solid #e5e7eb; border-radius:14px;
+      padding:28px 28px 22px; box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+    .fc-meta { display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+    .fc-question { font-size:17px; font-weight:600; line-height:1.5; margin-bottom:22px; color:#1f2328; }
+
+    .fc-options { display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+    .fc-opt {
+      display:flex; align-items:flex-start; gap:12px;
+      border:2px solid #e5e7eb; border-radius:10px; padding:12px 14px;
+      cursor:pointer; transition:border-color .15s, background .15s; font-size:14px; line-height:1.45;
+      background:#fff; text-align:left; width:100%; font-family:inherit;
+    }
+    .fc-opt:hover:not([disabled]) { border-color:#1a237e; background:#f0f4ff; }
+    .fc-opt .letter {
+      flex-shrink:0; width:28px; height:28px; border-radius:50%;
+      background:#e9ecef; display:flex; align-items:center; justify-content:center;
+      font-weight:700; font-size:13px; color:#57606a;
+    }
+    /* states after reveal */
+    .fc-opt.correct  { border-color:#2e7d32; background:#e8f5e9; }
+    .fc-opt.correct .letter { background:#2e7d32; color:#fff; }
+    .fc-opt.wrong    { border-color:#c62828; background:#ffebee; }
+    .fc-opt.wrong .letter { background:#c62828; color:#fff; }
+
+    .fc-explanation {
+      background:#f7f8fa; border:1px solid #e5e7eb; border-radius:8px;
+      padding:14px 16px; font-size:13px; line-height:1.6; color:#444;
+      margin-bottom:16px; display:none;
+    }
+    .fc-explanation.show { display:block; }
+    .fc-explanation strong { color:#1a237e; }
+
+    .fc-result { text-align:center; font-size:15px; font-weight:700; margin-bottom:14px; display:none; }
+    .fc-result.acertei { color:#2e7d32; }
+    .fc-result.errei   { color:#c62828; }
+
+    .fc-next { display:none; width:100%; padding:11px; border:none; border-radius:8px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit; background:#1a237e; color:#fff; margin-top:4px; }
+    .fc-next:hover { background:#283593; }
+
+    .empty { text-align:center; padding:40px; color:#57606a; }
+    .loader { text-align:center; padding:30px; color:#57606a; font-size:14px; }
+
+    /* modal export */
+    .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:200; align-items:center; justify-content:center; }
+    .modal-bg.open { display:flex; }
+    .modal { background:#fff; border-radius:12px; padding:22px; width:90%; max-width:500px; }
+    .modal h3 { margin-bottom:10px; font-size:15px; }
+    .modal textarea { height:180px; font-family:monospace; font-size:12px; }
+    .modal-foot { display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
+
+    @media(max-width:540px) {
+      .g2,.g4,.qi-opts { grid-template-columns:1fr; }
+      .fc-card { padding:18px 14px; }
+      .fc-question { font-size:15px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>DP-300 Review</h1>
+  <div style="display:flex;gap:6px;">
+    <button class="hbtn" onclick="openExport()">Exportar JSON</button>
+    <button class="hbtn" onclick="document.getElementById('fi').click()">Importar JSON</button>
+    <input id="fi" type="file" accept=".json" style="display:none" onchange="importJSON(event)" />
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="stats" id="stats"></div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="goTab('study')">Estudar</div>
+    <div class="tab" onclick="goTab('list')">Questões</div>
+    <div class="tab" onclick="goTab('add')">Adicionar</div>
+  </div>
+
+  <!-- ── STUDY ── -->
+  <div class="panel active" id="panel-study">
+    <div class="fc-wrap">
+      <div class="fc-controls" id="fc-ctrl">
+        <button onclick="startStudy('all')"     id="f-all"     class="active-filter">Todas</button>
+        <button onclick="startStudy('pendente')" id="f-pend">Pendentes</button>
+        <button onclick="startStudy('errei')"    id="f-err">Só erros</button>
+        <button onclick="startStudy('revisar')"  id="f-rev">Revisar</button>
+        <button onclick="startStudy('shuffle')"  id="f-shuf">Embaralhar</button>
+      </div>
+      <div id="fc"></div>
+    </div>
+  </div>
+
+  <!-- ── LIST ── -->
+  <div class="panel" id="panel-list">
+    <div class="filters">
+      <input type="text" id="fsearch" placeholder="Buscar..." oninput="renderList()" />
+      <select id="ftopic" onchange="renderList()"><option value="">Todos os tópicos</option></select>
+      <select id="fstatus" onchange="renderList()">
+        <option value="">Todos os status</option>
+        <option>pendente</option><option>acertei</option><option>revisar</option><option>errei</option>
+      </select>
+      <select id="fdiff" onchange="renderList()">
+        <option value="">Todas dificuldades</option>
+        <option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option>
+      </select>
+    </div>
+    <div class="qlist" id="qlist"></div>
+  </div>
+
+  <!-- ── ADD / EDIT ── -->
+  <div class="panel" id="panel-add">
+    <input type="hidden" id="eid" />
+    <div class="fg"><label>Enunciado da questão</label><textarea id="fq" placeholder="Digite a pergunta..."></textarea></div>
+    <div class="g4">
+      <div class="fg"><label>A)</label><textarea id="fa" style="min-height:54px;" placeholder="Alternativa A"></textarea></div>
+      <div class="fg"><label>B)</label><textarea id="fb" style="min-height:54px;" placeholder="Alternativa B"></textarea></div>
+      <div class="fg"><label>C)</label><textarea id="fc_" style="min-height:54px;" placeholder="Alternativa C"></textarea></div>
+      <div class="fg"><label>D)</label><textarea id="fd" style="min-height:54px;" placeholder="Alternativa D"></textarea></div>
+    </div>
+    <div class="g2">
+      <div class="fg"><label>Resposta correta</label>
+        <select id="fcorr">
+          <option value="A">A</option><option value="B">B</option>
+          <option value="C">C</option><option value="D">D</option>
+        </select>
+      </div>
+      <div class="fg"><label>Dificuldade</label>
+        <select id="fdif"><option value="facil">Fácil</option><option value="medio" selected>Médio</option><option value="dificil">Difícil</option></select>
+      </div>
+    </div>
+    <div class="fg"><label>Tópico</label>
+      <select id="ftop">
+        <option>Deploy e Configuração</option><option>Segurança</option>
+        <option>Alta Disponibilidade</option><option>Performance e Otimização</option>
+        <option>Backup e Restauração</option><option>Monitoramento</option>
+        <option>Automação de Tarefas</option><option>Migração</option>
+        <option>Governança</option><option>Outro</option>
+      </select>
+    </div>
+    <div class="fg"><label>Explicação (opcional)</label><textarea id="fexp" style="min-height:54px;" placeholder="Por que esta é a resposta correta?"></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:6px;">
+      <button class="btn bp" onclick="saveQ()">Salvar</button>
+      <button class="btn bs" onclick="cancelEdit()">Cancelar</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- export modal -->
+<div class="modal-bg" id="expModal">
+  <div class="modal">
+    <h3>Exportar JSON</h3>
+    <textarea id="expArea" readonly></textarea>
+    <div class="modal-foot">
+      <button class="btn bs" onclick="document.getElementById('expModal').classList.remove('open')">Fechar</button>
+      <button class="btn bp" onclick="dlJSON()">Download .json</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API = '/api/questions';
+  let qs = [], sQueue = [], sIdx = 0, answered = false;
+
+  // ── fetch ────────────────────────────────────────────────
+  async function apiFetch(url, opts) {
+    const r = await fetch(url, { headers:{'Content-Type':'application/json'}, ...opts });
+    if (!r.ok) { const e = await r.json().catch(()=>{}); throw new Error((e&&e.error)||r.statusText); }
+    return r.json();
+  }
+
+  async function load() {
+    document.getElementById('fc').innerHTML = '<div class="loader">Carregando...</div>';
+    qs = await apiFetch(API);
+    renderStats();
+    startStudy('all');
+  }
+
+  // ── stats ────────────────────────────────────────────────
+  function renderStats() {
+    const t=qs.length, a=count('acertei'), rv=count('revisar'), e=count('errei'), p=t-a-rv-e;
+    const pct = t ? Math.round(a/t*100) : 0;
+    document.getElementById('stats').innerHTML =
+      `<div class="sc"><div class="n">${t}</div><div class="l">Total</div></div>
+       <div class="sc g"><div class="n">${a}</div><div class="l">Acertei</div></div>
+       <div class="sc o"><div class="n">${rv}</div><div class="l">Revisar</div></div>
+       <div class="sc r"><div class="n">${e}</div><div class="l">Errei</div></div>
+       <div class="sc"><div class="n">${p}</div><div class="l">Pendente</div></div>
+       <div class="sc"><div class="n">${pct}%</div><div class="l">Acertos</div></div>`;
+  }
+  function count(s) { return qs.filter(q=>q.status===s).length; }
+
+  // ── tabs ─────────────────────────────────────────────────
+  function goTab(name) {
+    document.querySelectorAll('.tab').forEach((t,i)=> t.classList.toggle('active',['study','list','add'][i]===name));
+    document.querySelectorAll('.panel').forEach(p=> p.classList.remove('active'));
+    document.getElementById('panel-'+name).classList.add('active');
+    if (name==='list') renderList();
+    if (name==='study') renderCard();
+  }
+
+  // ── STUDY ────────────────────────────────────────────────
+  function startStudy(mode) {
+    // highlight active filter
+    ['all','pend','err','rev','shuf'].forEach(k => document.getElementById('f-'+k).classList.remove('active-filter'));
+    let pool;
+    if (mode==='shuffle') {
+      document.getElementById('f-shuf').classList.add('active-filter');
+      pool = [...qs];
+      for (let i=pool.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+    } else {
+      const id = mode==='all'?'f-all':mode==='pendente'?'f-pend':mode==='errei'?'f-err':'f-rev';
+      document.getElementById(id).classList.add('active-filter');
+      pool = mode==='all' ? [...qs] : qs.filter(q=>q.status===mode);
+    }
+    sQueue = pool; sIdx = 0; answered = false;
+    renderCard();
+  }
+
+  function renderCard() {
+    const el = document.getElementById('fc');
+    if (!sQueue.length) {
+      el.innerHTML = '<div class="empty">Nenhuma questão neste filtro.<br/>Adicione questões ou mude o filtro.</div>';
+      return;
+    }
+    if (sIdx >= sQueue.length) {
+      el.innerHTML = `<div class="fc-card" style="text-align:center;padding:40px;">
+        <div style="font-size:32px;margin-bottom:12px;">🎉</div>
+        <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Sessão concluída!</div>
+        <div style="font-size:14px;color:#57606a;margin-bottom:20px;">Você revisou ${sQueue.length} questão(ões).</div>
+        <button class="btn bp" onclick="startStudy('all')">Recomeçar</button>
+      </div>`;
+      return;
+    }
+    answered = false;
+    const q   = sQueue[sIdx];
+    const pct = Math.round(sIdx / sQueue.length * 100);
+    const opts = [
+      { letter:'A', text: q.option_a },
+      { letter:'B', text: q.option_b },
+      { letter:'C', text: q.option_c },
+      { letter:'D', text: q.option_d },
+    ];
+    el.innerHTML = `
+      <div class="fc-progress">${sIdx+1} / ${sQueue.length}</div>
+      <div class="fc-bar-wrap"><div class="fc-bar" style="width:${pct}%"></div></div>
+      <div class="fc-card">
+        <div class="fc-meta">
+          <span class="badge bt">${h(q.topic)}</span>
+          <span class="badge bd-${q.difficulty}">${q.difficulty}</span>
+          <span class="badge bs-${q.status}">${q.status}</span>
+        </div>
+        <div class="fc-question">${h(q.question)}</div>
+        <div class="fc-options">
+          ${opts.map(o=>`
+            <button class="fc-opt" id="opt-${o.letter}" onclick="pick(${q.id},'${o.letter}')">
+              <span class="letter">${o.letter}</span>
+              <span>${h(o.text)}</span>
+            </button>`).join('')}
+        </div>
+        <div class="fc-result" id="fc-result"></div>
+        <div class="fc-explanation" id="fc-exp">${q.explanation ? '<strong>Explicação:</strong> ' + h(q.explanation) : ''}</div>
+        <button class="fc-next" id="fc-next" onclick="nextCard()">Próxima →</button>
+      </div>`;
+  }
+
+  async function pick(qid, letter) {
+    if (answered) return;
+    answered = true;
+    const q       = sQueue[sIdx];
+    const correct = (q.correct || '').toUpperCase();
+    const isRight = letter === correct;
+    const status  = isRight ? 'acertei' : 'errei';
+
+    // visual feedback
+    ['A','B','C','D'].forEach(l => {
+      const btn = document.getElementById('opt-'+l);
+      if (!btn) return;
+      btn.disabled = true;
+      if (l === correct) btn.classList.add('correct');
+      else if (l === letter && !isRight) btn.classList.add('wrong');
+    });
+
+    const res = document.getElementById('fc-result');
+    res.textContent = isRight ? '✓ Correto!' : `✗ Errado! A resposta correta é ${correct}`;
+    res.className   = 'fc-result ' + (isRight ? 'acertei' : 'errei');
+    res.style.display = 'block';
+
+    if (q.explanation) document.getElementById('fc-exp').classList.add('show');
+    document.getElementById('fc-next').style.display = 'block';
+
+    // persist status
+    try {
+      const updated = await apiFetch(`${API}/${qid}`, { method:'PUT', body: JSON.stringify({...q, status}) });
+      Object.assign(q, updated);
+      const orig = qs.find(x=>x.id===qid);
+      if (orig) Object.assign(orig, updated);
+      renderStats();
+    } catch(e) { console.error(e); }
+  }
+
+  function nextCard() { sIdx++; renderCard(); }
+
+  // ── LIST ─────────────────────────────────────────────────
+  function renderList() {
+    const s  = document.getElementById('fsearch').value.toLowerCase();
+    const tp = document.getElementById('ftopic').value;
+    const st = document.getElementById('fstatus').value;
+    const df = document.getElementById('fdiff').value;
+
+    const topics = [...new Set(qs.map(q=>q.topic))].sort();
+    const sel = document.getElementById('ftopic'), cur = sel.value;
+    sel.innerHTML = '<option value="">Todos os tópicos</option>' +
+      topics.map(t=>`<option${t===cur?' selected':''}>${t}</option>`).join('');
+
+    const f = qs.filter(q=>
+      (!tp||q.topic===tp)&&(!st||q.status===st)&&(!df||q.difficulty===df)&&
+      (!s||q.question.toLowerCase().includes(s))
+    );
+    const el = document.getElementById('qlist');
+    if (!f.length) { el.innerHTML='<div class="empty">Nenhuma questão encontrada.</div>'; return; }
+
+    el.innerHTML = f.map(q => {
+      const opts = [
+        { l:'A', t:q.option_a },{ l:'B', t:q.option_b },
+        { l:'C', t:q.option_c },{ l:'D', t:q.option_d },
+      ];
+      return `<div class="qi s-${q.status}">
+        <div class="qi-meta">
+          <span class="badge bt">${h(q.topic)}</span>
+          <span class="badge bd-${q.difficulty}">${q.difficulty}</span>
+          <span class="badge bs-${q.status}">${q.status}</span>
+        </div>
+        <div class="qi-q">${h(q.question)}</div>
+        <div class="qi-opts">
+          ${opts.map(o=>`<div class="qi-opt${o.l===q.correct?' correct':''}"><strong>${o.l})</strong> ${h(o.t)}</div>`).join('')}
+        </div>
+        ${q.explanation?`<div style="font-size:12px;color:#57606a;padding:6px 8px;background:#f7f8fa;border-radius:6px;margin-bottom:6px;">💡 ${h(q.explanation)}</div>`:''}
+        <div class="qi-actions">
+          <button class="btn-sm bsm-s" onclick="editQ(${q.id})">Editar</button>
+          <button class="btn-sm bsm-r" onclick="delQ(${q.id})">Excluir</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  async function delQ(id) {
+    if (!confirm('Excluir esta questão?')) return;
+    await apiFetch(`${API}/${id}`, { method:'DELETE' });
+    qs = qs.filter(q=>q.id!==id);
+    renderList(); renderStats();
+  }
+
+  // ── ADD / EDIT ───────────────────────────────────────────
+  async function saveQ() {
+    const id   = document.getElementById('eid').value;
+    const body = {
+      question   : document.getElementById('fq').value.trim(),
+      option_a   : document.getElementById('fa').value.trim(),
+      option_b   : document.getElementById('fb').value.trim(),
+      option_c   : document.getElementById('fc_').value.trim(),
+      option_d   : document.getElementById('fd').value.trim(),
+      correct    : document.getElementById('fcorr').value,
+      explanation: document.getElementById('fexp').value.trim(),
+      topic      : document.getElementById('ftop').value,
+      difficulty : document.getElementById('fdif').value,
+    };
+    if (!body.question||!body.option_a||!body.option_b||!body.option_c||!body.option_d)
+      { alert('Preencha a questão e todas as 4 alternativas.'); return; }
+    if (id) {
+      const q = qs.find(x=>x.id==id);
+      const u = await apiFetch(`${API}/${id}`, { method:'PUT', body: JSON.stringify({...q,...body}) });
+      Object.assign(q, u);
+    } else {
+      const c = await apiFetch(API, { method:'POST', body: JSON.stringify(body) });
+      qs.unshift(c);
+    }
+    clearForm(); goTab('list'); renderStats();
+  }
+
+  function editQ(id) {
+    const q = qs.find(x=>x.id===id); if (!q) return;
+    document.getElementById('eid').value  = q.id;
+    document.getElementById('fq').value   = q.question;
+    document.getElementById('fa').value   = q.option_a;
+    document.getElementById('fb').value   = q.option_b;
+    document.getElementById('fc_').value  = q.option_c;
+    document.getElementById('fd').value   = q.option_d;
+    document.getElementById('fcorr').value= q.correct;
+    document.getElementById('fdif').value = q.difficulty;
+    document.getElementById('ftop').value = q.topic;
+    document.getElementById('fexp').value = q.explanation || '';
+    goTab('add');
+  }
+
+  function cancelEdit() { clearForm(); goTab('list'); }
+  function clearForm() {
+    ['eid','fq','fa','fb','fc_','fd','fexp'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fdif').value='medio';
+    document.getElementById('fcorr').value='A';
+  }
+
+  // ── Export / Import ──────────────────────────────────────
+  function openExport() {
+    document.getElementById('expArea').value =
+      JSON.stringify({ version:'1.0', exportedAt:new Date().toISOString(), total:qs.length, questions:qs }, null, 2);
+    document.getElementById('expModal').classList.add('open');
+  }
+  function dlJSON() {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([document.getElementById('expArea').value],{type:'application/json'}));
+    a.download = `dp300-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+  }
+  async function importJSON(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const data = JSON.parse(await file.text());
+    const arr  = data.questions || data;
+    if (!Array.isArray(arr)) { alert('Arquivo inválido.'); return; }
+    if (!confirm(`Importar ${arr.length} questões para o banco?`)) return;
+    for (const q of arr) {
+      try { const c = await apiFetch(API,{method:'POST',body:JSON.stringify(q)}); qs.unshift(c); } catch {}
+    }
+    renderStats(); startStudy('all'); alert('Importação concluída!');
+    e.target.value='';
+  }
+
+  // ── helpers ──────────────────────────────────────────────
+  function h(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
+  }
+
+  load();
+</script>
+</body>
+</html>
