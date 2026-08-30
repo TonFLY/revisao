@@ -1,19 +1,19 @@
 const sql = require('mssql');
 
 const config = {
-  server  : process.env.DB_HOST,
-  port    : parseInt(process.env.DB_PORT || '1433'),
-  database: process.env.DB_NAME,
-  user    : process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  options : { encrypt: false, trustServerCertificate: true }
+  server          : process.env.DB_HOST,
+  port            : parseInt(process.env.DB_PORT || '1433'),
+  database        : process.env.DB_NAME,
+  user            : process.env.DB_USER,
+  password        : process.env.DB_PASSWORD,
+  connectionTimeout: 8000,
+  requestTimeout  : 8000,
+  options: {
+    encrypt              : false,
+    trustServerCertificate: true,
+    enableArithAbort     : true,
+  }
 };
-
-let pool;
-async function getPool() {
-  if (!pool) pool = await sql.connect(config);
-  return pool;
-}
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -24,12 +24,13 @@ module.exports = async function handler(req, res) {
   const id = parseInt(req.query.id);
   if (!id) return res.status(400).json({ error: 'ID inválido' });
 
+  let pool;
   try {
-    const db = await getPool();
+    pool = await sql.connect(config);
 
     if (req.method === 'PUT') {
       const { question, option_a, option_b, option_c, option_d, correct, explanation, topic, difficulty, status } = req.body;
-      const r = await db.request()
+      const r = await pool.request()
         .input('id',          sql.Int,      id)
         .input('question',    sql.NVarChar, question)
         .input('option_a',    sql.NVarChar, option_a)
@@ -52,12 +53,18 @@ module.exports = async function handler(req, res) {
     }
 
     if (req.method === 'DELETE') {
-      await db.request().input('id', sql.Int, id).query('DELETE FROM dp300_questions WHERE id=@id');
+      await pool.request()
+        .input('id', sql.Int, id)
+        .query('DELETE FROM dp300_questions WHERE id=@id');
       return res.status(200).json({ ok: true });
     }
 
     res.status(405).json({ error: 'Method not allowed' });
+
   } catch (e) {
+    console.error('[questions/id] error:', e.message);
     res.status(500).json({ error: e.message });
+  } finally {
+    if (pool) await pool.close().catch(() => {});
   }
 };
