@@ -533,9 +533,12 @@
     const txt   = document.getElementById('impTxt');
     const errEl = document.getElementById('impErr');
     bar.style.width = '0%';
-    txt.textContent = `0 / ${arr.length}`;
+    txt.textContent = `0 / ${arr.length} — aguarde…`;
     errEl.textContent = '';
     modal.classList.add('open');
+
+    // garante que o browser renderiza o modal antes de começar o loop
+    await new Promise(r => setTimeout(r, 80));
 
     let ok = 0, fail = 0;
     const errors = [];
@@ -553,18 +556,21 @@
       } catch(err) {
         fail++;
         errors.push(`#${i+1}: ${err.message}`);
-        if (errors.length <= 5) errEl.innerHTML = errors.map(s=>`• ${s}`).join('<br/>');
+        errEl.innerHTML = errors.slice(-5).map(s=>`• ${s}`).join('<br/>');
       }
     }
 
     bar.style.width = '100%';
-    txt.textContent = `Concluído! ✓ ${ok} importadas${fail ? ` · ✗ ${fail} erros` : ''}`;
+    const cor = fail ? '#c62828' : '#2e7d32';
+    txt.innerHTML = `<span style="color:${cor};font-weight:700;">
+      ${fail === 0 ? '✓ Tudo importado!' : `✓ ${ok} importadas · ✗ ${fail} erros`}
+    </span>`;
 
     setTimeout(() => {
       modal.classList.remove('open');
       renderStats();
       startStudy('all');
-    }, 1800);
+    }, 2200);
 
     e.target.value = '';
   }
