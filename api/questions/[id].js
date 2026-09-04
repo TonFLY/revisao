@@ -25,7 +25,8 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Variáveis de ambiente DB_* não configuradas na Vercel.' });
   }
 
-  const id = parseInt(req.query.id);
+  const id  = parseInt(req.query.id);
+  const uid = (req.query.uid || 'default').trim().toLowerCase().slice(0, 50);
   if (!id) return res.status(400).json({ error: 'ID inválido' });
 
   let pool;
@@ -36,6 +37,7 @@ module.exports = async function handler(req, res) {
       const { question, option_a, option_b, option_c, option_d, correct, explanation, topic, difficulty, status } = req.body;
       const r = await pool.request()
         .input('id',          sql.Int,      id)
+        .input('uid',         sql.NVarChar, uid)
         .input('question',    sql.NVarChar, question)
         .input('option_a',    sql.NVarChar, option_a)
         .input('option_b',    sql.NVarChar, option_b)
@@ -52,14 +54,15 @@ module.exports = async function handler(req, res) {
                     explanation=@explanation, topic=@topic, difficulty=@difficulty,
                     status=@status, updated_at=GETDATE(), last_reviewed=GETDATE()
                 OUTPUT INSERTED.*
-                WHERE id=@id`);
+                WHERE id=@id AND user_id=@uid`);
       return res.status(200).json(r.recordset[0]);
     }
 
     if (req.method === 'DELETE') {
       await pool.request()
-        .input('id', sql.Int, id)
-        .query('DELETE FROM dp300_questions WHERE id=@id');
+        .input('id',  sql.Int,      id)
+        .input('uid', sql.NVarChar, uid)
+        .query('DELETE FROM dp300_questions WHERE id=@id AND user_id=@uid');
       return res.status(200).json({ ok: true });
     }
 

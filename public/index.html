@@ -8,6 +8,34 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system,"Segoe UI",system-ui,sans-serif; background:#f0f2f5; color:#1f2328; }
 
+    /* tela de login */
+    #loginScreen {
+      position:fixed; inset:0; background:#f0f2f5;
+      display:flex; align-items:center; justify-content:center; z-index:999;
+    }
+    #loginScreen .card {
+      background:#fff; border:1px solid #e5e7eb; border-radius:14px;
+      padding:36px 32px; width:90%; max-width:360px; text-align:center;
+    }
+    #loginScreen h2 { font-size:20px; color:#1a237e; margin-bottom:6px; }
+    #loginScreen p  { font-size:13px; color:#57606a; margin-bottom:24px; }
+    #loginScreen input {
+      width:100%; padding:10px 14px; border:1px solid #d0d7de; border-radius:8px;
+      font-size:15px; font-family:inherit; margin-bottom:14px; text-align:center;
+    }
+    #loginScreen input:focus { outline:none; border-color:#1a237e; box-shadow:0 0 0 3px rgba(26,35,126,.1); }
+    #loginScreen button {
+      width:100%; padding:11px; background:#1a237e; color:#fff; border:none;
+      border-radius:8px; font-size:15px; font-weight:700; cursor:pointer;
+    }
+    #loginScreen button:hover { background:#283593; }
+    #loginScreen .saved-users { margin-top:16px; font-size:12px; color:#57606a; }
+    #loginScreen .saved-users span {
+      display:inline-block; background:#e8eaf6; color:#1a237e; padding:3px 10px;
+      border-radius:20px; margin:3px; cursor:pointer; font-weight:600;
+    }
+    #loginScreen .saved-users span:hover { background:#c5cae9; }
+
     /* header */
     header {
       background:#1a237e; color:#fff; height:52px; padding:0 20px;
@@ -149,11 +177,24 @@
 </head>
 <body>
 
+<!-- tela de entrada -->
+<div id="loginScreen">
+  <div class="card">
+    <h2>DP-300 Review</h2>
+    <p>Digite seu nome para entrar</p>
+    <input id="loginInput" type="text" placeholder="Seu nome..." maxlength="50"
+           onkeydown="if(event.key==='Enter') doLogin()" />
+    <button onclick="doLogin()">Entrar</button>
+    <div class="saved-users" id="savedUsers"></div>
+  </div>
+</div>
+
 <header>
-  <h1>DP-300 Review</h1>
-  <div style="display:flex;gap:6px;">
+  <h1>DP-300 Review <span id="headerUser" style="font-size:12px;opacity:.7;font-weight:400;"></span></h1>
+  <div style="display:flex;gap:6px;align-items:center;">
     <button class="hbtn" onclick="openExport()">Exportar JSON</button>
     <button class="hbtn" onclick="document.getElementById('fi').click()">Importar JSON</button>
+    <button class="hbtn" onclick="doLogout()" style="opacity:.8;">Sair</button>
     <input id="fi" type="file" accept=".json" style="display:none" onchange="importJSON(event)" />
   </div>
 </header>
@@ -298,6 +339,34 @@
 <script>
   const API = '/api/questions';
   let qs = [], sQueue = [], sIdx = 0, answered = false;
+  let currentUid = '';
+
+  // ── login ────────────────────────────────────────────────
+  function doLogin() {
+    const val = document.getElementById('loginInput').value.trim();
+    if (!val) { document.getElementById('loginInput').focus(); return; }
+    currentUid = val.toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,50) || 'user';
+
+    // salva no histórico de usuários
+    const saved = JSON.parse(localStorage.getItem('dp300_users') || '[]');
+    if (!saved.includes(val)) { saved.unshift(val); localStorage.setItem('dp300_users', JSON.stringify(saved.slice(0,8))); }
+    localStorage.setItem('dp300_lastUser', val);
+
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('headerUser').textContent = `(${val})`;
+    load();
+  }
+
+  function doLogout() {
+    currentUid = '';
+    qs = [];
+    document.getElementById('loginInput').value = '';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('headerUser').textContent = '';
+  }
+
+  function apiUrl(base) { return `${base}?uid=${encodeURIComponent(currentUid)}`; }
+  function apiUrlId(id) { return `${API}/${id}?uid=${encodeURIComponent(currentUid)}`; }
 
   // ── fetch ────────────────────────────────────────────────
   async function apiFetch(url, opts) {
@@ -308,7 +377,7 @@
 
   async function load() {
     document.getElementById('fc').innerHTML = '<div class="loader">Carregando...</div>';
-    qs = await apiFetch(API);
+    qs = await apiFetch(apiUrl(API));
     renderStats();
     startStudy('all');
   }
@@ -429,7 +498,7 @@
 
     // persist status
     try {
-      const updated = await apiFetch(`${API}/${qid}`, { method:'PUT', body: JSON.stringify({...q, status}) });
+      const updated = await apiFetch(apiUrlId(qid), { method:'PUT', body: JSON.stringify({...q, status}) });
       Object.assign(q, updated);
       const orig = qs.find(x=>x.id===qid);
       if (orig) Object.assign(orig, updated);
@@ -539,7 +608,7 @@
     document.getElementById('dc-next').style.display = 'block';
 
     try {
-      const updated = await apiFetch(`${API}/${qid}`, { method:'PUT', body: JSON.stringify({...q, status}) });
+      const updated = await apiFetch(apiUrlId(qid), { method:'PUT', body: JSON.stringify({...q, status}) });
       Object.assign(q, updated);
       const orig = qs.find(x=>x.id===qid);
       if (orig) Object.assign(orig, updated);
@@ -711,7 +780,7 @@
       txt.textContent = `${i + 1} / ${_impArr.length} — ${pct}%`;
 
       try {
-        const c = await apiFetch(API, { method:'POST', body: JSON.stringify(_impArr[i]) });
+        const c = await apiFetch(apiUrl(API), { method:'POST', body: JSON.stringify(_impArr[i]) });
         qs.unshift(c);
         ok++;
       } catch(err) {
@@ -741,7 +810,26 @@
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
   }
 
-  load();
+  // ── init: mostra tela de login ───────────────────────────
+  (function initLogin() {
+    const saved = JSON.parse(localStorage.getItem('dp300_users') || '[]');
+    const last  = localStorage.getItem('dp300_lastUser') || '';
+
+    // mostra histórico de usuários como atalhos
+    if (saved.length) {
+      const el = document.getElementById('savedUsers');
+      el.innerHTML = 'Acessos recentes: ' +
+        saved.map(u => `<span onclick="quickLogin('${u.replace(/'/g,"\\'")}')">${u}</span>`).join('');
+    }
+
+    // preenche o campo com o último usuário
+    if (last) document.getElementById('loginInput').value = last;
+  })();
+
+  function quickLogin(name) {
+    document.getElementById('loginInput').value = name;
+    doLogin();
+  }
 </script>
 </body>
 </html>

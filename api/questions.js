@@ -25,19 +25,24 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Variáveis de ambiente DB_* não configuradas na Vercel.' });
   }
 
+  // user_id vem sempre na query string: /api/questions?uid=joao
+  const uid = (req.query.uid || 'default').trim().toLowerCase().slice(0, 50);
+
   let pool;
   try {
     pool = await sql.connect(config);
 
     if (req.method === 'GET') {
       const r = await pool.request()
-        .query('SELECT * FROM dp300_questions ORDER BY created_at DESC');
+        .input('uid', sql.NVarChar, uid)
+        .query('SELECT * FROM dp300_questions WHERE user_id=@uid ORDER BY created_at DESC');
       return res.status(200).json(r.recordset);
     }
 
     if (req.method === 'POST') {
       const { question, option_a, option_b, option_c, option_d, correct, explanation, topic, difficulty } = req.body;
       const r = await pool.request()
+        .input('uid',         sql.NVarChar, uid)
         .input('question',    sql.NVarChar, question)
         .input('option_a',    sql.NVarChar, option_a)
         .input('option_b',    sql.NVarChar, option_b)
@@ -48,9 +53,9 @@ module.exports = async function handler(req, res) {
         .input('topic',       sql.NVarChar, topic)
         .input('difficulty',  sql.NVarChar, difficulty || 'medio')
         .query(`INSERT INTO dp300_questions
-                  (question,option_a,option_b,option_c,option_d,correct,explanation,topic,difficulty)
+                  (user_id,question,option_a,option_b,option_c,option_d,correct,explanation,topic,difficulty)
                 OUTPUT INSERTED.*
-                VALUES (@question,@option_a,@option_b,@option_c,@option_d,@correct,@explanation,@topic,@difficulty)`);
+                VALUES (@uid,@question,@option_a,@option_b,@option_c,@option_d,@correct,@explanation,@topic,@difficulty)`);
       return res.status(201).json(r.recordset[0]);
     }
 

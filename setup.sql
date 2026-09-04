@@ -6,12 +6,13 @@ IF NOT EXISTS (
 BEGIN
   CREATE TABLE dp300_questions (
     id            INT           IDENTITY(1,1) PRIMARY KEY,
+    user_id       NVARCHAR(50)  NOT NULL DEFAULT 'default',
     question      NVARCHAR(MAX) NOT NULL,
     option_a      NVARCHAR(MAX) NOT NULL,
     option_b      NVARCHAR(MAX) NOT NULL,
     option_c      NVARCHAR(MAX) NOT NULL,
     option_d      NVARCHAR(MAX) NOT NULL,
-    correct       CHAR(1)       NOT NULL,  -- 'A', 'B', 'C' ou 'D'
+    correct       CHAR(1)       NOT NULL,
     explanation   NVARCHAR(MAX) NULL,
     topic         NVARCHAR(100) NOT NULL,
     difficulty    NVARCHAR(20)  NOT NULL DEFAULT 'medio',
@@ -23,4 +24,16 @@ BEGIN
   PRINT 'Tabela dp300_questions criada com sucesso.';
 END
 ELSE
-  PRINT 'Tabela dp300_questions ja existe.';
+BEGIN
+  -- adiciona coluna user_id se já existir a tabela sem ela
+  IF NOT EXISTS (
+    SELECT 1 FROM sys.columns
+    WHERE object_id = OBJECT_ID('dp300_questions') AND name = 'user_id'
+  )
+  BEGIN
+    ALTER TABLE dp300_questions ADD user_id NVARCHAR(50) NOT NULL DEFAULT 'default';
+    PRINT 'Coluna user_id adicionada.';
+  END
+  ELSE
+    PRINT 'Tabela dp300_questions ja existe com user_id.';
+END
