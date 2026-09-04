@@ -719,8 +719,10 @@
 
   // ── Export / Import ──────────────────────────────────────
   function openExport() {
+    // remove user_id antes de exportar
+    const clean = qs.map(({ user_id, ...rest }) => rest);
     document.getElementById('expArea').value =
-      JSON.stringify({ version:'1.0', exportedAt:new Date().toISOString(), total:qs.length, questions:qs }, null, 2);
+      JSON.stringify({ version:'1.0', exportedAt:new Date().toISOString(), total:clean.length, questions:clean }, null, 2);
     document.getElementById('expModal').classList.add('open');
   }
   function dlJSON() {
@@ -780,7 +782,9 @@
       txt.textContent = `${i + 1} / ${_impArr.length} — ${pct}%`;
 
       try {
-        const c = await apiFetch(apiUrl(API), { method:'POST', body: JSON.stringify(_impArr[i]) });
+        // garante que a questão importada usa o uid da sessão atual
+        const { user_id, ...item } = _impArr[i];
+        const c = await apiFetch(apiUrl(API), { method:'POST', body: JSON.stringify(item) });
         qs.unshift(c);
         ok++;
       } catch(err) {
