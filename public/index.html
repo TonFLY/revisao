@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DP-300 Review</title>
+  <title>Certification Review — DP-300 / DP-800</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system,"Segoe UI",system-ui,sans-serif; background:#f0f2f5; color:#1f2328; }
@@ -43,6 +43,18 @@
       position:sticky; top:0; z-index:50; box-shadow:0 2px 6px rgba(0,0,0,.3);
     }
     header h1 { font-size:16px; font-weight:700; }
+    .exam-switcher { display:flex; align-items:center; gap:6px; }
+    .exam-switcher label { font-size:10px; text-transform:uppercase; letter-spacing:.5px; opacity:.75; font-weight:700; }
+    #examSelect { width:auto; min-width:150px; padding:5px 28px 5px 9px; border-radius:6px; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.12); color:#fff; font-size:12px; font-weight:700; }
+    #examSelect option { color:#1f2328; background:#fff; }
+    .exam-badge { background:#ede7f6; color:#5e35b1; }
+    .form-exam-note { font-size:11px; color:#57606a; margin-top:-4px; margin-bottom:10px; }
+    @media(max-width:700px) {
+      header { height:auto; min-height:52px; padding:8px 12px; gap:8px; flex-wrap:wrap; }
+      header > div { flex-wrap:wrap; }
+      .exam-switcher { order:3; width:100%; }
+      #examSelect { flex:1; width:100%; }
+    }
     .hbtn { background:rgba(255,255,255,.15); color:#fff; border:1px solid rgba(255,255,255,.3); padding:5px 12px; border-radius:6px; cursor:pointer; font-size:12px; }
     .hbtn:hover { background:rgba(255,255,255,.28); }
 
@@ -180,7 +192,7 @@
 <!-- tela de entrada -->
 <div id="loginScreen">
   <div class="card">
-    <h2>DP-300 Review</h2>
+    <h2>Certification Review</h2>
     <p>Digite seu nome para entrar</p>
     <input id="loginInput" type="text" placeholder="Seu nome..." maxlength="50"
            onkeydown="if(event.key==='Enter') doLogin()" />
@@ -190,7 +202,14 @@
 </div>
 
 <header>
-  <h1>DP-300 Review <span id="headerUser" style="font-size:12px;opacity:.7;font-weight:400;"></span></h1>
+  <h1><span id="headerTitle">DP-300 Review</span> <span id="headerUser" style="font-size:12px;opacity:.7;font-weight:400;"></span></h1>
+  <div class="exam-switcher">
+    <label for="examSelect">Estudando</label>
+    <select id="examSelect" onchange="changeExam(this.value)">
+      <option value="DP-300">DP-300 — Azure Database Administrator</option>
+      <option value="DP-800">DP-800 — SQL Server</option>
+    </select>
+  </div>
   <div style="display:flex;gap:6px;align-items:center;">
     <button class="hbtn" onclick="openExport()">Exportar JSON</button>
     <button class="hbtn" onclick="document.getElementById('fi').click()">Importar JSON</button>
@@ -261,6 +280,14 @@
   <!-- ── ADD / EDIT ── -->
   <div class="panel" id="panel-add">
     <input type="hidden" id="eid" />
+    <div class="fg">
+      <label>Exame da questão</label>
+      <select id="fexam">
+        <option value="DP-300">DP-300 — Azure Database Administrator</option>
+        <option value="DP-800">DP-800 — SQL Server</option>
+      </select>
+      <div class="form-exam-note">Ao adicionar uma questão, escolha explicitamente a certificação. Ao editar, o exame original da questão é preservado.</div>
+    </div>
     <div class="fg"><label>Enunciado da questão</label><textarea id="fq" placeholder="Digite a pergunta..."></textarea></div>
     <div class="g4">
       <div class="fg"><label>A)</label><textarea id="fa" style="min-height:54px;" placeholder="Alternativa A"></textarea></div>
@@ -340,10 +367,11 @@
   const API = '/api/questions';
   let qs = [], sQueue = [], sIdx = 0, answered = false;
   let currentUid = '';
+  let currentExam = localStorage.getItem('review_exam') || 'DP-300';
 
   // ── repetição espaçada ────────────────────────────────────
   // Guarda a sequência de acertos/erros por questão: { [uid:qid]: [ true, false, ... ] }
-  function streakKey(qid) { return `dp300_streak_${currentUid}_${qid}`; }
+  function streakKey(qid) { return `review_streak_${currentExam}_${currentUid}_${qid}`; }
 
   function calcStatus(qid, isRight) {
     const key  = streakKey(qid);
@@ -372,6 +400,7 @@
 
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('headerUser').textContent = `(${val})`;
+    setExamUI();
     load();
   }
 
@@ -383,8 +412,26 @@
     document.getElementById('headerUser').textContent = '';
   }
 
-  function apiUrl(base) { return `${base}?uid=${encodeURIComponent(currentUid)}`; }
-  function apiUrlId(id) { return `${API}/${id}?uid=${encodeURIComponent(currentUid)}`; }
+  function apiUrl(base) { return `${base}?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(currentExam)}`; }
+  function apiUrlId(id) { return `${API}/${id}?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(currentExam)}`; }
+
+  function setExamUI() {
+    const sel = document.getElementById('examSelect');
+    if (sel) sel.value = currentExam;
+    document.getElementById('headerTitle').textContent = `${currentExam} Review`;
+    const formExam = document.getElementById('fexam');
+    if (formExam && !document.getElementById('eid').value) formExam.value = currentExam;
+  }
+
+  async function changeExam(exam) {
+    if (!['DP-300','DP-800'].includes(exam)) return;
+    if (exam === currentExam) return;
+    currentExam = exam;
+    localStorage.setItem('review_exam', currentExam);
+    setExamUI();
+    await load();
+    goTab('study');
+  }
 
   // ── fetch ────────────────────────────────────────────────
   async function apiFetch(url, opts) {
@@ -471,6 +518,7 @@
       <div class="fc-bar-wrap"><div class="fc-bar" style="width:${pct}%"></div></div>
       <div class="fc-card">
         <div class="fc-meta">
+          <span class="badge exam-badge">${h(q.exam || currentExam)}</span>
           <span class="badge bt">${h(q.topic)}</span>
           <span class="badge bd-${q.difficulty}">${q.difficulty}</span>
           <span class="badge bs-${q.status}">${q.status}</span>
@@ -584,6 +632,7 @@
       <div class="fc-bar-wrap"><div class="fc-bar" style="width:${pct}%"></div></div>
       <div class="fc-card">
         <div class="fc-meta">
+          <span class="badge exam-badge">${h(q.exam || currentExam)}</span>
           <span class="badge bt">${h(q.topic)}</span>
           <span class="badge bd-${q.difficulty}">${q.difficulty}</span>
           <span class="badge bs-${q.status}">${q.status}</span>
@@ -664,6 +713,7 @@
       ];
       return `<div class="qi s-${q.status}">
         <div class="qi-meta">
+          <span class="badge exam-badge">${h(q.exam || currentExam)}</span>
           <span class="badge bt">${h(q.topic)}</span>
           <span class="badge bd-${q.difficulty}">${q.difficulty}</span>
           <span class="badge bs-${q.status}">${q.status}</span>
@@ -683,7 +733,7 @@
 
   async function delQ(id) {
     if (!confirm('Excluir esta questão?')) return;
-    await apiFetch(`${API}/${id}`, { method:'DELETE' });
+    await apiFetch(`${API}/${id}?uid=${encodeURIComponent(currentUid)}`, { method:'DELETE' });
     qs = qs.filter(q=>q.id!==id);
     renderList(); renderStats();
   }
@@ -692,6 +742,7 @@
   async function saveQ() {
     const id   = document.getElementById('eid').value;
     const body = {
+      exam       : document.getElementById('fexam').value,
       question   : document.getElementById('fq').value.trim(),
       option_a   : document.getElementById('fa').value.trim(),
       option_b   : document.getElementById('fb').value.trim(),
@@ -706,10 +757,10 @@
       { alert('Preencha a questão e todas as 4 alternativas.'); return; }
     if (id) {
       const q = qs.find(x=>x.id==id);
-      const u = await apiFetch(`${API}/${id}`, { method:'PUT', body: JSON.stringify({...q,...body}) });
+      const u = await apiFetch(`${API}/${id}?uid=${encodeURIComponent(currentUid)}`, { method:'PUT', body: JSON.stringify({...q,...body, exam:q.exam || body.exam}) });
       Object.assign(q, u);
     } else {
-      const c = await apiFetch(API, { method:'POST', body: JSON.stringify(body) });
+      const c = await apiFetch(`${API}?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(body.exam)}`, { method:'POST', body: JSON.stringify(body) });
       qs.unshift(c);
     }
     clearForm(); goTab('list'); renderStats();
@@ -718,6 +769,8 @@
   function editQ(id) {
     const q = qs.find(x=>x.id===id); if (!q) return;
     document.getElementById('eid').value  = q.id;
+    document.getElementById('fexam').value = q.exam || currentExam;
+    document.getElementById('fexam').disabled = true;
     document.getElementById('fq').value   = q.question;
     document.getElementById('fa').value   = q.option_a;
     document.getElementById('fb').value   = q.option_b;
@@ -732,6 +785,8 @@
 
   function cancelEdit() { clearForm(); goTab('list'); }
   function clearForm() {
+    document.getElementById('fexam').disabled = false;
+    document.getElementById('fexam').value = currentExam;
     ['eid','fq','fa','fb','fc_','fd','fexp'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('fdif').value='medio';
     document.getElementById('fcorr').value='A';
@@ -742,13 +797,13 @@
     // remove user_id antes de exportar
     const clean = qs.map(({ user_id, ...rest }) => rest);
     document.getElementById('expArea').value =
-      JSON.stringify({ version:'1.0', exportedAt:new Date().toISOString(), total:clean.length, questions:clean }, null, 2);
+      JSON.stringify({ version:'1.1', exam:currentExam, exportedAt:new Date().toISOString(), total:clean.length, questions:clean }, null, 2);
     document.getElementById('expModal').classList.add('open');
   }
   function dlJSON() {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([document.getElementById('expArea').value],{type:'application/json'}));
-    a.download = `dp300-${new Date().toISOString().slice(0,10)}.json`;
+    a.download = `review-${currentExam.toLowerCase()}-${new Date().toISOString().slice(0,10)}.json`;
     a.click();
   }
   // dados pendentes de importação
@@ -763,9 +818,11 @@
       try { data = JSON.parse(txt); } catch { alert('Arquivo JSON inválido.'); e.target.value=''; return; }
       _impArr = data.questions || data;
       if (!Array.isArray(_impArr)) { alert('Formato inválido.'); e.target.value=''; return; }
+      const fileExam = data.exam && ['DP-300','DP-800'].includes(data.exam) ? data.exam : currentExam;
+      _impArr = _impArr.map(item => ({ ...item, exam: item.exam || fileExam }));
 
       // mostra tela de confirmação
-      document.getElementById('impConfirmTxt').textContent = `${_impArr.length} questão(ões) encontrada(s). Deseja importar?`;
+      document.getElementById('impConfirmTxt').textContent = `${_impArr.length} questão(ões) encontrada(s). Exame padrão: ${fileExam}. Deseja importar?`;
       document.getElementById('impConfirm').style.display  = 'block';
       document.getElementById('impProgress').style.display = 'none';
       document.getElementById('impModal').classList.add('open');
@@ -835,6 +892,8 @@
   }
 
   // ── init: mostra tela de login ───────────────────────────
+  setExamUI();
+
   (function initLogin() {
     const saved = JSON.parse(localStorage.getItem('dp300_users') || '[]');
     const last  = localStorage.getItem('dp300_lastUser') || '';

@@ -34,10 +34,11 @@ module.exports = async function handler(req, res) {
     pool = await sql.connect(config);
 
     if (req.method === 'PUT') {
-      const { question, option_a, option_b, option_c, option_d, correct, explanation, topic, difficulty, status } = req.body;
+      const { question, option_a, option_b, option_c, option_d, correct, explanation, topic, difficulty, status, exam } = req.body;
       const r = await pool.request()
         .input('id',          sql.Int,      id)
         .input('uid',         sql.NVarChar, uid)
+        .input('exam',        sql.NVarChar, exam || 'DP-300')
         .input('question',    sql.NVarChar, question)
         .input('option_a',    sql.NVarChar, option_a)
         .input('option_b',    sql.NVarChar, option_b)
@@ -49,7 +50,7 @@ module.exports = async function handler(req, res) {
         .input('difficulty',  sql.NVarChar, difficulty)
         .input('status',      sql.NVarChar, status)
         .query(`UPDATE dp300_questions
-                SET question=@question, option_a=@option_a, option_b=@option_b,
+                SET exam=@exam, question=@question, option_a=@option_a, option_b=@option_b,
                     option_c=@option_c, option_d=@option_d, correct=@correct,
                     explanation=@explanation, topic=@topic, difficulty=@difficulty,
                     status=@status, updated_at=GETDATE(), last_reviewed=GETDATE()

@@ -25,8 +25,8 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ error: 'Variáveis de ambiente DB_* não configuradas na Vercel.' });
   }
 
-  // user_id vem sempre na query string: /api/questions?uid=joao
-  const uid = (req.query.uid || 'default').trim().toLowerCase().slice(0, 50);
+  const uid  = (req.query.uid  || 'default').trim().toLowerCase().slice(0, 50);
+  const exam = (req.query.exam || 'DP-300').trim().slice(0, 20);
 
   let pool;
   try {
@@ -34,8 +34,9 @@ module.exports = async function handler(req, res) {
 
     if (req.method === 'GET') {
       const r = await pool.request()
-        .input('uid', sql.NVarChar, uid)
-        .query('SELECT * FROM dp300_questions WHERE user_id=@uid ORDER BY created_at DESC');
+        .input('uid',  sql.NVarChar, uid)
+        .input('exam', sql.NVarChar, exam)
+        .query('SELECT * FROM dp300_questions WHERE user_id=@uid AND exam=@exam ORDER BY created_at DESC');
       return res.status(200).json(r.recordset);
     }
 
@@ -43,6 +44,7 @@ module.exports = async function handler(req, res) {
       const { question, option_a, option_b, option_c, option_d, correct, explanation, topic, difficulty } = req.body;
       const r = await pool.request()
         .input('uid',         sql.NVarChar, uid)
+        .input('exam',        sql.NVarChar, exam)
         .input('question',    sql.NVarChar, question)
         .input('option_a',    sql.NVarChar, option_a)
         .input('option_b',    sql.NVarChar, option_b)
@@ -53,9 +55,9 @@ module.exports = async function handler(req, res) {
         .input('topic',       sql.NVarChar, topic)
         .input('difficulty',  sql.NVarChar, difficulty || 'medio')
         .query(`INSERT INTO dp300_questions
-                  (user_id,question,option_a,option_b,option_c,option_d,correct,explanation,topic,difficulty)
+                  (user_id,exam,question,option_a,option_b,option_c,option_d,correct,explanation,topic,difficulty)
                 OUTPUT INSERTED.*
-                VALUES (@uid,@question,@option_a,@option_b,@option_c,@option_d,@correct,@explanation,@topic,@difficulty)`);
+                VALUES (@uid,@exam,@question,@option_a,@option_b,@option_c,@option_d,@correct,@explanation,@topic,@difficulty)`);
       return res.status(201).json(r.recordset[0]);
     }
 
