@@ -172,6 +172,26 @@
     .empty { text-align:center; padding:40px; color:#57606a; }
     .loader { text-align:center; padding:30px; color:#57606a; font-size:14px; }
 
+    /* ── EXPLICAÇÃO ESTRUTURADA / MEMORIZAÇÃO ── */
+    .learn-box { display:none; margin-top:14px; border:1px solid #dfe3e8; border-radius:10px; overflow:hidden; background:#fff; }
+    .learn-box.show { display:block; }
+    .learn-section { padding:12px 14px; border-top:1px solid #eef1f4; }
+    .learn-section:first-child { border-top:none; }
+    .learn-title { font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.45px; color:#57606a; margin-bottom:6px; }
+    .learn-text { font-size:13px; line-height:1.55; color:#343a40; }
+    .learn-correct { background:#f0faf2; } .learn-wrong { background:#fff; }
+    .learn-memory { background:#f4f6ff; } .learn-trap { background:#fff8e8; } .learn-source { background:#f7f8fa; }
+    .wrong-row { margin-top:6px; font-size:13px; line-height:1.5; }
+    .wrong-row strong { color:#c62828; }
+    .memory-rule { font-size:14px; font-weight:800; color:#1a237e; line-height:1.5; }
+    .exam-keyword { display:inline-block; padding:4px 9px; background:#e8eaf6; color:#1a237e; border-radius:20px; font-size:12px; font-weight:800; }
+    .verified-badge { display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:800; background:#e8f5e9; color:#2e7d32; margin-left:6px; }
+    details.study-fields { border:1px solid #e5e7eb; border-radius:10px; margin-top:14px; background:#fafbfc; }
+    details.study-fields > summary { cursor:pointer; padding:12px 14px; font-weight:700; font-size:13px; color:#1a237e; user-select:none; }
+    .study-fields-body { padding:0 14px 14px; }
+    .source-row { display:grid; grid-template-columns:1fr 1.7fr; gap:10px; }
+    @media(max-width:540px) { .source-row { grid-template-columns:1fr; } }
+
     /* modal export */
     .modal-bg { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:200; align-items:center; justify-content:center; }
     .modal-bg.open { display:flex; }
@@ -207,7 +227,7 @@
     <label for="examSelect">Estudando</label>
     <select id="examSelect" onchange="changeExam(this.value)">
       <option value="DP-300">DP-300 — Azure Database Administrator</option>
-      <option value="DP-800">DP-800 — SQL Server</option>
+      <option value="DP-800">DP-800 — Developing AI-Enabled Database Solutions</option>
     </select>
   </div>
   <div style="display:flex;gap:6px;align-items:center;">
@@ -284,7 +304,7 @@
       <label>Exame da questão</label>
       <select id="fexam">
         <option value="DP-300">DP-300 — Azure Database Administrator</option>
-        <option value="DP-800">DP-800 — SQL Server</option>
+        <option value="DP-800">DP-800 — Developing AI-Enabled Database Solutions</option>
       </select>
       <div class="form-exam-note">Ao adicionar uma questão, escolha explicitamente a certificação. Ao editar, o exame original da questão é preservado.</div>
     </div>
@@ -308,15 +328,45 @@
     </div>
     <div class="fg"><label>Tópico</label>
       <select id="ftop">
-        <option>Deploy e Configuração</option><option>Segurança</option>
-        <option>Alta Disponibilidade</option><option>Performance e Otimização</option>
-        <option>Backup e Restauração</option><option>Monitoramento</option>
-        <option>Automação de Tarefas</option><option>Migração</option>
-        <option>Governança</option><option>Outro</option>
+        <option>Desenvolvimento T-SQL</option><option>JSON e Regex</option>
+        <option>Índices e Performance</option><option>Segurança</option>
+        <option>GitHub Copilot e MCP</option><option>Data API Builder</option>
+        <option>Change Tracking e CDC</option><option>IA - Embeddings</option>
+        <option>IA - Vector Search</option><option>IA - RAG e Hybrid Search</option>
+        <option>Deploy e CI/CD</option><option>Monitoramento</option>
+        <option>Decoreba</option><option>Outro</option>
       </select>
     </div>
-    <div class="fg"><label>Explicação (opcional)</label><textarea id="fexp" style="min-height:54px;" placeholder="Por que esta é a resposta correta?"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:6px;">
+    <div class="fg">
+      <label>Explicação resumida (compatibilidade)</label>
+      <textarea id="fexp" style="min-height:54px;" placeholder="Resumo curto / DECOREBA FINAL..."></textarea>
+    </div>
+    <details class="study-fields" open>
+      <summary>Explicação para estudo e memorização</summary>
+      <div class="study-fields-body">
+        <div class="fg"><label>Por que a resposta correta está correta?</label><textarea id="fwhycorrect" placeholder="Explique o conceito que torna a alternativa correta."></textarea></div>
+        <div class="g2">
+          <div class="fg"><label>Por que A está errada?</label><textarea id="fwhya" placeholder="Deixe vazio se A for a correta."></textarea></div>
+          <div class="fg"><label>Por que B está errada?</label><textarea id="fwhyb" placeholder="Deixe vazio se B for a correta."></textarea></div>
+          <div class="fg"><label>Por que C está errada?</label><textarea id="fwhyc" placeholder="Deixe vazio se C for a correta."></textarea></div>
+          <div class="fg"><label>Por que D está errada?</label><textarea id="fwhyd" placeholder="Deixe vazio se D for a correta."></textarea></div>
+        </div>
+        <div class="g2">
+          <div class="fg"><label>Palavra-chave da prova</label><input id="fkeyword" placeholder="Ex.: ANN + índice vetorial" /></div>
+          <div class="fg"><label>Regra para memorizar</label><input id="fmemory" placeholder="Ex.: ANN = VECTOR_SEARCH | exata = VECTOR_DISTANCE" /></div>
+        </div>
+        <div class="fg"><label>Pegadinha principal</label><textarea id="ftrap" style="min-height:54px;" placeholder="Qual confusão a prova tenta induzir?"></textarea></div>
+        <div class="source-row">
+          <div class="fg"><label>Fonte</label><input id="fsourcename" placeholder="Ex.: Microsoft Learn" /></div>
+          <div class="fg"><label>URL da fonte</label><input id="fsourceurl" placeholder="https://learn.microsoft.com/..." /></div>
+        </div>
+        <div class="fg" style="flex-direction:row;align-items:center;gap:8px;">
+          <input id="fverified" type="checkbox" style="width:auto;" />
+          <label for="fverified" style="margin:0;text-transform:none;font-size:12px;">Questão validada contra fonte confiável/oficial</label>
+        </div>
+      </div>
+    </details>
+    <div style="display:flex;gap:8px;margin-top:14px;">
       <button class="btn bp" onclick="saveQ()">Salvar</button>
       <button class="btn bs" onclick="cancelEdit()">Cancelar</button>
     </div>
@@ -471,6 +521,34 @@
     if (name==='decoreba') startDecoreba('all');
   }
 
+  function optionText(q, letter) {
+    return q['option_' + String(letter).toLowerCase()] || '';
+  }
+
+  function structuredLearningHTML(q) {
+    const correct = (q.correct || '').toUpperCase();
+    const wrongs = ['A','B','C','D']
+      .filter(l => l !== correct)
+      .map(l => {
+        const key = 'why_' + l.toLowerCase() + '_wrong';
+        const txt = q[key];
+        return txt ? `<div class="wrong-row"><strong>${l}) ${h(optionText(q,l))}</strong><br>${h(txt)}</div>` : '';
+      }).filter(Boolean).join('');
+    const hasStructured = !!(q.why_correct || wrongs || q.exam_keyword || q.memory_rule || q.trap || q.source_name || q.source_url || q.verified);
+    if (!hasStructured && !q.explanation) return '';
+    let out = '<div class="learn-box show">';
+    if (q.why_correct || q.explanation) out += `<div class="learn-section learn-correct"><div class="learn-title">✅ Resposta correta — ${h(correct)}${correct ? ') ' + h(optionText(q, correct)) : ''}</div><div class="learn-text">${h(q.why_correct || q.explanation || '')}</div></div>`;
+    if (wrongs) out += `<div class="learn-section learn-wrong"><div class="learn-title">❌ Por que as outras estão erradas</div>${wrongs}</div>`;
+    if (q.exam_keyword || q.memory_rule) out += `<div class="learn-section learn-memory">${q.exam_keyword ? `<div class="learn-title">🎯 Palavra-chave da prova</div><span class="exam-keyword">${h(q.exam_keyword)}</span>` : ''}${q.memory_rule ? `<div class="learn-title" style="margin-top:${q.exam_keyword ? '12px' : '0'};">🧠 Regra para memorizar</div><div class="memory-rule">${h(q.memory_rule)}</div>` : ''}</div>`;
+    if (q.trap) out += `<div class="learn-section learn-trap"><div class="learn-title">⚠️ Pegadinha</div><div class="learn-text">${h(q.trap)}</div></div>`;
+    if (q.source_name || q.source_url || q.verified) {
+      const sourceLabel = q.source_name ? h(q.source_name) : 'Fonte';
+      const source = q.source_url ? `<a href="${ha(q.source_url)}" target="_blank" rel="noopener noreferrer">${sourceLabel}</a>` : sourceLabel;
+      out += `<div class="learn-section learn-source"><div class="learn-title">📚 Validação</div><div class="learn-text">${source}${q.verified ? '<span class="verified-badge">VERIFICADA</span>' : ''}</div></div>`;
+    }
+    return out + '</div>';
+  }
+
   // ── STUDY ────────────────────────────────────────────────
   function startStudy(mode) {
     // highlight active filter
@@ -532,7 +610,7 @@
             </button>`).join('')}
         </div>
         <div class="fc-result" id="fc-result"></div>
-        <div class="fc-explanation" id="fc-exp">${q.explanation ? '<strong>Explicação:</strong> ' + h(q.explanation) : ''}</div>
+        <div id="fc-exp" style="display:none;">${structuredLearningHTML(q)}</div>
         <button class="fc-next" id="fc-next" onclick="nextCard()">Próxima →</button>
       </div>`;
   }
@@ -560,7 +638,7 @@
     res.className   = 'fc-result ' + (isRight ? 'acertei' : 'errei');
     res.style.display = 'block';
 
-    if (q.explanation) document.getElementById('fc-exp').classList.add('show');
+    if (structuredLearningHTML(q)) document.getElementById('fc-exp').style.display = 'block';
     document.getElementById('fc-next').style.display = 'block';
 
     // persist status
@@ -646,7 +724,7 @@
             </button>`).join('')}
         </div>
         <div class="fc-result" id="dc-result"></div>
-        <div class="fc-explanation" id="dc-exp">${q.explanation ? '<strong>Explicação:</strong> ' + h(q.explanation) : ''}</div>
+        <div id="dc-exp" style="display:none;">${structuredLearningHTML(q)}</div>
         <button class="fc-next" id="dc-next" onclick="nextDecorebaCard()">Próxima →</button>
       </div>`;
   }
@@ -673,7 +751,7 @@
     res.className     = 'fc-result ' + (isRight ? 'acertei' : 'errei');
     res.style.display = 'block';
 
-    if (q.explanation) document.getElementById('dc-exp').classList.add('show');
+    if (structuredLearningHTML(q)) document.getElementById('dc-exp').style.display = 'block';
     document.getElementById('dc-next').style.display = 'block';
 
     try {
@@ -722,7 +800,7 @@
         <div class="qi-opts">
           ${opts.map(o=>`<div class="qi-opt${o.l===q.correct?' correct':''}"><strong>${o.l})</strong> ${h(o.t)}</div>`).join('')}
         </div>
-        ${q.explanation?`<div style="font-size:12px;color:#57606a;padding:6px 8px;background:#f7f8fa;border-radius:6px;margin-bottom:6px;">💡 ${h(q.explanation)}</div>`:''}
+        ${structuredLearningHTML(q)}
         <div class="qi-actions">
           <button class="btn-sm bsm-s" onclick="editQ(${q.id})">Editar</button>
           <button class="btn-sm bsm-r" onclick="delQ(${q.id})">Excluir</button>
@@ -733,7 +811,7 @@
 
   async function delQ(id) {
     if (!confirm('Excluir esta questão?')) return;
-    await apiFetch(`${API}/${id}?uid=${encodeURIComponent(currentUid)}`, { method:'DELETE' });
+    await apiFetch(apiUrlId(id), { method:'DELETE' });
     qs = qs.filter(q=>q.id!==id);
     renderList(); renderStats();
   }
@@ -749,9 +827,20 @@
       option_c   : document.getElementById('fc_').value.trim(),
       option_d   : document.getElementById('fd').value.trim(),
       correct    : document.getElementById('fcorr').value,
-      explanation: document.getElementById('fexp').value.trim(),
-      topic      : document.getElementById('ftop').value,
-      difficulty : document.getElementById('fdif').value,
+      explanation : document.getElementById('fexp').value.trim(),
+      why_correct : document.getElementById('fwhycorrect').value.trim(),
+      why_a_wrong : document.getElementById('fwhya').value.trim(),
+      why_b_wrong : document.getElementById('fwhyb').value.trim(),
+      why_c_wrong : document.getElementById('fwhyc').value.trim(),
+      why_d_wrong : document.getElementById('fwhyd').value.trim(),
+      exam_keyword: document.getElementById('fkeyword').value.trim(),
+      memory_rule : document.getElementById('fmemory').value.trim(),
+      trap        : document.getElementById('ftrap').value.trim(),
+      source_name : document.getElementById('fsourcename').value.trim(),
+      source_url  : document.getElementById('fsourceurl').value.trim(),
+      verified    : document.getElementById('fverified').checked,
+      topic       : document.getElementById('ftop').value,
+      difficulty  : document.getElementById('fdif').value,
     };
     if (!body.question||!body.option_a||!body.option_b||!body.option_c||!body.option_d)
       { alert('Preencha a questão e todas as 4 alternativas.'); return; }
@@ -780,6 +869,17 @@
     document.getElementById('fdif').value = q.difficulty;
     document.getElementById('ftop').value = q.topic;
     document.getElementById('fexp').value = q.explanation || '';
+    document.getElementById('fwhycorrect').value = q.why_correct || '';
+    document.getElementById('fwhya').value = q.why_a_wrong || '';
+    document.getElementById('fwhyb').value = q.why_b_wrong || '';
+    document.getElementById('fwhyc').value = q.why_c_wrong || '';
+    document.getElementById('fwhyd').value = q.why_d_wrong || '';
+    document.getElementById('fkeyword').value = q.exam_keyword || '';
+    document.getElementById('fmemory').value = q.memory_rule || '';
+    document.getElementById('ftrap').value = q.trap || '';
+    document.getElementById('fsourcename').value = q.source_name || '';
+    document.getElementById('fsourceurl').value = q.source_url || '';
+    document.getElementById('fverified').checked = !!q.verified;
     goTab('add');
   }
 
@@ -787,7 +887,9 @@
   function clearForm() {
     document.getElementById('fexam').disabled = false;
     document.getElementById('fexam').value = currentExam;
-    ['eid','fq','fa','fb','fc_','fd','fexp'].forEach(id=>document.getElementById(id).value='');
+    ['eid','fq','fa','fb','fc_','fd','fexp','fwhycorrect','fwhya','fwhyb','fwhyc','fwhyd','fkeyword','fmemory','ftrap','fsourcename','fsourceurl']
+      .forEach(id=>document.getElementById(id).value='');
+    document.getElementById('fverified').checked = false;
     document.getElementById('fdif').value='medio';
     document.getElementById('fcorr').value='A';
   }
@@ -797,7 +899,7 @@
     // remove user_id antes de exportar
     const clean = qs.map(({ user_id, ...rest }) => rest);
     document.getElementById('expArea').value =
-      JSON.stringify({ version:'1.1', exam:currentExam, exportedAt:new Date().toISOString(), total:clean.length, questions:clean }, null, 2);
+      JSON.stringify({ version:'1.2', exam:currentExam, exportedAt:new Date().toISOString(), total:clean.length, questions:clean }, null, 2);
     document.getElementById('expModal').classList.add('open');
   }
   function dlJSON() {
@@ -861,7 +963,8 @@
       try {
         // garante que a questão importada usa o uid da sessão atual
         const { user_id, ...item } = _impArr[i];
-        const c = await apiFetch(apiUrl(API), { method:'POST', body: JSON.stringify(item) });
+        const itemExam = item.exam || currentExam;
+        const c = await apiFetch(`${API}?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(itemExam)}`, { method:'POST', body: JSON.stringify(item) });
         qs.unshift(c);
         ok++;
       } catch(err) {
@@ -889,6 +992,11 @@
   function h(s) {
     if (!s) return '';
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
+  }
+
+  function ha(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
   // ── init: mostra tela de login ───────────────────────────
