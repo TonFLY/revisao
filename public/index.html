@@ -945,47 +945,56 @@
     const bar   = document.getElementById('impBar');
     const txt   = document.getElementById('impTxt');
     const errEl = document.getElementById('impErr');
-    bar.style.width   = '0%';
-    txt.textContent   = `0 / ${_impArr.length}`;
+
+    bar.style.width   = '10%';
+    txt.textContent   = `Preparando ${_impArr.length} questão(ões)…`;
     errEl.textContent = '';
 
-    // deixa o browser pintar a tela de progresso
+    // deixa o browser pintar o modal
     await new Promise(r => setTimeout(r, 60));
 
-    let ok = 0, fail = 0;
-    const erros = [];
+    try {
+      // remove user_id do arquivo e usa o usuário/exame da sessão
+      const questions = _impArr.map(({ user_id, ...item }) => item);
 
-    for (let i = 0; i < _impArr.length; i++) {
-      const pct = Math.round(((i + 1) / _impArr.length) * 100);
-      bar.style.width = pct + '%';
-      txt.textContent = `${i + 1} / ${_impArr.length} — ${pct}%`;
+      bar.style.width = '35%';
+      txt.textContent = `Enviando ${questions.length} questão(ões) em lote…`;
 
-      try {
-        // garante que a questão importada usa o uid da sessão atual
-        const { user_id, ...item } = _impArr[i];
-        const itemExam = item.exam || currentExam;
-        const c = await apiFetch(`${API}?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(itemExam)}`, { method:'POST', body: JSON.stringify(item) });
-        qs.unshift(c);
-        ok++;
-      } catch(err) {
-        fail++;
-        erros.push(`#${i+1}: ${err.message}`);
-        errEl.innerHTML = erros.slice(-5).map(s => `• ${s}`).join('<br/>');
-      }
-    }
+      const result = await apiFetch(
+        `/api/questions/import?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(currentExam)}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ questions })
+        }
+      );
 
-    bar.style.width = '100%';
-    const cor = fail ? '#c62828' : '#2e7d32';
-    txt.innerHTML = `<strong style="color:${cor};">${fail === 0 ? '✓ Tudo importado!' : `✓ ${ok} ok · ✗ ${fail} erros`}</strong>`;
+      bar.style.width = '80%';
+      txt.textContent = `Gravadas ${result.inserted || 0} de ${result.received || questions.length} questão(ões). Atualizando tela…`;
 
-    if (_impFileInput) _impFileInput.value = '';
-    _impArr = [];
+      // Recarrega do banco para obter IDs e estado real após o INSERT em lote.
+      qs = await apiFetch(apiUrl(API));
 
-    setTimeout(() => {
-      document.getElementById('impModal').classList.remove('open');
+      bar.style.width = '100%';
+      txt.innerHTML = `<strong style="color:#2e7d32;">✓ ${result.inserted || questions.length} questão(ões) importada(s)!</strong>`;
+
+      if (_impFileInput) _impFileInput.value = '';
+      _impArr = [];
+
       renderStats();
       startStudy('all');
-    }, 2000);
+
+      setTimeout(() => {
+        document.getElementById('impModal').classList.remove('open');
+      }, 1200);
+
+    } catch (err) {
+      bar.style.width = '100%';
+      bar.style.background = '#c62828';
+      txt.innerHTML = '<strong style="color:#c62828;">✗ Falha na importação</strong>';
+      errEl.textContent = err.message || 'Erro desconhecido';
+
+      if (_impFileInput) _impFileInput.value = '';
+    }
   }
 
   // ── helpers ──────────────────────────────────────────────
