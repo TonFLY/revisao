@@ -200,6 +200,24 @@
     .modal textarea { height:180px; font-family:monospace; font-size:12px; }
     .modal-foot { display:flex; gap:8px; justify-content:flex-end; margin-top:10px; }
 
+
+    /* tutorial inicial */
+    .tutorial-modal { max-width:760px; max-height:88vh; overflow-y:auto; text-align:left; }
+    .tutorial-modal h3 { color:#1a237e; font-size:18px; margin-bottom:8px; }
+    .tutorial-modal p { font-size:13px; line-height:1.55; color:#444; margin:8px 0; }
+    .tutorial-steps { margin:10px 0 14px 20px; color:#343a40; font-size:13px; line-height:1.55; }
+    .tutorial-prompt {
+      background:#0d1117; color:#e6edf3; border-radius:8px; padding:12px;
+      font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
+      font-size:11px; line-height:1.5; white-space:pre-wrap; word-break:break-word;
+      max-height:330px; overflow:auto; border:1px solid #30363d;
+    }
+    .tutorial-actions {
+      position:sticky; bottom:-22px; background:#fff; padding:12px 0 0;
+      display:flex; gap:8px; justify-content:flex-end; border-top:1px solid #eef1f4;
+      margin-top:14px;
+    }
+
     @media(max-width:540px) {
       .g2,.g4,.qi-opts { grid-template-columns:1fr; }
       .fc-card { padding:18px 14px; }
@@ -231,6 +249,7 @@
     </select>
   </div>
   <div style="display:flex;gap:6px;align-items:center;">
+    <button class="hbtn" onclick="openTutorial(true)">Tutorial</button>
     <button class="hbtn" onclick="openExport()">Exportar JSON</button>
     <button class="hbtn" onclick="document.getElementById('fi').click()">Importar JSON</button>
     <button class="hbtn" onclick="doLogout()" style="opacity:.8;">Sair</button>
@@ -374,6 +393,126 @@
 
 </div>
 
+
+<!-- tutorial de criação de questões com ChatGPT -->
+<div class="modal-bg" id="tutorialModal">
+  <div class="modal tutorial-modal">
+    <h3>📚 Como criar questões com o ChatGPT</h3>
+    <p>Você pode pedir ao ChatGPT para criar questões originais e depois importar o arquivo JSON diretamente no Certification Review.</p>
+
+    <ol class="tutorial-steps">
+      <li><strong>Anexe seus materiais</strong>, se tiver: PDF, apostila, slides, anotações ou outros conteúdos de estudo.</li>
+      <li>Peça ao ChatGPT para usar o material anexado como base e, quando possível, validar tecnicamente as questões em documentação oficial atualizada.</li>
+      <li>Copie o prompt abaixo, ajuste a certificação e a quantidade de questões.</li>
+      <li>No final, baixe o arquivo <strong>.json</strong> e use o botão <strong>Importar JSON</strong> desta aplicação.</li>
+    </ol>
+
+    <p><strong>Prompt sugerido:</strong></p>
+
+    <div class="tutorial-prompt" id="tutorialPrompt">Estou estudando para a certificação [NOME DA CERTIFICAÇÃO].
+
+Quero que você crie [QUANTIDADE] questões originais para estudo e simulação da prova.
+
+Se eu anexei PDFs, apostilas, slides, anotações ou outros materiais nesta conversa, utilize-os como base para identificar os assuntos importantes e o nível de profundidade.
+
+Quando possível, pesquise também o guia oficial e a documentação oficial mais atualizada da certificação para validar tecnicamente as questões.
+
+IMPORTANTE:
+- Não copie questões reais, dumps ou questões protegidas de exames.
+- Crie questões originais no estilo da prova.
+- Priorize cenários práticos e situações que exijam raciocínio.
+- Evite perguntas excessivamente óbvias.
+- As alternativas incorretas devem ser plausíveis.
+- Distribua as respostas corretas entre A, B, C e D de forma aleatória e equilibrada.
+- Não deixe todas ou a maioria das respostas corretas na mesma letra.
+- Evite sequências previsíveis como A, B, C, D, A, B, C, D.
+- Evite 3 ou mais respostas corretas consecutivas na mesma letra.
+- Misture questões fáceis, médias e difíceis.
+- Cubra os diferentes domínios da certificação de acordo com o peso da prova, quando disponível.
+- Explique por que a resposta correta está correta.
+- Explique por que cada alternativa incorreta está errada.
+- Inclua palavra-chave da prova, regra para memorizar e principal pegadinha.
+- Informe fonte e URL quando houver validação em documentação oficial.
+- Não use "verified": true se a questão não tiver sido realmente validada.
+
+Antes de entregar:
+1. Verifique se existe apenas uma melhor resposta.
+2. Confirme que o gabarito corresponde à explicação.
+3. Confira se as alternativas estão nas posições corretas.
+4. Verifique se não existe padrão previsível nas letras corretas.
+5. Remova questões duplicadas.
+6. Valide a sintaxe do JSON.
+
+Entregue o resultado em um arquivo JSON pronto para importação no Certification Review usando EXATAMENTE esta estrutura:
+
+{
+  "version": "1.2",
+  "exam": "[NOME DA CERTIFICAÇÃO]",
+  "exportedAt": "DATA_ATUAL_EM_ISO_8601",
+  "total": [QUANTIDADE],
+  "questions": [
+    {
+      "id": 1,
+      "question": "Enunciado completo da questão",
+      "option_a": "Alternativa A",
+      "option_b": "Alternativa B",
+      "option_c": "Alternativa C",
+      "option_d": "Alternativa D",
+      "correct": "B",
+      "explanation": "Resumo curto da explicação.",
+      "why_correct": "Por que a correta é a melhor resposta.",
+      "why_a_wrong": "Por que A está errada. Se A for a correta, use null.",
+      "why_b_wrong": null,
+      "why_c_wrong": "Por que C está errada.",
+      "why_d_wrong": "Por que D está errada.",
+      "exam_keyword": "Palavra-chave da prova",
+      "memory_rule": "Regra curta para memorizar",
+      "trap": "Principal pegadinha",
+      "source_name": "Microsoft Learn",
+      "source_url": "https://learn.microsoft.com/...",
+      "verified": true,
+      "topic": "Nome do tópico",
+      "difficulty": "medio",
+      "status": "pendente",
+      "created_at": null,
+      "updated_at": null,
+      "last_reviewed": null,
+      "exam": "[NOME DA CERTIFICAÇÃO]"
+    }
+  ]
+}
+
+Regras do JSON:
+- "correct": somente "A", "B", "C" ou "D".
+- "difficulty": "facil", "medio" ou "dificil".
+- "status": sempre "pendente" para novas questões.
+- Não altere os nomes dos campos.
+- Não omita os campos.
+- O JSON final deve ser válido.
+- Gere o arquivo .json para download.
+
+No final, informe também:
+A: XX
+B: XX
+C: XX
+D: XX
+e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+      <button class="btn bs" onclick="copyTutorialPrompt()">Copiar prompt</button>
+    </div>
+
+    <p style="background:#fff8e8;border:1px solid #ffe0b2;border-radius:8px;padding:10px;margin-top:12px;">
+      <strong>Importante:</strong> questões geradas por IA devem ser usadas como material de estudo. Para conteúdos críticos, dê preferência a fontes oficiais e questões realmente validadas.
+    </p>
+
+    <div class="tutorial-actions">
+      <button class="btn bs" onclick="closeTutorial()">Fechar</button>
+      <button class="btn bp" onclick="dontShowTutorialAgain()">Não ver mais</button>
+    </div>
+  </div>
+</div>
+
 <!-- export modal -->
 <div class="modal-bg" id="expModal">
   <div class="modal">
@@ -452,6 +591,7 @@
     document.getElementById('headerUser').textContent = `(${val})`;
     setExamUI();
     load();
+    setTimeout(() => openTutorial(false), 250);
   }
 
   function doLogout() {
@@ -481,6 +621,44 @@
     setExamUI();
     await load();
     goTab('study');
+  }
+
+
+  // ── tutorial inicial ─────────────────────────────────────
+  function tutorialStorageKey() {
+    // Preferência separada por usuário. Para um tutorial novo, altere v1 para v2.
+    return `review_tutorial_v1_${currentUid || 'default'}`;
+  }
+
+  function openTutorial(force = false) {
+    if (!force && localStorage.getItem(tutorialStorageKey()) === 'hidden') return;
+    document.getElementById('tutorialModal').classList.add('open');
+  }
+
+  function closeTutorial() {
+    // Fecha somente nesta sessão; no próximo login volta a aparecer.
+    document.getElementById('tutorialModal').classList.remove('open');
+  }
+
+  function dontShowTutorialAgain() {
+    localStorage.setItem(tutorialStorageKey(), 'hidden');
+    document.getElementById('tutorialModal').classList.remove('open');
+  }
+
+  async function copyTutorialPrompt() {
+    const promptText = document.getElementById('tutorialPrompt').innerText;
+    try {
+      await navigator.clipboard.writeText(promptText);
+      alert('Prompt copiado!');
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = promptText;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      alert('Prompt copiado!');
+    }
   }
 
   // ── fetch ────────────────────────────────────────────────
