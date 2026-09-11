@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Certification Review — DP-300 / DP-800</title>
+  <title>Certification Review — Microsoft DP Exams</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system,"Segoe UI",system-ui,sans-serif; background:#f0f2f5; color:#1f2328; }
@@ -46,7 +46,8 @@
     .exam-switcher { display:flex; align-items:center; gap:6px; }
     .exam-switcher label { font-size:10px; text-transform:uppercase; letter-spacing:.5px; opacity:.75; font-weight:700; }
     #examSelect { width:auto; min-width:150px; padding:5px 28px 5px 9px; border-radius:6px; border:1px solid rgba(255,255,255,.35); background:rgba(255,255,255,.12); color:#fff; font-size:12px; font-weight:700; }
-    #examSelect option { color:#1f2328; background:#fff; }
+    #examSelect { color:#fff; }
+    #examSelect::placeholder { color:rgba(255,255,255,.65); }
     .exam-badge { background:#ede7f6; color:#5e35b1; }
     .form-exam-note { font-size:11px; color:#57606a; margin-top:-4px; margin-bottom:10px; }
     @media(max-width:700px) {
@@ -243,10 +244,26 @@
   <h1><span id="headerTitle">DP-300 Review</span> <span id="headerUser" style="font-size:12px;opacity:.7;font-weight:400;"></span></h1>
   <div class="exam-switcher">
     <label for="examSelect">Estudando</label>
-    <select id="examSelect" onchange="changeExam(this.value)">
-      <option value="DP-300">DP-300 — Azure Database Administrator</option>
-      <option value="DP-800">DP-800 — Developing AI-Enabled Database Solutions</option>
-    </select>
+    <input
+      id="examSelect"
+      list="examOptions"
+      value="DP-300"
+      placeholder="DP-300"
+      maxlength="6"
+      autocomplete="off"
+      onchange="changeExam(this.value)"
+      onkeydown="if(event.key==='Enter'){ this.blur(); changeExam(this.value); }"
+    />
+    <datalist id="examOptions">
+      <option value="DP-100"></option>
+      <option value="DP-203"></option>
+      <option value="DP-300"></option>
+      <option value="DP-500"></option>
+      <option value="DP-600"></option>
+      <option value="DP-700"></option>
+      <option value="DP-800"></option>
+      <option value="DP-900"></option>
+    </datalist>
   </div>
   <div style="display:flex;gap:6px;align-items:center;">
     <button class="hbtn" onclick="openTutorial(true)">Tutorial</button>
@@ -321,11 +338,25 @@
     <input type="hidden" id="eid" />
     <div class="fg">
       <label>Exame da questão</label>
-      <select id="fexam">
-        <option value="DP-300">DP-300 — Azure Database Administrator</option>
-        <option value="DP-800">DP-800 — Developing AI-Enabled Database Solutions</option>
-      </select>
-      <div class="form-exam-note">Ao adicionar uma questão, escolha explicitamente a certificação. Ao editar, o exame original da questão é preservado.</div>
+      <input
+        id="fexam"
+        list="examOptionsForm"
+        value="DP-300"
+        placeholder="Ex.: DP-600"
+        maxlength="6"
+        autocomplete="off"
+      />
+      <datalist id="examOptionsForm">
+        <option value="DP-100"></option>
+        <option value="DP-203"></option>
+        <option value="DP-300"></option>
+        <option value="DP-500"></option>
+        <option value="DP-600"></option>
+        <option value="DP-700"></option>
+        <option value="DP-800"></option>
+        <option value="DP-900"></option>
+      </datalist>
+      <div class="form-exam-note">Informe o código no formato DP-XXX, por exemplo DP-300, DP-600, DP-700, DP-800 ou DP-900. Ao editar, o exame original da questão é preservado.</div>
     </div>
     <div class="fg"><label>Enunciado da questão</label><textarea id="fq" placeholder="Digite a pergunta..."></textarea></div>
     <div class="g4">
@@ -409,7 +440,7 @@
 
     <p><strong>Prompt sugerido:</strong></p>
 
-    <div class="tutorial-prompt" id="tutorialPrompt">Estou estudando para a certificação [NOME DA CERTIFICAÇÃO].
+    <div class="tutorial-prompt" id="tutorialPrompt">Estou estudando para a certificação Microsoft [CÓDIGO DP-XXX].
 
 Quero que você crie [QUANTIDADE] questões originais para estudo e simulação da prova.
 
@@ -447,7 +478,7 @@ Entregue o resultado em um arquivo JSON pronto para importação no Certificatio
 
 {
   "version": "1.2",
-  "exam": "[NOME DA CERTIFICAÇÃO]",
+  "exam": "[CÓDIGO DP-XXX]",
   "exportedAt": "DATA_ATUAL_EM_ISO_8601",
   "total": [QUANTIDADE],
   "questions": [
@@ -477,7 +508,7 @@ Entregue o resultado em um arquivo JSON pronto para importação no Certificatio
       "created_at": null,
       "updated_at": null,
       "last_reviewed": null,
-      "exam": "[NOME DA CERTIFICAÇÃO]"
+      "exam": "[CÓDIGO DP-XXX]"
     }
   ]
 }
@@ -486,6 +517,7 @@ Regras do JSON:
 - "correct": somente "A", "B", "C" ou "D".
 - "difficulty": "facil", "medio" ou "dificil".
 - "status": sempre "pendente" para novas questões.
+- "exam": deve usar o formato "DP-XXX" (ex.: "DP-600").
 - Não altere os nomes dos campos.
 - Não omita os campos.
 - O JSON final deve ser válido.
@@ -556,7 +588,13 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
   const API = '/api/questions';
   let qs = [], sQueue = [], sIdx = 0, answered = false;
   let currentUid = '';
-  let currentExam = localStorage.getItem('review_exam') || 'DP-300';
+
+  function normalizeExamCode(value) {
+    const v = String(value || '').trim().toUpperCase();
+    return /^DP-\d{3}$/.test(v) ? v : null;
+  }
+
+  let currentExam = normalizeExamCode(localStorage.getItem('review_exam')) || 'DP-300';
 
   // ── repetição espaçada ────────────────────────────────────
   // Guarda a sequência de acertos/erros por questão: { [uid:qid]: [ true, false, ... ] }
@@ -583,9 +621,12 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
     currentUid = val.toLowerCase().replace(/[^a-z0-9_-]/g,'').slice(0,50) || 'user';
 
     // salva no histórico de usuários
-    const saved = JSON.parse(localStorage.getItem('dp300_users') || '[]');
-    if (!saved.includes(val)) { saved.unshift(val); localStorage.setItem('dp300_users', JSON.stringify(saved.slice(0,8))); }
-    localStorage.setItem('dp300_lastUser', val);
+    const saved = JSON.parse(localStorage.getItem('review_users') || localStorage.getItem('dp300_users') || '[]');
+    if (!saved.includes(val)) {
+      saved.unshift(val);
+      localStorage.setItem('review_users', JSON.stringify(saved.slice(0,8)));
+    }
+    localStorage.setItem('review_lastUser', val);
 
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('headerUser').textContent = `(${val})`;
@@ -614,9 +655,20 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
   }
 
   async function changeExam(exam) {
-    if (!['DP-300','DP-800'].includes(exam)) return;
-    if (exam === currentExam) return;
-    currentExam = exam;
+    const normalized = normalizeExamCode(exam);
+
+    if (!normalized) {
+      alert('Informe uma certificação válida no formato DP-XXX. Ex.: DP-300, DP-600 ou DP-800.');
+      setExamUI();
+      return;
+    }
+
+    if (normalized === currentExam) {
+      setExamUI();
+      return;
+    }
+
+    currentExam = normalized;
     localStorage.setItem('review_exam', currentExam);
     setExamUI();
     await load();
@@ -997,8 +1049,15 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
   // ── ADD / EDIT ───────────────────────────────────────────
   async function saveQ() {
     const id   = document.getElementById('eid').value;
+    const selectedExam = normalizeExamCode(document.getElementById('fexam').value);
+    if (!selectedExam) {
+      alert('Informe um exame válido no formato DP-XXX.');
+      document.getElementById('fexam').focus();
+      return;
+    }
+
     const body = {
-      exam       : document.getElementById('fexam').value,
+      exam       : selectedExam,
       question   : document.getElementById('fq').value.trim(),
       option_a   : document.getElementById('fa').value.trim(),
       option_b   : document.getElementById('fb').value.trim(),
@@ -1087,7 +1146,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
     a.click();
   }
   // dados pendentes de importação
-  let _impArr = [], _impFileInput = null;
+  let _impArr = [], _impFileInput = null, _impExam = null;
 
   function importJSON(e) {
     const file = e.target.files[0]; if (!file) return;
@@ -1098,8 +1157,24 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
       try { data = JSON.parse(txt); } catch { alert('Arquivo JSON inválido.'); e.target.value=''; return; }
       _impArr = data.questions || data;
       if (!Array.isArray(_impArr)) { alert('Formato inválido.'); e.target.value=''; return; }
-      const fileExam = data.exam && ['DP-300','DP-800'].includes(data.exam) ? data.exam : currentExam;
-      _impArr = _impArr.map(item => ({ ...item, exam: item.exam || fileExam }));
+      const fileExam = normalizeExamCode(data.exam) || currentExam;
+      _impExam = fileExam;
+
+      const invalidExam = _impArr.find(item =>
+        item.exam && !normalizeExamCode(item.exam)
+      );
+
+      if (invalidExam) {
+        alert('O arquivo contém uma questão com exame inválido. Use o formato DP-XXX.');
+        e.target.value = '';
+        _impArr = [];
+        return;
+      }
+
+      _impArr = _impArr.map(item => ({
+        ...item,
+        exam: normalizeExamCode(item.exam) || fileExam
+      }));
 
       // mostra tela de confirmação
       document.getElementById('impConfirmTxt').textContent = `${_impArr.length} questão(ões) encontrada(s). Exame padrão: ${fileExam}. Deseja importar?`;
@@ -1113,6 +1188,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
     document.getElementById('impModal').classList.remove('open');
     if (_impFileInput) _impFileInput.value = '';
     _impArr = [];
+    _impExam = null;
   }
 
   async function impStart() {
@@ -1139,7 +1215,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
       txt.textContent = `Enviando ${questions.length} questão(ões) em lote…`;
 
       const result = await apiFetch(
-        `/api/questions/import?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(currentExam)}`,
+        `/api/questions/import?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(_impExam || currentExam)}`,
         {
           method: 'POST',
           body: JSON.stringify({ questions })
@@ -1149,6 +1225,13 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
       bar.style.width = '80%';
       txt.textContent = `Gravadas ${result.inserted || 0} de ${result.received || questions.length} questão(ões). Atualizando tela…`;
 
+      // Se o arquivo for de outra certificação, passa a exibi-la após a importação.
+      if (_impExam && _impExam !== currentExam) {
+        currentExam = _impExam;
+        localStorage.setItem('review_exam', currentExam);
+        setExamUI();
+      }
+
       // Recarrega do banco para obter IDs e estado real após o INSERT em lote.
       qs = await apiFetch(apiUrl(API));
 
@@ -1157,6 +1240,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
 
       if (_impFileInput) _impFileInput.value = '';
       _impArr = [];
+      _impExam = null;
 
       renderStats();
       startStudy('all');
@@ -1190,8 +1274,8 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
   setExamUI();
 
   (function initLogin() {
-    const saved = JSON.parse(localStorage.getItem('dp300_users') || '[]');
-    const last  = localStorage.getItem('dp300_lastUser') || '';
+    const saved = JSON.parse(localStorage.getItem('review_users') || localStorage.getItem('dp300_users') || '[]');
+    const last  = localStorage.getItem('review_lastUser') || localStorage.getItem('dp300_lastUser') || '';
 
     // mostra histórico de usuários como atalhos
     if (saved.length) {
