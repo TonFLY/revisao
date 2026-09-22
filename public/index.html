@@ -597,23 +597,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
 
   let currentExam = normalizeExamCode(localStorage.getItem('review_exam')) || 'DP-300';
 
-  // ── repetição espaçada ────────────────────────────────────
-  // Guarda a sequência de acertos/erros por questão: { [uid:qid]: [ true, false, ... ] }
-  function streakKey(qid) { return `review_streak_${currentExam}_${currentUid}_${qid}`; }
-
-  function calcStatus(qid, isRight) {
-    const key  = streakKey(qid);
-    const hist = JSON.parse(localStorage.getItem(key) || '[]');
-    hist.push(isRight);
-    // mantém apenas as últimas 2 respostas
-    if (hist.length > 2) hist.shift();
-    localStorage.setItem(key, JSON.stringify(hist));
-
-    const last2 = hist.slice(-2);
-    if (last2.length === 2 && last2.every(v => v === true))  return 'acertei'; // 2 acertos seguidos
-    if (last2.length === 2 && last2.every(v => v === false)) return 'errei';   // 2 erros seguidos
-    return 'revisar'; // qualquer outra combinação (1 resposta, ou acerto+erro, ou erro+acerto)
-  }
+  // O histórico e o status das respostas são controlados pelo servidor em /api/attempts.
 
   // ── login ────────────────────────────────────────────────
   function doLogin() {
@@ -956,6 +940,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
 
   // ── DECOREBA ────────────────────────────────────────────
   let dQueue = [], dIdx = 0, dAnswered = false;
+  let decorebaStartedAt = 0;
 
   function isDecoreba(q) { return q.topic && q.topic.toLowerCase().startsWith('decoreba'); }
 
@@ -1006,6 +991,10 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
       { letter:'C', text: q.option_c },
       { letter:'D', text: q.option_d },
     ];
+
+    // Marca o início da exibição para registrar o tempo real de resposta.
+    decorebaStartedAt = Date.now();
+
     el.innerHTML = `
       <div class="fc-progress">${dIdx+1} / ${dQueue.length}</div>
       <div class="fc-bar-wrap"><div class="fc-bar" style="width:${pct}%"></div></div>
@@ -1032,36 +1021,104 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
 
   async function pickDecoreba(qid, letter) {
     if (dAnswered) return;
-    dAnswered = true;
-    const q       = dQueue[dIdx];
-    const correct = (q.correct || '').toUpperCase();
-    const isRight = letter === correct;
-    const status  = calcStatus(qid, isRight);
 
+    dAnswered = true;
+
+    const q = dQueue[dIdx];
+
+    // Trava as alternativas enquanto o servidor registra e valida a tentativa.
     ['A','B','C','D'].forEach(l => {
-      const btn = document.getElementById('dopt-'+l);
-      if (!btn) return;
-      btn.disabled = true;
-      if (l === correct) btn.classList.add('correct');
-      else if (l === letter && !isRight) btn.classList.add('wrong');
+      const btn = document.getElementById('dopt-' + l);
+      if (btn) btn.disabled = true;
     });
 
-    const statusLabel = { acertei:'✓ Correto! (2× seguidas → acertei)', revisar: isRight ? '✓ Correto! (continue praticando → revisar)' : '✗ Errado! (continue praticando → revisar)', errei:`✗ Errado! (2× seguidas → errei)` };
-    const res = document.getElementById('dc-result');
-    res.textContent   = (statusLabel[status] || '') + ((!isRight) ? ` — correta: ${correct}` : '');
-    res.className     = 'fc-result ' + (isRight ? 'acertei' : 'errei');
-    res.style.display = 'block';
-
-    if (structuredLearningHTML(q)) document.getElementById('dc-exp').style.display = 'block';
-    document.getElementById('dc-next').style.display = 'block';
+    const responseMs = decorebaStartedAt
+      ? Date.now() - decorebaStartedAt
+      : null;
 
     try {
-      const updated = await apiFetch(apiUrlId(qid), { method:'PUT', body: JSON.stringify({...q, status}) });
-      Object.assign(q, updated);
-      const orig = qs.find(x=>x.id===qid);
-      if (orig) Object.assign(orig, updated);
+      const result = await apiFetch(
+        `/api/attempts?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(currentExam)}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            question_id: qid,
+            selected_answer: letter,
+            study_mode: 'decoreba',
+            response_ms: responseMs
+          })
+        }
+      );
+
+      const correct = result.correct_answer;
+      const isRight = result.is_correct;
+      const status = result.status;
+
+      ['A','B','C','D'].forEach(l => {
+        const btn = document.getElementById('dopt-' + l);
+        if (!btn) return;
+
+        if (l === correct) {
+          btn.classList.add('correct');
+        } else if (l === letter && !isRight) {
+          btn.classList.add('wrong');
+        }
+      });
+
+      let mensagem = '';
+
+      if (isRight && status === 'acertei') {
+        mensagem = '✓ Correto! Domínio confirmado após intervalo de revisão.';
+      } else if (isRight) {
+        mensagem = '✓ Correto! Continua em revisar até confirmar novamente após ≥24h.';
+      } else if (status === 'errei') {
+        mensagem = `✗ Errado! 2 erros consecutivos → errei. Correta: ${correct}`;
+      } else {
+        mensagem = `✗ Errado! Continua em revisar. Correta: ${correct}`;
+      }
+
+      if (result.history) {
+        mensagem +=
+          ` | Tentativas: ${result.history.attempts}` +
+          ` | Acertos: ${result.history.correct}` +
+          ` | Erros: ${result.history.wrong}` +
+          ` | Histórico: ${result.history.accuracy_pct}%`;
+      }
+
+      const res = document.getElementById('dc-result');
+      res.textContent = mensagem;
+      res.className = 'fc-result ' + (isRight ? 'acertei' : 'errei');
+      res.style.display = 'block';
+
+      if (structuredLearningHTML(q)) {
+        document.getElementById('dc-exp').style.display = 'block';
+      }
+
+      document.getElementById('dc-next').style.display = 'block';
+
+      // O status já foi persistido por /api/attempts.
+      q.status = status;
+
+      const orig = qs.find(x => x.id === qid);
+      if (orig) orig.status = status;
+
       renderStats();
-    } catch(e) { console.error(e); }
+
+    } catch (e) {
+      console.error(e);
+
+      dAnswered = false;
+
+      ['A','B','C','D'].forEach(l => {
+        const btn = document.getElementById('dopt-' + l);
+        if (btn) btn.disabled = false;
+      });
+
+      const res = document.getElementById('dc-result');
+      res.textContent = 'Erro ao registrar tentativa: ' + e.message;
+      res.className = 'fc-result errei';
+      res.style.display = 'block';
+    }
   }
 
   function nextDecorebaCard() { dIdx++; renderDecorebaCard(); }
