@@ -587,6 +587,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
 <script>
   const API = '/api/questions';
   let qs = [], sQueue = [], sIdx = 0, answered = false;
+  let questionStartedAt = 0;
   let currentUid = '';
 
   function normalizeExamCode(value) {
@@ -821,6 +822,10 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
       { letter:'C', text: q.option_c },
       { letter:'D', text: q.option_d },
     ];
+
+    // Marca o início da exibição para registrar o tempo real de resposta.
+    questionStartedAt = Date.now();
+
     el.innerHTML = `
       <div class="fc-progress">${sIdx+1} / ${sQueue.length}</div>
       <div class="fc-bar-wrap"><div class="fc-bar" style="width:${pct}%"></div></div>
@@ -847,38 +852,104 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
 
   async function pick(qid, letter) {
     if (answered) return;
-    answered = true;
-    const q       = sQueue[sIdx];
-    const correct = (q.correct || '').toUpperCase();
-    const isRight = letter === correct;
-    const status  = calcStatus(qid, isRight);
 
-    // visual feedback
+    answered = true;
+
+    const q = sQueue[sIdx];
+
+    // Trava as alternativas enquanto o servidor registra e valida a tentativa.
     ['A','B','C','D'].forEach(l => {
-      const btn = document.getElementById('opt-'+l);
-      if (!btn) return;
-      btn.disabled = true;
-      if (l === correct) btn.classList.add('correct');
-      else if (l === letter && !isRight) btn.classList.add('wrong');
+      const btn = document.getElementById('opt-' + l);
+      if (btn) btn.disabled = true;
     });
 
-    const statusLabel = { acertei:'✓ Correto! (2× seguidas → acertei)', revisar: isRight ? '✓ Correto! (continue praticando → revisar)' : '✗ Errado! (continue praticando → revisar)', errei:`✗ Errado! (2× seguidas → errei)` };
-    const res = document.getElementById('fc-result');
-    res.textContent = (statusLabel[status] || '') + ((!isRight && status !== 'errei') ? ` — correta: ${correct}` : (!isRight ? ` — correta: ${correct}` : ''));
-    res.className   = 'fc-result ' + (isRight ? 'acertei' : 'errei');
-    res.style.display = 'block';
+    const responseMs = questionStartedAt
+      ? Date.now() - questionStartedAt
+      : null;
 
-    if (structuredLearningHTML(q)) document.getElementById('fc-exp').style.display = 'block';
-    document.getElementById('fc-next').style.display = 'block';
-
-    // persist status
     try {
-      const updated = await apiFetch(apiUrlId(qid), { method:'PUT', body: JSON.stringify({...q, status}) });
-      Object.assign(q, updated);
-      const orig = qs.find(x=>x.id===qid);
-      if (orig) Object.assign(orig, updated);
+      const result = await apiFetch(
+        `/api/attempts?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(currentExam)}`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            question_id: qid,
+            selected_answer: letter,
+            study_mode: 'study',
+            response_ms: responseMs
+          })
+        }
+      );
+
+      const correct = result.correct_answer;
+      const isRight = result.is_correct;
+      const status = result.status;
+
+      // Feedback visual com base no resultado retornado pelo servidor.
+      ['A','B','C','D'].forEach(l => {
+        const btn = document.getElementById('opt-' + l);
+        if (!btn) return;
+
+        if (l === correct) {
+          btn.classList.add('correct');
+        } else if (l === letter && !isRight) {
+          btn.classList.add('wrong');
+        }
+      });
+
+      let mensagem = '';
+
+      if (isRight && status === 'acertei') {
+        mensagem = '✓ Correto! Domínio confirmado após intervalo de revisão.';
+      } else if (isRight) {
+        mensagem = '✓ Correto! Continua em revisar até confirmar novamente após ≥24h.';
+      } else if (status === 'errei') {
+        mensagem = `✗ Errado! 2 erros consecutivos → errei. Correta: ${correct}`;
+      } else {
+        mensagem = `✗ Errado! Continua em revisar. Correta: ${correct}`;
+      }
+
+      if (result.history) {
+        mensagem +=
+          ` | Tentativas: ${result.history.attempts}` +
+          ` | Acertos: ${result.history.correct}` +
+          ` | Erros: ${result.history.wrong}` +
+          ` | Histórico: ${result.history.accuracy_pct}%`;
+      }
+
+      const res = document.getElementById('fc-result');
+      res.textContent = mensagem;
+      res.className = 'fc-result ' + (isRight ? 'acertei' : 'errei');
+      res.style.display = 'block';
+
+      if (structuredLearningHTML(q)) {
+        document.getElementById('fc-exp').style.display = 'block';
+      }
+
+      document.getElementById('fc-next').style.display = 'block';
+
+      // O status já foi persistido por /api/attempts.
+      q.status = status;
+
+      const orig = qs.find(x => x.id === qid);
+      if (orig) orig.status = status;
+
       renderStats();
-    } catch(e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+
+      answered = false;
+
+      ['A','B','C','D'].forEach(l => {
+        const btn = document.getElementById('opt-' + l);
+        if (btn) btn.disabled = false;
+      });
+
+      const res = document.getElementById('fc-result');
+      res.textContent = 'Erro ao registrar tentativa: ' + e.message;
+      res.className = 'fc-result errei';
+      res.style.display = 'block';
+    }
   }
 
   function nextCard() { sIdx++; renderCard(); }
