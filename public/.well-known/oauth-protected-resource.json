@@ -1,0 +1,10 @@
+{
+  "resource": "https://revisao-umqs.vercel.app/api/mcp",
+  "authorization_servers": [
+    "https://dev-13ab0r8arbhs1z44.us.auth0.com/"
+  ],
+  "scopes_supported": [
+    "study:read"
+  ],
+  "resource_documentation": "https://revisao-umqs.vercel.app/"
+}
