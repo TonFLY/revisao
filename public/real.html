@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Simulado Real — Microsoft DP Exams</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;background:#f3f5f8;color:#1f2328}.hidden{display:none!important}button,input,select{font:inherit}.topbar{position:sticky;top:0;z-index:50;background:#0f6cbd;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 8px #0002}.topbar .brand{font-weight:800;flex:1}.topbar .meta{font-size:13px;opacity:.95}.btn{border:0;border-radius:7px;padding:9px 14px;font-weight:700;cursor:pointer}.btn-primary{background:#0f6cbd;color:#fff}.btn-light{background:#fff;color:#0f6cbd;border:1px solid #c7d7ea}.btn-danger{background:#b42318;color:#fff}.btn-muted{background:#eef1f4;color:#32383f}.container{max-width:1180px;margin:0 auto;padding:20px}.setup{max-width:760px;margin:24px auto;background:#fff;border:1px solid #dfe4ea;border-radius:14px;padding:24px;box-shadow:0 4px 18px #0000000d}.setup h1{margin:0 0 8px;font-size:24px}.setup p{color:#59636e;line-height:1.55}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:12px;font-weight:800;color:#59636e;margin-bottom:5px;text-transform:uppercase}.field input,.field select{width:100%;padding:10px;border:1px solid #cfd6dd;border-radius:7px}.pool{margin:14px 0;padding:12px;background:#f7f9fb;border:1px solid #e3e8ee;border-radius:9px;font-size:13px}.exam-shell{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:16px}.question-card{background:#fff;border:1px solid #dfe4ea;border-radius:12px;overflow:hidden;min-height:500px}.qhead{background:#0f6cbd;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px}.qhead .spacer{flex:1}.qbody{padding:22px}.badges{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.badge{font-size:11px;font-weight:800;border-radius:999px;padding:4px 9px;background:#e7f1fb;color:#0f5b9d}.badge.gray{background:#eef1f4;color:#59636e}.question{font-size:17px;font-weight:650;line-height:1.58;white-space:pre-wrap;margin-bottom:18px}.casebox{border:1px solid #e0d5ff;background:#faf7ff;border-radius:10px;margin-bottom:18px}.casebox summary{cursor:pointer;padding:12px 14px;font-weight:800;color:#5b36a8}.casebody{padding:0 14px 14px;font-size:13px;line-height:1.55}.casebody h4{margin:12px 0 5px}.option{display:flex;gap:10px;width:100%;text-align:left;background:#fff;border:2px solid #dfe4ea;border-radius:9px;padding:12px;margin:9px 0;cursor:pointer}.option:hover{border-color:#0f6cbd}.option.selected{border-color:#0f6cbd;background:#eef6ff}.letter{width:28px;height:28px;border-radius:50%;background:#edf0f3;display:flex;align-items:center;justify-content:center;font-weight:800;flex:0 0 auto}.multi-row{display:flex;align-items:flex-start;gap:9px;border:1px solid #dfe4ea;border-radius:8px;padding:10px;margin:8px 0}.matrix{width:100%;border-collapse:collapse;margin-top:10px}.matrix th,.matrix td{border:1px solid #dfe4ea;padding:10px;text-align:center}.matrix th:first-child,.matrix td:first-child{text-align:left}.codebox{background:#fbfbfc;border:1px solid #d7dde4;border-radius:9px;padding:16px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;line-height:1.9;white-space:pre-wrap;overflow:auto}.codebox select{font-family:inherit;padding:4px 26px 4px 6px;border:1px solid #8e99a6;background:#fff}.build{display:grid;grid-template-columns:1fr 1fr;gap:14px}.build-col{border:1px solid #dfe4ea;border-radius:9px;padding:10px;min-height:180px}.build-col h4{margin:0 0 8px}.build-item{display:flex;align-items:center;gap:6px;padding:8px;border:1px solid #dfe4ea;border-radius:7px;background:#fff;margin:6px 0}.build-item span{flex:1}.mini{border:1px solid #cbd3dc;background:#f7f9fb;border-radius:5px;padding:3px 7px;cursor:pointer}.drag-bank{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.drag-item{border:2px solid #dfe4ea;border-radius:8px;padding:8px 10px;background:#fff;cursor:grab}.drag-item.active{border-color:#0f6cbd;background:#eef6ff}.dropzone{border:2px dashed #aeb8c3;border-radius:9px;padding:12px;margin:8px 0;min-height:55px}.dropzone.filled{border-style:solid;border-color:#0f6cbd;background:#f4f9ff}.drop-label{font-size:12px;font-weight:800;color:#59636e;margin-bottom:4px}.hotwrap{position:relative;display:inline-block;max-width:100%}.hotwrap img{max-width:100%;display:block;border:1px solid #dfe4ea}.hotspot{position:absolute;border:2px solid rgba(15,108,189,.35);background:rgba(15,108,189,.06);cursor:pointer}.hotspot.selected{border-color:#0f6cbd;background:rgba(15,108,189,.25)}.actions{display:flex;gap:8px;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid #edf0f2}.actions .right{display:flex;gap:8px}.sidebar{background:#fff;border:1px solid #dfe4ea;border-radius:12px;padding:14px;height:fit-content;position:sticky;top:72px}.side-title{font-weight:800;margin-bottom:10px}.navgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.navq{height:36px;border:1px solid #cfd6dd;background:#fff;border-radius:6px;cursor:pointer;font-size:12px}.navq.answered{background:#e6f4ea;border-color:#79b88a}.navq.marked{box-shadow:inset 0 0 0 2px #f2a900}.navq.current{background:#0f6cbd;color:#fff;border-color:#0f6cbd}.legend{font-size:11px;color:#59636e;line-height:1.7;margin-top:10px}.review{background:#fff;border:1px solid #dfe4ea;border-radius:12px;padding:22px;max-width:900px;margin:0 auto}.review h2{margin-top:0}.review-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:7px;margin:16px 0}.review-q{padding:9px 0;border:1px solid #cfd6dd;border-radius:6px;text-align:center;cursor:pointer}.review-q.answered{background:#e6f4ea}.review-q.marked{box-shadow:inset 0 0 0 2px #f2a900}.result-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.metric{background:#f7f9fb;border:1px solid #e1e6eb;border-radius:9px;padding:13px;text-align:center}.metric .n{font-size:25px;font-weight:800;color:#0f6cbd}.wrong-card{border:1px solid #ead7d5;border-left:4px solid #b42318;background:#fff;margin:10px 0;border-radius:8px;padding:13px}.right-card{border-left-color:#1a7f37}.exp{font-size:13px;line-height:1.55;color:#444;margin-top:8px}.notice{background:#fff8e8;border:1px solid #f2d59a;border-radius:8px;padding:10px 12px;font-size:13px}.importbox{margin-top:14px;padding-top:14px;border-top:1px solid #e7ebef}.error{color:#b42318;font-weight:700;margin-top:10px}.timer-warn{background:#b42318!important}.save-state{font-size:12px;color:#59636e}.type-help{font-size:12px;color:#59636e;margin-bottom:10px}@media(max-width:850px){.exam-shell{grid-template-columns:1fr}.sidebar{position:static;order:-1}.navgrid{grid-template-columns:repeat(10,1fr)}.grid2,.build{grid-template-columns:1fr}.result-summary{grid-template-columns:1fr 1fr}}@media(max-width:540px){.container{padding:10px}.qbody{padding:15px}.review-grid{grid-template-columns:repeat(5,1fr)}.navgrid{grid-template-columns:repeat(8,1fr)}.topbar{flex-wrap:wrap}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">Certification Review — Simulado Real</div>
+  <div class="meta" id="topMeta"></div>
+  <button class="btn btn-light" onclick="location.href='/'">Revisão</button>
+</div>
+<div class="container">
+  <section id="setup" class="setup">
+    <h1>Simulado REAL</h1>
+    <p>Modo separado do banco de revisão. Usa questões inéditas primeiro, formatos interativos e não revela gabarito durante a prova.</p>
+    <div class="notice">A nota exibida é <strong>percentual bruto do simulador</strong>. Ela não é a pontuação escalonada oficial da Microsoft.</div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="field"><label>Usuário</label><input id="uid" /></div>
+      <div class="field"><label>Exame</label><input id="exam" value="DP-300" /></div>
+      <div class="field"><label>Questões</label><select id="qcount"><option>10</option><option>25</option><option selected>50</option><option>60</option></select></div>
+      <div class="field"><label>Tempo (min)</label><select id="duration"><option>20</option><option>50</option><option selected>100</option><option>120</option></select></div>
+    </div>
+    <div id="pool" class="pool">Consultando banco REAL…</div>
+    <button class="btn btn-primary" onclick="startExam()">Iniciar simulado</button>
+    <div class="importbox">
+      <strong>Banco REAL</strong>
+      <p style="font-size:13px;color:#59636e">Importe arquivos JSON v2 com <code>origin: "real"</code> e tipos interativos.</p>
+      <input id="importFile" type="file" accept=".json" />
+      <button class="btn btn-muted" onclick="importBank()">Importar banco REAL</button>
+      <div id="importMsg"></div>
+    </div>
+  </section>
+
+  <section id="examView" class="hidden">
+    <div class="exam-shell">
+      <main class="question-card">
+        <div class="qhead">
+          <span id="qnum">Questão</span>
+          <span class="spacer"></span>
+          <span id="timer">100:00</span>
+        </div>
+        <div class="qbody">
+          <div id="case"></div>
+          <div class="badges" id="badges"></div>
+          <div class="question" id="question"></div>
+          <div class="type-help" id="typeHelp"></div>
+          <div id="interaction"></div>
+          <div class="actions">
+            <div>
+              <label><input type="checkbox" id="mark" onchange="toggleMark()" /> Marcar para revisão</label>
+              <div class="save-state" id="saveState"></div>
+            </div>
+            <div class="right">
+              <button class="btn btn-muted" onclick="goPrev()">← Anterior</button>
+              <button class="btn btn-primary" onclick="goNext()">Salvar e próxima →</button>
+            </div>
+          </div>
+        </div>
+      </main>
+      <aside class="sidebar">
+        <div class="side-title">Navegação</div>
+        <div class="navgrid" id="navgrid"></div>
+        <div class="legend">Verde = respondida<br>Contorno amarelo = marcada<br>Azul = atual</div>
+        <button class="btn btn-danger" style="width:100%;margin-top:12px" onclick="openReview()">Revisar / Finalizar</button>
+      </aside>
+    </div>
+  </section>
+
+  <section id="reviewView" class="review hidden">
+    <h2>Revisão antes de enviar</h2>
+    <div id="reviewCounts"></div>
+    <div class="review-grid" id="reviewGrid"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-muted" onclick="backToExam()">Voltar à prova</button>
+      <button class="btn btn-danger" onclick="submitExam(false)">Enviar prova</button>
+    </div>
+  </section>
+
+  <section id="resultView" class="review hidden"></section>
+</div>
+<script>
+let state={session:null,questions:[],index:0,timer:null,shownAt:0,dragSelected:null};
+const $=id=>document.getElementById(id);
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function current(){return state.questions[state.index]}
+function api(url,opts={}){return fetch(url,{headers:{'Content-Type':'application/json'},...opts}).then(async r=>{const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||r.statusText);return j})}
+function init(){const last=localStorage.getItem('review_lastUser')||'wellington';$('uid').value=last;$('exam').value=localStorage.getItem('review_exam')||'DP-300';refreshPool()}
+async function refreshPool(){try{const d=await api(`/api/exam/pool?uid=${encodeURIComponent($('uid').value)}&exam=${encodeURIComponent($('exam').value)}`);$('pool').innerHTML=`Banco REAL: <strong>${d.total||0}</strong> questões — Plataforma ${d.platform||0} · Segurança ${d.security||0} · Performance ${d.performance||0} · Automação ${d.automation||0} · HA/DR ${d.hadr||0}`;}catch(e){$('pool').textContent='Erro: '+e.message}}
+async function importBank(){const f=$('importFile').files[0];if(!f)return;$('importMsg').textContent='Importando…';try{const data=JSON.parse(await f.text());const questions=data.questions||data;const r=await api(`/api/questions/import?uid=${encodeURIComponent($('uid').value)}&exam=${encodeURIComponent($('exam').value)}`,{method:'POST',body:JSON.stringify({questions})});$('importMsg').innerHTML=`<span style="color:#1a7f37">✓ ${r.inserted} importadas (${r.real} REAL)</span>`;refreshPool()}catch(e){$('importMsg').innerHTML=`<span class="error">${esc(e.message)}</span>`}}
+async function startExam(){const uid=$('uid').value.trim().toLowerCase();const exam=$('exam').value.trim().toUpperCase();localStorage.setItem('review_lastUser',uid);localStorage.setItem('review_exam',exam);try{const s=await api('/api/exam/start',{method:'POST',body:JSON.stringify({uid,exam,question_count:+$('qcount').value,duration_minutes:+$('duration').value})});const d=await api(`/api/exam/session?session_id=${encodeURIComponent(s.session_id)}&uid=${encodeURIComponent(uid)}`);state.session=d.session;state.questions=d.questions;state.index=0;$('setup').classList.add('hidden');$('examView').classList.remove('hidden');$('topMeta').textContent=`${exam} · ${uid}`;renderQuestion();startTimer()}catch(e){alert(e.message)}}
+function startTimer(){clearInterval(state.timer);tick();state.timer=setInterval(tick,1000)}
+function tick(){if(!state.session)return;const end=new Date(state.session.expires_at).getTime();let sec=Math.max(0,Math.floor((end-Date.now())/1000));const m=Math.floor(sec/60),s=sec%60;$('timer').textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;$('timer').parentElement.classList.toggle('timer-warn',sec<=300);if(sec<=0){clearInterval(state.timer);submitExam(true)}}
+function renderCase(q){const c=q.case_data;if(!c){$('case').innerHTML='';return}let body='';for(const [k,v] of Object.entries(c)){if(k==='title')continue;const title={overview:'Visão geral',environment:'Ambiente atual',requirements:'Requisitos',problem:'Problema',business_requirements:'Requisitos de negócio'}[k]||k;body+=`<h4>${esc(title)}</h4><div>${esc(Array.isArray(v)?v.join('\n• '):v).replace(/\n/g,'<br>')}</div>`}$('case').innerHTML=`<details class="casebox" open><summary>${esc(c.title||'Estudo de caso')}</summary><div class="casebody">${body}</div></details>`}
+function renderQuestion(){const q=current();if(!q)return;state.shownAt=Date.now();$('qnum').textContent=`Questão ${state.index+1} de ${state.questions.length}`;$('badges').innerHTML=`<span class="badge">${esc(q.domain_code||'domínio')}</span><span class="badge gray">${esc(q.question_type||'single_choice')}</span><span class="badge gray">${esc(q.difficulty||'')}</span>`;$('question').textContent=q.question||'';$('mark').checked=!!q.marked_for_review;$('saveState').textContent=q.saved_answer?'Resposta salva':'';renderCase(q);renderNav();renderInteraction(q);}
+function optionsOf(q){if(q.interaction?.options)return q.interaction.options;return ['A','B','C','D'].map(id=>({id,text:q['option_'+id.toLowerCase()]})).filter(x=>x.text)}
+function renderInteraction(q){const type=q.question_type||'single_choice',saved=q.saved_answer||{};const el=$('interaction');$('typeHelp').textContent='';if(type==='single_choice'){el.innerHTML=optionsOf(q).map(o=>`<button class="option ${saved.selected===o.id?'selected':''}" onclick="selectSingle('${esc(o.id)}')"><span class="letter">${esc(o.id)}</span><span>${esc(o.text)}</span></button>`).join('');$('typeHelp').textContent='Selecione uma resposta.'}
+else if(type==='multi_select'){const sel=new Set(saved.selected||[]);el.innerHTML=optionsOf(q).map(o=>`<label class="multi-row"><input type="checkbox" data-multi="${esc(o.id)}" ${sel.has(o.id)?'checked':''}><span><strong>${esc(o.id)})</strong> ${esc(o.text)}</span></label>`).join('');$('typeHelp').textContent=`Selecione ${q.interaction?.min||q.interaction?.max||'todas as'} opções solicitadas.`}
+else if(type==='yes_no_matrix'){const rows=q.interaction?.rows||[],cols=q.interaction?.columns||[{id:'yes',label:'Sim'},{id:'no',label:'Não'}];el.innerHTML=`<table class="matrix"><thead><tr><th>Afirmação</th>${cols.map(c=>`<th>${esc(c.label)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr><td>${esc(r.text)}</td>${cols.map(c=>`<td><input type="radio" name="row-${esc(r.id)}" data-matrix-row="${esc(r.id)}" value="${esc(c.id)}" ${saved[r.id]===c.id?'checked':''}></td>`).join('')}</tr>`).join('')}</tbody></table>`;$('typeHelp').textContent='Escolha uma opção para cada linha.'}
+else if(type==='hotspot_dropdown'){el.innerHTML=renderCodeSlots(q.interaction?.code||'',q.interaction?.slots||[],saved);$('typeHelp').textContent='Complete cada área de resposta.'}
+else if(type==='build_list'){renderBuild(q,saved)}
+else if(type==='drag_drop'){renderDrag(q,saved)}
+else if(type==='image_hotspot'){renderHotspot(q,saved)}
+else{el.innerHTML=`<div class="error">Tipo ainda não suportado: ${esc(type)}</div>`}}
+function selectSingle(id){current().saved_answer={selected:id};renderInteraction(current());$('saveState').textContent='Resposta ainda não enviada'}
+function renderCodeSlots(code,slots,saved){const map=Object.fromEntries(slots.map(s=>[s.id,s]));const parts=String(code).split(/(\{\{[^}]+\}\})/g);return `<div class="codebox">${parts.map(p=>{const m=p.match(/^\{\{([^}]+)\}\}$/);if(!m)return esc(p);const s=map[m[1]];if(!s)return esc(p);return `<select data-slot="${esc(s.id)}"><option value="">-- selecione --</option>${(s.options||[]).map(o=>{const id=typeof o==='string'?o:o.id,text=typeof o==='string'?o:o.text;return `<option value="${esc(id)}" ${saved[s.id]===id?'selected':''}>${esc(text)}</option>`}).join('')}</select>`}).join('')}</div>`}
+function renderBuild(q,saved){const items=q.interaction?.items||[],order=saved.order||[];const used=new Set(order);const by=Object.fromEntries(items.map(i=>[i.id,i]));$('interaction').innerHTML=`<div class="build"><div class="build-col"><h4>Opções disponíveis</h4><div id="buildAvail">${items.filter(i=>!used.has(i.id)).map(i=>buildItem(i,false)).join('')}</div></div><div class="build-col"><h4>Resposta / ordem</h4><div id="buildAnswer">${order.map(id=>by[id]).filter(Boolean).map(i=>buildItem(i,true)).join('')}</div></div></div>`;$('typeHelp').textContent='Mova os itens necessários para a coluna de resposta e ajuste a ordem.'}
+function buildItem(i,inAnswer){return `<div class="build-item" data-build-id="${esc(i.id)}"><span>${esc(i.text)}</span>${inAnswer?'<button class="mini" onclick="buildMove(this,-1)">↑</button><button class="mini" onclick="buildMove(this,1)">↓</button><button class="mini" onclick="buildRemove(this)">←</button>':'<button class="mini" onclick="buildAdd(this)">→</button>'}</div>`}
+function buildAdd(btn){$('buildAnswer').appendChild(btn.closest('.build-item'));btn.outerHTML='<button class="mini" onclick="buildMove(this,-1)">↑</button><button class="mini" onclick="buildMove(this,1)">↓</button><button class="mini" onclick="buildRemove(this)">←</button>'}
+function buildRemove(btn){const row=btn.closest('.build-item');$('buildAvail').appendChild(row);row.querySelectorAll('button').forEach(b=>b.remove());row.insertAdjacentHTML('beforeend','<button class="mini" onclick="buildAdd(this)">→</button>')}
+function buildMove(btn,d){const row=btn.closest('.build-item'),p=row.parentElement;if(d<0&&row.previousElementSibling)p.insertBefore(row,row.previousElementSibling);if(d>0&&row.nextElementSibling)p.insertBefore(row.nextElementSibling,row)}
+function renderDrag(q,saved){const items=q.interaction?.items||[],targets=q.interaction?.targets||[],assigned=new Set(Object.values(saved));$('interaction').innerHTML=`<div class="drag-bank">${items.filter(i=>!assigned.has(i.id)).map(i=>`<div class="drag-item" draggable="true" data-drag-id="${esc(i.id)}" onclick="chooseDrag(this)" ondragstart="dragStart(event)">${esc(i.text)}</div>`).join('')}</div>${targets.map(t=>{const id=saved[t.id],it=items.find(i=>i.id===id);return `<div class="dropzone ${it?'filled':''}" data-target="${esc(t.id)}" data-assigned="${esc(id||'')}" onclick="dropClick(this)" ondragover="event.preventDefault()" ondrop="dropEvent(event,this)"><div class="drop-label">${esc(t.label)}</div><div class="drop-value">${it?esc(it.text):'Solte ou selecione um item aqui'}</div></div>`}).join('')}`;$('typeHelp').textContent='Arraste os itens para os destinos (ou clique no item e depois no destino).'}
+function chooseDrag(el){document.querySelectorAll('.drag-item').forEach(x=>x.classList.remove('active'));el.classList.add('active');state.dragSelected=el.dataset.dragId}
+function dragStart(e){state.dragSelected=e.currentTarget.dataset.dragId;e.dataTransfer.setData('text/plain',state.dragSelected)}
+function dropEvent(e,z){e.preventDefault();state.dragSelected=e.dataTransfer.getData('text/plain')||state.dragSelected;assignDrag(z)}
+function dropClick(z){if(state.dragSelected)assignDrag(z)}
+function assignDrag(z){const q=current(),items=q.interaction?.items||[];const id=state.dragSelected;if(!id)return;document.querySelectorAll('.dropzone').forEach(x=>{if(x!==z&&x.dataset.assigned===id){x.dataset.assigned='';x.classList.remove('filled');x.querySelector('.drop-value').textContent='Solte ou selecione um item aqui'}});z.dataset.assigned=id;z.classList.add('filled');z.querySelector('.drop-value').textContent=items.find(i=>i.id===id)?.text||id;document.querySelector(`.drag-item[data-drag-id="${CSS.escape(id)}"]`)?.remove();state.dragSelected=null}
+function renderHotspot(q,saved){const i=q.interaction||{},sel=new Set(saved.selected||[]);$('interaction').innerHTML=`<div class="hotwrap"><img src="${esc(i.image_url||'')}" alt="Área interativa">${(i.hotspots||[]).map(h=>`<button type="button" class="hotspot ${sel.has(h.id)?'selected':''}" title="${esc(h.label||h.id)}" data-hotspot="${esc(h.id)}" style="left:${h.x*100}%;top:${h.y*100}%;width:${h.w*100}%;height:${h.h*100}%" onclick="toggleHotspot(this,${i.multi?'true':'false'})"></button>`).join('')}</div>`;$('typeHelp').textContent='Clique na área correta da imagem.'}
+function toggleHotspot(el,multi){if(!multi)document.querySelectorAll('[data-hotspot]').forEach(x=>x.classList.remove('selected'));el.classList.toggle('selected')}
+function collectAnswer(q){const type=q.question_type||'single_choice';if(type==='single_choice')return q.saved_answer||null;if(type==='multi_select')return{selected:[...document.querySelectorAll('[data-multi]:checked')].map(x=>x.dataset.multi)};if(type==='yes_no_matrix'){const o={};document.querySelectorAll('[data-matrix-row]:checked').forEach(x=>o[x.dataset.matrixRow]=x.value);return o}if(type==='hotspot_dropdown'){const o={};document.querySelectorAll('[data-slot]').forEach(x=>{if(x.value)o[x.dataset.slot]=x.value});return o}if(type==='build_list')return{order:[...document.querySelectorAll('#buildAnswer [data-build-id]')].map(x=>x.dataset.buildId)};if(type==='drag_drop'){const o={};document.querySelectorAll('.dropzone').forEach(x=>{if(x.dataset.assigned)o[x.dataset.target]=x.dataset.assigned});return o}if(type==='image_hotspot')return{selected:[...document.querySelectorAll('[data-hotspot].selected')].map(x=>x.dataset.hotspot)};return null}
+function hasAnswer(a){if(a==null)return false;if(Array.isArray(a))return a.length>0;if(typeof a==='object')return Object.keys(a).length>0&&Object.values(a).some(v=>Array.isArray(v)?v.length>0:v!==''&&v!=null);return true}
+async function saveCurrent(){const q=current(),ans=collectAnswer(q);q.saved_answer=ans;if(!hasAnswer(ans)){$('saveState').textContent='Sem resposta';renderNav();return false}try{$('saveState').textContent='Salvando…';await api('/api/exam/answer',{method:'POST',body:JSON.stringify({uid:state.session.user_id,session_id:state.session.session_id,position:q.position,answer:ans,response_ms:Date.now()-state.shownAt})});$('saveState').textContent='Resposta salva';renderNav();return true}catch(e){$('saveState').textContent='Erro: '+e.message;return false}}
+async function goNext(){await saveCurrent();if(state.index<state.questions.length-1){state.index++;renderQuestion()}else openReview()}
+async function goPrev(){await saveCurrent();if(state.index>0){state.index--;renderQuestion()}}
+async function jump(i){await saveCurrent();state.index=i;showExam();renderQuestion()}
+async function toggleMark(){const q=current();q.marked_for_review=$('mark').checked;renderNav();try{await api('/api/exam/mark',{method:'POST',body:JSON.stringify({uid:state.session.user_id,session_id:state.session.session_id,position:q.position,marked:q.marked_for_review})})}catch(e){console.warn(e)}}
+function renderNav(){const q=current();$('navgrid').innerHTML=state.questions.map((x,i)=>`<button class="navq ${hasAnswer(x.saved_answer)?'answered':''} ${x.marked_for_review?'marked':''} ${i===state.index?'current':''}" onclick="jump(${i})">${i+1}</button>`).join('')}
+function openReview(){saveCurrent().finally(()=>{const answered=state.questions.filter(q=>hasAnswer(q.saved_answer)).length,marked=state.questions.filter(q=>q.marked_for_review).length;$('reviewCounts').innerHTML=`Respondidas: <strong>${answered}/${state.questions.length}</strong> · Não respondidas: <strong>${state.questions.length-answered}</strong> · Marcadas: <strong>${marked}</strong>`;$('reviewGrid').innerHTML=state.questions.map((q,i)=>`<div class="review-q ${hasAnswer(q.saved_answer)?'answered':''} ${q.marked_for_review?'marked':''}" onclick="jump(${i})">${i+1}</div>`).join('');$('examView').classList.add('hidden');$('reviewView').classList.remove('hidden')})}
+function backToExam(){$('reviewView').classList.add('hidden');$('examView').classList.remove('hidden');renderQuestion()}
+function showExam(){$('reviewView').classList.add('hidden');$('resultView').classList.add('hidden');$('examView').classList.remove('hidden')}
+async function submitExam(auto){if(!auto&&!confirm('Enviar o simulado agora? Você não poderá alterar as respostas depois.'))return;clearInterval(state.timer);try{await saveCurrent();const r=await api('/api/exam/submit',{method:'POST',body:JSON.stringify({uid:state.session.user_id,session_id:state.session.session_id})});renderResults(r);fetch('/api/gemini-sync',{method:'POST'}).catch(()=>{})}catch(e){alert(e.message)}}
+function renderResults(r){$('examView').classList.add('hidden');$('reviewView').classList.add('hidden');const correct=r.results.filter(x=>x.is_correct).length,answered=r.results.filter(x=>x.answered).length;const domains={};r.results.forEach(x=>{const d=x.domain_code||'outro';domains[d]??={e:0,m:0};domains[d].e+=Number(x.points_earned||0);domains[d].m+=Number(x.points_max||0)});let html=`<h2>Resultado do simulado</h2><div class="notice">${esc(r.note||'')}</div><div class="result-summary"><div class="metric"><div class="n">${r.raw_score_pct}%</div><div>Acerto bruto</div></div><div class="metric"><div class="n">${correct}</div><div>Questões 100% corretas</div></div><div class="metric"><div class="n">${answered}</div><div>Respondidas</div></div><div class="metric"><div class="n">${r.points_earned}/${r.points_max}</div><div>Pontos</div></div></div><h3>Por domínio</h3><div class="pool">${Object.entries(domains).map(([d,v])=>`${esc(d)}: <strong>${v.m?Math.round(v.e/v.m*100):0}%</strong>`).join(' · ')}</div><h3>Revisão das respostas</h3>`;r.results.forEach(x=>{html+=`<div class="wrong-card ${x.is_correct?'right-card':''}"><strong>#${x.position} — ${x.is_correct?'✓ correta':'✗ revisar'} — ${esc(x.topic||'')}</strong><div style="margin-top:6px">${esc(x.question)}</div><div class="exp"><strong>Sua resposta:</strong> ${esc(JSON.stringify(x.selected??'Não respondida'))}<br><strong>Gabarito:</strong> ${esc(JSON.stringify(x.correct_payload))}${x.why_correct?`<br><strong>Por quê:</strong> ${esc(x.why_correct)}`:''}${x.explanation?`<br>${esc(x.explanation)}`:''}${x.trap?`<br><strong>Pegadinha:</strong> ${esc(x.trap)}`:''}</div></div>`});html+=`<button class="btn btn-primary" onclick="location.reload()">Novo simulado</button>`;$('resultView').innerHTML=html;$('resultView').classList.remove('hidden')}
+init();
+</script>
+</body>
+</html>

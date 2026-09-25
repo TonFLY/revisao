@@ -266,6 +266,7 @@
     </datalist>
   </div>
   <div style="display:flex;gap:6px;align-items:center;">
+    <button class="hbtn" onclick="location.href='/real.html'" style="background:#fff;color:#1a237e;font-weight:800;">Simulado REAL</button>
     <button class="hbtn" onclick="openTutorial(true)">Tutorial</button>
     <button class="hbtn" onclick="openExport()">Exportar JSON</button>
     <button class="hbtn" onclick="document.getElementById('fi').click()">Importar JSON</button>
@@ -705,11 +706,31 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
     return r.json();
   }
 
+  // ── sincronização automática com Google Doc / Gemini ─────
+  // Por enquanto o documento conectado pertence ao Wellington / DP-300.
+  // A sincronização roda em segundo plano e nunca bloqueia o estudo.
+  let geminiSyncTimer = null;
+
+  function scheduleGeminiSync(delay = 600) {
+    if (currentUid !== 'wellington' || currentExam !== 'DP-300') return;
+
+    if (geminiSyncTimer) clearTimeout(geminiSyncTimer);
+
+    geminiSyncTimer = setTimeout(async () => {
+      try {
+        await fetch('/api/gemini-sync', { method: 'POST' });
+      } catch (e) {
+        console.warn('[gemini-sync] falhou em segundo plano:', e);
+      }
+    }, delay);
+  }
+
   async function load() {
     document.getElementById('fc').innerHTML = '<div class="loader">Carregando...</div>';
     qs = await apiFetch(apiUrl(API));
     renderStats();
     startStudy('all');
+    scheduleGeminiSync(300);
   }
 
   // ── stats ────────────────────────────────────────────────
@@ -919,6 +940,8 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
       if (orig) orig.status = status;
 
       renderStats();
+      scheduleGeminiSync();
+
     } catch (e) {
       console.error(e);
 
@@ -1103,6 +1126,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
       if (orig) orig.status = status;
 
       renderStats();
+      scheduleGeminiSync();
 
     } catch (e) {
       console.error(e);
