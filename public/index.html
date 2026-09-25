@@ -173,6 +173,55 @@
     .empty { text-align:center; padding:40px; color:#57606a; }
     .loader { text-align:center; padding:30px; color:#57606a; font-size:14px; }
 
+    /* ── FORMATOS INTERATIVOS — treino REAL ── */
+    .type-badge { background:#e0f2f1; color:#00695c; }
+    .origin-badge { background:#ede7f6; color:#5e35b1; }
+    .realism-badge { background:#fff8e1; color:#8d6e00; }
+    .study-type-help { font-size:12px; color:#57606a; margin:-6px 0 12px; line-height:1.45; }
+    .study-submit { width:100%; padding:10px 14px; border:0; border-radius:8px; background:#1a237e; color:#fff; font-weight:800; cursor:pointer; margin:8px 0 14px; }
+    .study-submit:hover { background:#283593; }
+    .study-submit[disabled] { opacity:.55; cursor:not-allowed; }
+    .casebox { border:1px solid #d9c9ff; background:#faf7ff; border-radius:10px; margin-bottom:16px; }
+    .casebox summary { cursor:pointer; padding:11px 13px; font-weight:800; color:#5b36a8; }
+    .casebody { padding:0 13px 13px; font-size:13px; line-height:1.55; color:#343a40; }
+    .casebody h4 { margin:12px 0 5px; color:#5b36a8; }
+    .multi-row { display:flex; align-items:flex-start; gap:9px; border:2px solid #e5e7eb; border-radius:9px; padding:11px 12px; margin:8px 0; cursor:pointer; }
+    .multi-row:hover { border-color:#1a237e; background:#f7f8ff; }
+    .multi-row.correct-answer { border-color:#2e7d32; background:#e8f5e9; }
+    .multi-row.wrong-answer { border-color:#c62828; background:#ffebee; }
+    .matrix { width:100%; border-collapse:collapse; margin:10px 0 14px; font-size:13px; }
+    .matrix th,.matrix td { border:1px solid #dfe4ea; padding:9px; text-align:center; }
+    .matrix th:first-child,.matrix td:first-child { text-align:left; }
+    .matrix .matrix-correct { background:#e8f5e9; }
+    .matrix .matrix-wrong { background:#ffebee; }
+    .codebox { background:#fbfbfc; border:1px solid #d7dde4; border-radius:9px; padding:15px; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; line-height:1.95; white-space:pre-wrap; overflow:auto; margin-bottom:14px; }
+    .codebox select { font-family:inherit; padding:4px 28px 4px 7px; border:1px solid #8e99a6; border-radius:5px; background:#fff; }
+    .codebox select.correct-answer { border:2px solid #2e7d32; background:#e8f5e9; }
+    .codebox select.wrong-answer { border:2px solid #c62828; background:#ffebee; }
+    .build { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+    .build-col { border:1px solid #dfe4ea; border-radius:9px; padding:10px; min-height:150px; }
+    .build-col h4 { margin:0 0 8px; font-size:13px; }
+    .build-item { display:flex; align-items:center; gap:6px; padding:8px; border:1px solid #dfe4ea; border-radius:7px; background:#fff; margin:6px 0; font-size:13px; }
+    .build-item span { flex:1; }
+    .mini { border:1px solid #cbd3dc; background:#f7f9fb; border-radius:5px; padding:3px 7px; cursor:pointer; }
+    .drag-bank { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+    .drag-item { border:2px solid #dfe4ea; border-radius:8px; padding:8px 10px; background:#fff; cursor:grab; font-size:13px; }
+    .drag-item.active { border-color:#1a237e; background:#eef1ff; }
+    .dropzone { border:2px dashed #aeb8c3; border-radius:9px; padding:11px; margin:8px 0; min-height:54px; }
+    .dropzone.filled { border-style:solid; border-color:#1a237e; background:#f4f5ff; }
+    .drop-label { font-size:12px; font-weight:800; color:#57606a; margin-bottom:4px; }
+    .hotwrap { position:relative; display:inline-block; max-width:100%; margin-bottom:12px; }
+    .hotwrap img { max-width:100%; display:block; border:1px solid #dfe4ea; border-radius:7px; }
+    .hotspot { position:absolute; border:2px solid rgba(26,35,126,.35); background:rgba(26,35,126,.07); cursor:pointer; }
+    .hotspot.selected { border-color:#1a237e; background:rgba(26,35,126,.24); }
+    .hotspot.correct-answer { border-color:#2e7d32; background:rgba(46,125,50,.25); }
+    .hotspot.wrong-answer { border-color:#c62828; background:rgba(198,40,40,.20); }
+    .answer-key { margin:12px 0; padding:12px 14px; border:1px solid #a5d6a7; background:#f0faf2; border-radius:9px; font-size:13px; line-height:1.55; }
+    .answer-key strong { color:#1b5e20; }
+    .answer-key ol,.answer-key ul { margin:6px 0 0 20px; }
+    .rich-admin-note { font-size:12px; color:#57606a; background:#f7f8fa; border:1px solid #e5e7eb; border-radius:7px; padding:8px 10px; margin:7px 0; }
+    @media(max-width:650px) { .build { grid-template-columns:1fr; } .matrix { font-size:12px; } }
+
     /* ── EXPLICAÇÃO ESTRUTURADA / MEMORIZAÇÃO ── */
     .learn-box { display:none; margin-top:14px; border:1px solid #dfe3e8; border-radius:10px; overflow:hidden; background:#fff; }
     .learn-box.show { display:block; }
@@ -337,6 +386,7 @@
   <!-- ── ADD / EDIT ── -->
   <div class="panel" id="panel-add">
     <input type="hidden" id="eid" />
+    <div class="rich-admin-note"><strong>Editor manual:</strong> esta tela cria/edita questões <code>single_choice</code>. Para <code>multi_select</code>, matriz Sim/Não, completar código, build list, drag & drop, hotspot e case study, use <strong>Tutorial → Gerar JSON → Importar JSON</strong>. Todos esses formatos funcionam também na aba <strong>Estudar</strong>.</div>
     <div class="fg">
       <label>Exame da questão</label>
       <input
@@ -429,114 +479,344 @@
 <!-- tutorial de criação de questões com ChatGPT -->
 <div class="modal-bg" id="tutorialModal">
   <div class="modal tutorial-modal">
-    <h3>📚 Como criar questões com o ChatGPT</h3>
-    <p>Você pode pedir ao ChatGPT para criar questões originais e depois importar o arquivo JSON diretamente no Certification Review.</p>
+    <h3>📚 Criar banco REAL / treino interativo com o ChatGPT</h3>
+    <p>O mesmo JSON pode alimentar <strong>Estudar</strong> e <strong>Simulado REAL</strong>. O Certification Review aceita escolha única, múltipla seleção, matriz Sim/Não, completar código, ordenar etapas, associação/drag & drop, hotspot em imagem e estudos de caso.</p>
 
     <ol class="tutorial-steps">
-      <li><strong>Anexe seus materiais</strong>, se tiver: PDF, apostila, slides, anotações ou outros conteúdos de estudo.</li>
-      <li>Peça ao ChatGPT para usar o material anexado como base e, quando possível, validar tecnicamente as questões em documentação oficial atualizada.</li>
-      <li>Copie o prompt abaixo, ajuste a certificação e a quantidade de questões.</li>
-      <li>No final, baixe o arquivo <strong>.json</strong> e use o botão <strong>Importar JSON</strong> desta aplicação.</li>
+      <li><strong>Anexe seus materiais</strong>, se tiver: PDFs, apostilas, slides, anotações, prints ou outros conteúdos.</li>
+      <li>Peça ao ChatGPT para validar o conteúdo contra o <strong>guia oficial atual da certificação</strong> e documentação oficial.</li>
+      <li>Copie o prompt abaixo e altere <strong>[CÓDIGO DP-XXX]</strong> e <strong>[QUANTIDADE]</strong>.</li>
+      <li>Importe o JSON. Questões com <code>origin: "real"</code> ficam disponíveis tanto para treino quanto para o simulador.</li>
     </ol>
 
-    <p><strong>Prompt sugerido:</strong></p>
+    <p><strong>Prompt sugerido — versão 2.0:</strong></p>
 
     <div class="tutorial-prompt" id="tutorialPrompt">Estou estudando para a certificação Microsoft [CÓDIGO DP-XXX].
 
-Quero que você crie [QUANTIDADE] questões originais para estudo e simulação da prova.
+Quero que você crie [QUANTIDADE] questões ORIGINAIS, realistas e práticas para estudo e simulação da prova.
 
-Se eu anexei PDFs, apostilas, slides, anotações ou outros materiais nesta conversa, utilize-os como base para identificar os assuntos importantes e o nível de profundidade.
+OBJETIVO PRINCIPAL
+Quero treinar tomada de decisão e troubleshooting, não memorização de palavras-chave. As questões devem se aproximar da experiência real da prova em densidade de informação, ambiguidade controlada, formatos interativos e necessidade de interpretar requisitos, métricas, código, logs, comandos, diagramas e configurações.
 
-Quando possível, pesquise também o guia oficial e a documentação oficial mais atualizada da certificação para validar tecnicamente as questões.
+FONTES
+- Se anexei PDFs, apostilas, slides, anotações, prints ou outros materiais, use-os como base para assuntos e profundidade.
+- Pesquise o guia oficial MAIS ATUAL da certificação e distribua as questões conforme os domínios/pesos atuais.
+- Quando possível, valide cada questão na documentação oficial Microsoft.
+- Não marque "verified": true sem realmente validar a questão.
+- Não copie dumps, ExamTopics, questões reais protegidas ou texto de exame. Crie cenários novos.
 
-IMPORTANTE:
-- Não copie questões reais, dumps ou questões protegidas de exames.
-- Crie questões originais no estilo da prova.
-- Priorize cenários práticos e situações que exijam raciocínio.
-- Evite perguntas excessivamente óbvias.
-- As alternativas incorretas devem ser plausíveis.
-- Distribua as respostas corretas entre A, B, C e D de forma aleatória e equilibrada.
-- Não deixe todas ou a maioria das respostas corretas na mesma letra.
-- Evite sequências previsíveis como A, B, C, D, A, B, C, D.
-- Evite 3 ou mais respostas corretas consecutivas na mesma letra.
-- Misture questões fáceis, médias e difíceis.
-- Cubra os diferentes domínios da certificação de acordo com o peso da prova, quando disponível.
-- Explique por que a resposta correta está correta.
-- Explique por que cada alternativa incorreta está errada.
-- Inclua palavra-chave da prova, regra para memorizar e principal pegadinha.
-- Informe fonte e URL quando houver validação em documentação oficial.
-- Não use "verified": true se a questão não tiver sido realmente validada.
+REALISMO
+- Priorize cenários práticos, administrativos e de troubleshooting.
+- Evite perguntas que entreguem a resposta por uma única palavra-chave.
+- Inclua requisitos conflitantes e alternativas parcialmente plausíveis.
+- Quando aplicável, use métricas, outputs de DMV, Query Store, planos de execução, T-SQL, PowerShell, Azure CLI, Bicep/ARM, logs, RPO/RTO, limites, topologia e requisitos de segurança.
+- Pelo menos 50% das questões devem ter realism_level 4 ou 5.
+- Misture dificuldades "facil", "medio" e "dificil", com predominância de médio/difícil.
+- Crie variações conceituais: não repita a mesma pergunta apenas trocando nomes.
+- Estudos de caso devem compartilhar contexto através de case_id + case_data e ter várias perguntas independentes quando fizer sentido.
 
-Antes de entregar:
-1. Verifique se existe apenas uma melhor resposta.
-2. Confirme que o gabarito corresponde à explicação.
-3. Confira se as alternativas estão nas posições corretas.
-4. Verifique se não existe padrão previsível nas letras corretas.
-5. Remova questões duplicadas.
-6. Valide a sintaxe do JSON.
+FORMATOS SUPORTADOS
+Use uma mistura tecnicamente apropriada. Não force distribuição igual, mas NÃO gere um banco quase todo A/B/C/D. Como referência, tente manter no máximo ~40% em single_choice e use os demais formatos quando melhor representarem a habilidade avaliada:
+1. single_choice — uma melhor resposta.
+2. multi_select — duas ou mais respostas corretas.
+3. yes_no_matrix — várias afirmações avaliadas individualmente.
+4. hotspot_dropdown — completar T-SQL, PowerShell, CLI, Bicep, configuração ou código por dropdowns embutidos.
+5. build_list — ordenar etapas/comandos/processos.
+6. drag_drop — associar itens a requisitos/destinos.
+7. image_hotspot — clicar em uma ou mais áreas de uma imagem/diagrama. Use somente se houver image_url estável (HTTPS ou caminho relativo disponível para o app).
+8. case study — NÃO é question_type; use case_id e case_data junto a qualquer um dos tipos acima.
 
-Entregue o resultado em um arquivo JSON pronto para importação no Certification Review usando EXATAMENTE esta estrutura:
+REGRAS GERAIS
+- origin: sempre "real" para este banco.
+- status: sempre "pendente".
+- question_type: exatamente um dos 7 valores suportados acima.
+- domain_code: código curto e consistente do domínio oficial (ex.: platform, security, performance, automation, hadr, ou equivalentes coerentes para outra prova).
+- realism_level: inteiro de 1 a 5.
+- points: inteiro >= 1; para questões com subitens, use pontos coerentes com a quantidade de componentes.
+- difficulty: somente "facil", "medio" ou "dificil".
+- exam: formato "DP-XXX".
+- correct_payload é o gabarito estruturado obrigatório para formatos ricos.
+- Para single_choice, preencha também "correct" com A/B/C/D e use correct_payload {"selected":"A"}.
+- Inclua explanation, why_correct, memory_rule e trap quando agregarem valor.
+- Em single_choice, explique por que as alternativas incorretas estão erradas usando why_a_wrong/why_b_wrong/why_c_wrong/why_d_wrong; deixe null na alternativa correta.
+- Informe source_name e source_url quando houver validação oficial.
+- Não invente URLs.
+- Não inclua user_id.
+- Não altere os nomes dos campos.
 
+ESTRUTURA DO ARQUIVO
 {
-  "version": "1.2",
+  "version": "2.0",
   "exam": "[CÓDIGO DP-XXX]",
+  "origin": "real",
   "exportedAt": "DATA_ATUAL_EM_ISO_8601",
   "total": [QUANTIDADE],
-  "questions": [
-    {
-      "id": 1,
-      "question": "Enunciado completo da questão",
-      "option_a": "Alternativa A",
-      "option_b": "Alternativa B",
-      "option_c": "Alternativa C",
-      "option_d": "Alternativa D",
-      "correct": "B",
-      "explanation": "Resumo curto da explicação.",
-      "why_correct": "Por que a correta é a melhor resposta.",
-      "why_a_wrong": "Por que A está errada. Se A for a correta, use null.",
-      "why_b_wrong": null,
-      "why_c_wrong": "Por que C está errada.",
-      "why_d_wrong": "Por que D está errada.",
-      "exam_keyword": "Palavra-chave da prova",
-      "memory_rule": "Regra curta para memorizar",
-      "trap": "Principal pegadinha",
-      "source_name": "Microsoft Learn",
-      "source_url": "https://learn.microsoft.com/...",
-      "verified": true,
-      "topic": "Nome do tópico",
-      "difficulty": "medio",
-      "status": "pendente",
-      "created_at": null,
-      "updated_at": null,
-      "last_reviewed": null,
-      "exam": "[CÓDIGO DP-XXX]"
-    }
-  ]
+  "questions": [ ... ]
 }
 
-Regras do JSON:
-- "correct": somente "A", "B", "C" ou "D".
-- "difficulty": "facil", "medio" ou "dificil".
-- "status": sempre "pendente" para novas questões.
-- "exam": deve usar o formato "DP-XXX" (ex.: "DP-600").
-- Não altere os nomes dos campos.
-- Não omita os campos.
-- O JSON final deve ser válido.
-- Gere o arquivo .json para download.
+EXEMPLO 1 — SINGLE CHOICE
+{
+  "question": "Enunciado completo e contextualizado.",
+  "question_type": "single_choice",
+  "origin": "real",
+  "domain_code": "performance",
+  "topic": "Nome do tópico",
+  "difficulty": "dificil",
+  "realism_level": 4,
+  "points": 1,
+  "option_a": "Alternativa A",
+  "option_b": "Alternativa B",
+  "option_c": "Alternativa C",
+  "option_d": "Alternativa D",
+  "correct": "B",
+  "correct_payload": {"selected":"B"},
+  "explanation": "Resumo.",
+  "why_correct": "Por que B é a melhor resposta.",
+  "why_a_wrong": "Por que A não atende todos os requisitos.",
+  "why_b_wrong": null,
+  "why_c_wrong": "Por que C não atende todos os requisitos.",
+  "why_d_wrong": "Por que D não atende todos os requisitos.",
+  "exam_keyword": "conceito-chave",
+  "memory_rule": "regra curta sem entregar por palavra-chave",
+  "trap": "principal confusão provável",
+  "source_name": "Microsoft Learn",
+  "source_url": "https://learn.microsoft.com/...",
+  "verified": true,
+  "status": "pendente",
+  "exam": "[CÓDIGO DP-XXX]"
+}
 
-No final, informe também:
-A: XX
-B: XX
-C: XX
-D: XX
-e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
+EXEMPLO 2 — MULTI SELECT
+{
+  "question": "Quais DUAS ações devem ser executadas?",
+  "question_type": "multi_select",
+  "origin": "real",
+  "domain_code": "security",
+  "topic": "Autorização",
+  "difficulty": "dificil",
+  "realism_level": 4,
+  "points": 2,
+  "interaction": {
+    "min": 2,
+    "max": 2,
+    "options": [
+      {"id":"A","text":"Opção A"},
+      {"id":"B","text":"Opção B"},
+      {"id":"C","text":"Opção C"},
+      {"id":"D","text":"Opção D"}
+    ]
+  },
+  "correct_payload": {"selected":["A","C"]},
+  "explanation": "Explique a combinação correta.",
+  "why_correct": "Explique por que A+C atendem juntos ao requisito.",
+  "trap": "Explique a pegadinha.",
+  "source_name": "Microsoft Learn",
+  "source_url": "https://learn.microsoft.com/...",
+  "verified": true,
+  "status": "pendente",
+  "exam": "[CÓDIGO DP-XXX]"
+}
+
+EXEMPLO 3 — YES/NO MATRIX
+{
+  "question": "Para cada afirmação, selecione Sim ou Não.",
+  "question_type": "yes_no_matrix",
+  "origin": "real",
+  "domain_code": "performance",
+  "topic": "Diagnóstico",
+  "difficulty": "dificil",
+  "realism_level": 5,
+  "points": 3,
+  "interaction": {
+    "rows": [
+      {"id":"r1","text":"Afirmação 1"},
+      {"id":"r2","text":"Afirmação 2"},
+      {"id":"r3","text":"Afirmação 3"}
+    ],
+    "columns": [
+      {"id":"yes","label":"Sim"},
+      {"id":"no","label":"Não"}
+    ]
+  },
+  "correct_payload": {"r1":"yes","r2":"no","r3":"yes"},
+  "explanation": "Explique cada linha.",
+  "source_name": "Microsoft Learn",
+  "source_url": "https://learn.microsoft.com/...",
+  "verified": true,
+  "status": "pendente",
+  "exam": "[CÓDIGO DP-XXX]"
+}
+
+EXEMPLO 4 — HOTSPOT DROPDOWN / COMPLETAR CÓDIGO
+{
+  "question": "Complete o comando para atender ao requisito.",
+  "question_type": "hotspot_dropdown",
+  "origin": "real",
+  "domain_code": "performance",
+  "topic": "T-SQL",
+  "difficulty": "dificil",
+  "realism_level": 5,
+  "points": 2,
+  "interaction": {
+    "code": "SELECT ... FROM {{source}} WHERE {{predicate}} <> 0;",
+    "slots": [
+      {"id":"source","options":[
+        {"id":"requests","text":"sys.dm_exec_requests"},
+        {"id":"waits","text":"sys.dm_os_wait_stats"}
+      ]},
+      {"id":"predicate","options":[
+        {"id":"blocking","text":"blocking_session_id"},
+        {"id":"cpu","text":"cpu_time"}
+      ]}
+    ]
+  },
+  "correct_payload": {"source":"requests","predicate":"blocking"},
+  "explanation": "Explique cada área de resposta.",
+  "source_name": "Microsoft Learn",
+  "source_url": "https://learn.microsoft.com/...",
+  "verified": true,
+  "status": "pendente",
+  "exam": "[CÓDIGO DP-XXX]"
+}
+
+EXEMPLO 5 — BUILD LIST / ORDENAR ETAPAS
+{
+  "question": "Ordene as etapas na sequência correta.",
+  "question_type": "build_list",
+  "origin": "real",
+  "domain_code": "automation",
+  "topic": "Automação",
+  "difficulty": "dificil",
+  "realism_level": 4,
+  "points": 4,
+  "interaction": {
+    "items": [
+      {"id":"s1","text":"Etapa 1"},
+      {"id":"s2","text":"Etapa 2"},
+      {"id":"s3","text":"Etapa 3"},
+      {"id":"s4","text":"Etapa 4"}
+    ]
+  },
+  "correct_payload": {"order":["s2","s1","s4","s3"]},
+  "explanation": "Explique a ordem.",
+  "source_name": "Microsoft Learn",
+  "source_url": "https://learn.microsoft.com/...",
+  "verified": true,
+  "status": "pendente",
+  "exam": "[CÓDIGO DP-XXX]"
+}
+
+EXEMPLO 6 — DRAG & DROP / ASSOCIAÇÃO
+{
+  "question": "Associe cada requisito ao recurso adequado.",
+  "question_type": "drag_drop",
+  "origin": "real",
+  "domain_code": "hadr",
+  "topic": "HA/DR",
+  "difficulty": "dificil",
+  "realism_level": 4,
+  "points": 3,
+  "interaction": {
+    "items": [
+      {"id":"i1","text":"Recurso 1"},
+      {"id":"i2","text":"Recurso 2"},
+      {"id":"i3","text":"Recurso 3"}
+    ],
+    "targets": [
+      {"id":"t1","label":"Requisito 1"},
+      {"id":"t2","label":"Requisito 2"},
+      {"id":"t3","label":"Requisito 3"}
+    ]
+  },
+  "correct_payload": {"t1":"i2","t2":"i1","t3":"i3"},
+  "explanation": "Explique cada associação.",
+  "source_name": "Microsoft Learn",
+  "source_url": "https://learn.microsoft.com/...",
+  "verified": true,
+  "status": "pendente",
+  "exam": "[CÓDIGO DP-XXX]"
+}
+
+EXEMPLO 7 — IMAGE HOTSPOT
+{
+  "question": "Na imagem, selecione a área que atende ao requisito.",
+  "question_type": "image_hotspot",
+  "origin": "real",
+  "domain_code": "platform",
+  "topic": "Portal / arquitetura",
+  "difficulty": "medio",
+  "realism_level": 4,
+  "points": 1,
+  "interaction": {
+    "image_url": "https://URL-ESTAVEL-DA-IMAGEM.png",
+    "multi": false,
+    "hotspots": [
+      {"id":"h1","label":"Área 1","x":0.10,"y":0.15,"w":0.25,"h":0.12},
+      {"id":"h2","label":"Área 2","x":0.45,"y":0.40,"w":0.30,"h":0.15}
+    ]
+  },
+  "correct_payload": {"selected":["h2"]},
+  "explanation": "Explique por que essa área é a correta.",
+  "source_name": "Microsoft Learn",
+  "source_url": "https://learn.microsoft.com/...",
+  "verified": true,
+  "status": "pendente",
+  "exam": "[CÓDIGO DP-XXX]"
+}
+
+EXEMPLO 8 — CASE STUDY
+Use o MESMO case_id e case_data em várias perguntas relacionadas:
+{
+  "case_id": "contoso-01",
+  "case_data": {
+    "title": "Contoso — cenário",
+    "overview": "Contexto geral suficiente para várias perguntas.",
+    "environment": "Ambiente atual, versões, topologia, dados e limitações.",
+    "requirements": "Requisitos técnicos e de negócio, RPO/RTO, segurança, custo etc.",
+    "problem": "Sintomas ou problema quando aplicável."
+  },
+  "question": "Pergunta independente baseada no estudo de caso.",
+  "question_type": "multi_select",
+  "origin": "real",
+  "domain_code": "hadr",
+  "topic": "Continuidade de negócios",
+  "difficulty": "dificil",
+  "realism_level": 5,
+  "points": 2,
+  "interaction": {"min":2,"max":2,"options":[...]},
+  "correct_payload": {"selected":["A","B"]},
+  "explanation": "Explicação.",
+  "status": "pendente",
+  "exam": "[CÓDIGO DP-XXX]"
+}
+
+ANTES DE ENTREGAR
+1. Valide tecnicamente cada questão.
+2. Confirme que o gabarito estruturado corresponde exatamente ao enunciado.
+3. Para single_choice, confirme que existe UMA melhor resposta.
+4. Para multi_select, informe explicitamente quantas opções selecionar e faça min/max bater com o gabarito.
+5. Para matrizes/dropdowns/drag/build/hotspot, valide TODOS os subitens.
+6. Remova duplicatas e variações triviais.
+7. Evite padrões previsíveis de letras nas questões single_choice.
+8. Confirme que interaction e correct_payload seguem EXATAMENTE os formatos acima.
+9. Valide o JSON final.
+10. Entregue um arquivo .json pronto para download, sem comentários fora do JSON que quebrem a importação.
+
+No final da resposta, fora do arquivo, informe um resumo com:
+- quantidade por question_type;
+- quantidade por domain_code;
+- quantidade por dificuldade;
+- quantidade com realism_level 4-5;
+- quantidade de case studies;
+- distribuição A/B/C/D somente das single_choice;
+- maior sequência consecutiva da mesma letra nas single_choice.</div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-      <button class="btn bs" onclick="copyTutorialPrompt()">Copiar prompt</button>
+      <button class="btn bs" onclick="copyTutorialPrompt()">Copiar prompt completo</button>
     </div>
 
     <p style="background:#fff8e8;border:1px solid #ffe0b2;border-radius:8px;padding:10px;margin-top:12px;">
-      <strong>Importante:</strong> questões geradas por IA devem ser usadas como material de estudo. Para conteúdos críticos, dê preferência a fontes oficiais e questões realmente validadas.
+      <strong>Importante:</strong> o formato interativo melhora o treino, mas o conteúdo continua precisando de validação técnica. Use documentação oficial atual e não transforme dumps/questões reais em banco próprio.
     </p>
 
     <div class="tutorial-actions">
@@ -665,7 +945,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
   // ── tutorial inicial ─────────────────────────────────────
   function tutorialStorageKey() {
     // Preferência separada por usuário. Para um tutorial novo, altere v1 para v2.
-    return `review_tutorial_v1_${currentUid || 'default'}`;
+    return `review_tutorial_v2_${currentUid || 'default'}`;
   }
 
   function openTutorial(force = false) {
@@ -725,9 +1005,29 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
     }, delay);
   }
 
+  function parseMaybeJSON(value, fallback = null) {
+    if (value == null || value === '') return fallback;
+    if (typeof value === 'object') return value;
+    try { return JSON.parse(value); } catch { return fallback; }
+  }
+
+  function normalizeQuestion(q) {
+    const x = { ...q };
+    x.question_type = x.question_type || 'single_choice';
+    x.origin = x.origin || 'legacy';
+    x.interaction = x.interaction || parseMaybeJSON(x.interaction_json, null);
+    x.correct_payload = x.correct_payload || parseMaybeJSON(
+      x.correct_json,
+      x.question_type === 'single_choice' && x.correct ? { selected: String(x.correct).toUpperCase() } : null
+    );
+    x.case_data = x.case_data || parseMaybeJSON(x.case_json, null);
+    return x;
+  }
+
   async function load() {
     document.getElementById('fc').innerHTML = '<div class="loader">Carregando...</div>';
-    qs = await apiFetch(apiUrl(API));
+    // Study agora recebe LEGACY + REAL e renderiza todos os formatos interativos.
+    qs = (await apiFetch(apiUrl(API) + '&origin=all')).map(normalizeQuestion);
     renderStats();
     startStudy('all');
     scheduleGeminiSync(300);
@@ -762,18 +1062,28 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
   }
 
   function structuredLearningHTML(q) {
-    const correct = (q.correct || '').toUpperCase();
-    const wrongs = ['A','B','C','D']
-      .filter(l => l !== correct)
-      .map(l => {
-        const key = 'why_' + l.toLowerCase() + '_wrong';
-        const txt = q[key];
-        return txt ? `<div class="wrong-row"><strong>${l}) ${h(optionText(q,l))}</strong><br>${h(txt)}</div>` : '';
-      }).filter(Boolean).join('');
+    const type = q.question_type || 'single_choice';
+    const correct = type === 'single_choice' ? String(q.correct || q.correct_payload?.selected || '').toUpperCase() : '';
+    const wrongs = type === 'single_choice'
+      ? ['A','B','C','D']
+          .filter(l => l !== correct)
+          .map(l => {
+            const key = 'why_' + l.toLowerCase() + '_wrong';
+            const txt = q[key];
+            return txt ? `<div class="wrong-row"><strong>${l}) ${h(optionText(q,l))}</strong><br>${h(txt)}</div>` : '';
+          }).filter(Boolean).join('')
+      : '';
+
     const hasStructured = !!(q.why_correct || wrongs || q.exam_keyword || q.memory_rule || q.trap || q.source_name || q.source_url || q.verified);
     if (!hasStructured && !q.explanation) return '';
+
     let out = '<div class="learn-box show">';
-    if (q.why_correct || q.explanation) out += `<div class="learn-section learn-correct"><div class="learn-title">✅ Resposta correta — ${h(correct)}${correct ? ') ' + h(optionText(q, correct)) : ''}</div><div class="learn-text">${h(q.why_correct || q.explanation || '')}</div></div>`;
+    if (q.why_correct || q.explanation) {
+      const title = type === 'single_choice' && correct
+        ? `✅ Explicação — ${h(correct)}) ${h(optionText(q, correct))}`
+        : '✅ Explicação da resposta';
+      out += `<div class="learn-section learn-correct"><div class="learn-title">${title}</div><div class="learn-text">${h(q.why_correct || q.explanation || '')}</div></div>`;
+    }
     if (wrongs) out += `<div class="learn-section learn-wrong"><div class="learn-title">❌ Por que as outras estão erradas</div>${wrongs}</div>`;
     if (q.exam_keyword || q.memory_rule) out += `<div class="learn-section learn-memory">${q.exam_keyword ? `<div class="learn-title">🎯 Palavra-chave da prova</div><span class="exam-keyword">${h(q.exam_keyword)}</span>` : ''}${q.memory_rule ? `<div class="learn-title" style="margin-top:${q.exam_keyword ? '12px' : '0'};">🧠 Regra para memorizar</div><div class="memory-rule">${h(q.memory_rule)}</div>` : ''}</div>`;
     if (q.trap) out += `<div class="learn-section learn-trap"><div class="learn-title">⚠️ Pegadinha</div><div class="learn-text">${h(q.trap)}</div></div>`;
@@ -803,32 +1113,311 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
     renderCard();
   }
 
+  let studyDragSelected = null;
+
+  function renderCaseHTML(q) {
+    const c = q.case_data;
+    if (!c) return '';
+    let body = '';
+    const titles = {
+      overview:'Visão geral', environment:'Ambiente atual', requirements:'Requisitos',
+      problem:'Problema', business_requirements:'Requisitos de negócio'
+    };
+    Object.entries(c).forEach(([k,v]) => {
+      if (k === 'title' || v == null || v === '') return;
+      const title = titles[k] || k;
+      const txt = Array.isArray(v) ? v.join('\n• ') : String(v);
+      body += `<h4>${h(title)}</h4><div>${h(txt)}</div>`;
+    });
+    return `<details class="casebox" open><summary>${h(c.title || 'Estudo de caso')}</summary><div class="casebody">${body}</div></details>`;
+  }
+
+  function optionsOf(q) {
+    if (q.interaction?.options) return q.interaction.options;
+    return ['A','B','C','D']
+      .map(id => ({ id, text:q['option_' + id.toLowerCase()] }))
+      .filter(x => x.text);
+  }
+
+  function renderStudyCodeSlots(code, slots) {
+    const map = Object.fromEntries((slots || []).map(s => [s.id, s]));
+    const parts = String(code || '').split(/(\{\{[^}]+\}\})/g);
+    return `<div class="codebox">${parts.map(p => {
+      const m = p.match(/^\{\{([^}]+)\}\}$/);
+      if (!m) return h(p);
+      const s = map[m[1]];
+      if (!s) return h(p);
+      return `<select data-study-slot="${ha(s.id)}"><option value="">-- selecione --</option>${(s.options || []).map(o => {
+        const id = typeof o === 'string' ? o : o.id;
+        const text = typeof o === 'string' ? o : o.text;
+        return `<option value="${ha(id)}">${h(text)}</option>`;
+      }).join('')}</select>`;
+    }).join('')}</div>`;
+  }
+
+  function studyBuildItem(i, inAnswer) {
+    return `<div class="build-item" data-study-build-id="${ha(i.id)}"><span>${h(i.text)}</span>${inAnswer
+      ? '<button class="mini" onclick="studyBuildMove(this,-1)">↑</button><button class="mini" onclick="studyBuildMove(this,1)">↓</button><button class="mini" onclick="studyBuildRemove(this)">←</button>'
+      : '<button class="mini" onclick="studyBuildAdd(this)">→</button>'}</div>`;
+  }
+
+  function studyBuildAdd(btn) {
+    const row = btn.closest('.build-item');
+    document.getElementById('studyBuildAnswer').appendChild(row);
+    row.querySelectorAll('button').forEach(b => b.remove());
+    row.insertAdjacentHTML('beforeend','<button class="mini" onclick="studyBuildMove(this,-1)">↑</button><button class="mini" onclick="studyBuildMove(this,1)">↓</button><button class="mini" onclick="studyBuildRemove(this)">←</button>');
+  }
+
+  function studyBuildRemove(btn) {
+    const row = btn.closest('.build-item');
+    document.getElementById('studyBuildAvail').appendChild(row);
+    row.querySelectorAll('button').forEach(b => b.remove());
+    row.insertAdjacentHTML('beforeend','<button class="mini" onclick="studyBuildAdd(this)">→</button>');
+  }
+
+  function studyBuildMove(btn, d) {
+    const row = btn.closest('.build-item'), p = row.parentElement;
+    if (d < 0 && row.previousElementSibling) p.insertBefore(row, row.previousElementSibling);
+    if (d > 0 && row.nextElementSibling) p.insertBefore(row.nextElementSibling, row);
+  }
+
+  function chooseStudyDrag(el) {
+    document.querySelectorAll('#studyInteraction .drag-item').forEach(x => x.classList.remove('active'));
+    el.classList.add('active');
+    studyDragSelected = el.dataset.studyDragId;
+  }
+
+  function studyDragStart(e) {
+    studyDragSelected = e.currentTarget.dataset.studyDragId;
+    e.dataTransfer.setData('text/plain', studyDragSelected);
+  }
+
+  function studyDropEvent(e, z) {
+    e.preventDefault();
+    studyDragSelected = e.dataTransfer.getData('text/plain') || studyDragSelected;
+    assignStudyDrag(z);
+  }
+
+  function studyDropClick(z) { if (studyDragSelected) assignStudyDrag(z); }
+
+  function assignStudyDrag(z) {
+    const q = sQueue[sIdx], items = q.interaction?.items || [];
+    const id = studyDragSelected;
+    if (!id) return;
+    document.querySelectorAll('#studyInteraction .dropzone').forEach(x => {
+      if (x !== z && x.dataset.assigned === id) {
+        x.dataset.assigned = '';
+        x.classList.remove('filled');
+        x.querySelector('.drop-value').textContent = 'Solte ou selecione um item aqui';
+      }
+    });
+    z.dataset.assigned = id;
+    z.classList.add('filled');
+    z.querySelector('.drop-value').textContent = items.find(i => String(i.id) === String(id))?.text || id;
+    document.querySelector(`#studyInteraction .drag-item[data-study-drag-id="${CSS.escape(id)}"]`)?.remove();
+    studyDragSelected = null;
+  }
+
+  function toggleStudyHotspot(el, multi) {
+    if (!multi) document.querySelectorAll('#studyInteraction [data-study-hotspot]').forEach(x => x.classList.remove('selected'));
+    el.classList.toggle('selected');
+  }
+
+  function renderStudyInteraction(q) {
+    const type = q.question_type || 'single_choice';
+    const i = q.interaction || {};
+    let help = '';
+    let body = '';
+
+    if (type === 'single_choice') {
+      body = `<div class="fc-options">${optionsOf(q).map(o => `
+        <button class="fc-opt" id="opt-${ha(o.id)}" onclick="pick(${q.id},'${ha(o.id)}')">
+          <span class="letter">${h(o.id)}</span><span>${h(o.text)}</span>
+        </button>`).join('')}</div>`;
+      help = 'Selecione uma resposta.';
+    }
+
+    else if (type === 'multi_select') {
+      const required = i.min || i.max;
+      body = optionsOf(q).map(o => `<label class="multi-row" data-study-multi-row="${ha(o.id)}"><input type="checkbox" data-study-multi="${ha(o.id)}"><span><strong>${h(o.id)})</strong> ${h(o.text)}</span></label>`).join('');
+      body += `<button class="study-submit" onclick="submitStudyRich()">Responder</button>`;
+      help = required ? `Selecione ${required} opção(ões).` : 'Selecione todas as opções corretas.';
+    }
+
+    else if (type === 'yes_no_matrix') {
+      const rows = i.rows || [], cols = i.columns || [{id:'yes',label:'Sim'},{id:'no',label:'Não'}];
+      body = `<table class="matrix"><thead><tr><th>Afirmação</th>${cols.map(c=>`<th>${h(c.label)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr data-study-matrix-row-wrap="${ha(r.id)}"><td>${h(r.text)}</td>${cols.map(c=>`<td data-study-matrix-cell="${ha(r.id)}:${ha(c.id)}"><input type="radio" name="study-row-${ha(r.id)}" data-study-matrix-row="${ha(r.id)}" value="${ha(c.id)}"></td>`).join('')}</tr>`).join('')}</tbody></table><button class="study-submit" onclick="submitStudyRich()">Responder</button>`;
+      help = 'Escolha uma opção para cada linha.';
+    }
+
+    else if (type === 'hotspot_dropdown') {
+      body = renderStudyCodeSlots(i.code || '', i.slots || []) + `<button class="study-submit" onclick="submitStudyRich()">Responder</button>`;
+      help = 'Complete todas as áreas de resposta.';
+    }
+
+    else if (type === 'build_list') {
+      const items = i.items || [];
+      body = `<div class="build"><div class="build-col"><h4>Opções disponíveis</h4><div id="studyBuildAvail">${items.map(x=>studyBuildItem(x,false)).join('')}</div></div><div class="build-col"><h4>Resposta / ordem</h4><div id="studyBuildAnswer"></div></div></div><button class="study-submit" onclick="submitStudyRich()">Responder</button>`;
+      help = 'Mova os itens necessários para a coluna de resposta e ajuste a ordem.';
+    }
+
+    else if (type === 'drag_drop') {
+      const items = i.items || [], targets = i.targets || [];
+      body = `<div class="drag-bank">${items.map(x=>`<div class="drag-item" draggable="true" data-study-drag-id="${ha(x.id)}" onclick="chooseStudyDrag(this)" ondragstart="studyDragStart(event)">${h(x.text)}</div>`).join('')}</div>${targets.map(t=>`<div class="dropzone" data-study-target="${ha(t.id)}" data-assigned="" onclick="studyDropClick(this)" ondragover="event.preventDefault()" ondrop="studyDropEvent(event,this)"><div class="drop-label">${h(t.label)}</div><div class="drop-value">Solte ou selecione um item aqui</div></div>`).join('')}<button class="study-submit" onclick="submitStudyRich()">Responder</button>`;
+      help = 'Arraste cada item para o destino correto (ou clique no item e depois no destino).';
+    }
+
+    else if (type === 'image_hotspot') {
+      const hs = i.hotspots || [];
+      body = `<div class="hotwrap"><img src="${ha(i.image_url || '')}" alt="Área interativa">${hs.map(x=>`<button type="button" class="hotspot" title="${ha(x.label || x.id)}" data-study-hotspot="${ha(x.id)}" style="left:${Number(x.x||0)*100}%;top:${Number(x.y||0)*100}%;width:${Number(x.w||0)*100}%;height:${Number(x.h||0)*100}%" onclick="toggleStudyHotspot(this,${i.multi?'true':'false'})"></button>`).join('')}</div><button class="study-submit" onclick="submitStudyRich()">Responder</button>`;
+      help = i.multi ? 'Selecione todas as áreas corretas.' : 'Selecione a área correta.';
+    }
+
+    else {
+      body = `<div class="rich-admin-note">Tipo ainda não suportado no treino: <strong>${h(type)}</strong></div>`;
+    }
+
+    return `<div class="study-type-help">${h(help)}</div><div id="studyInteraction">${body}</div>`;
+  }
+
+  function collectStudyAnswer(q) {
+    const type = q.question_type || 'single_choice';
+    if (type === 'multi_select') return { selected:[...document.querySelectorAll('#studyInteraction [data-study-multi]:checked')].map(x=>x.dataset.studyMulti) };
+    if (type === 'yes_no_matrix') {
+      const o = {};
+      document.querySelectorAll('#studyInteraction [data-study-matrix-row]:checked').forEach(x => o[x.dataset.studyMatrixRow] = x.value);
+      return o;
+    }
+    if (type === 'hotspot_dropdown') {
+      const o = {};
+      document.querySelectorAll('#studyInteraction [data-study-slot]').forEach(x => { if (x.value) o[x.dataset.studySlot] = x.value; });
+      return o;
+    }
+    if (type === 'build_list') return { order:[...document.querySelectorAll('#studyBuildAnswer [data-study-build-id]')].map(x=>x.dataset.studyBuildId) };
+    if (type === 'drag_drop') {
+      const o = {};
+      document.querySelectorAll('#studyInteraction [data-study-target]').forEach(x => { if (x.dataset.assigned) o[x.dataset.studyTarget] = x.dataset.assigned; });
+      return o;
+    }
+    if (type === 'image_hotspot') return { selected:[...document.querySelectorAll('#studyInteraction [data-study-hotspot].selected')].map(x=>x.dataset.studyHotspot) };
+    return null;
+  }
+
+  function validateStudyAnswer(q, ans) {
+    const type = q.question_type || 'single_choice', i = q.interaction || {};
+    if (!ans) return 'Selecione/preencha uma resposta.';
+    if (type === 'multi_select') {
+      const n = ans.selected?.length || 0;
+      if (i.min && n < i.min) return `Selecione pelo menos ${i.min} opção(ões).`;
+      if (i.max && n > i.max) return `Selecione no máximo ${i.max} opção(ões).`;
+      if (!n) return 'Selecione ao menos uma opção.';
+    }
+    if (type === 'yes_no_matrix' && Object.keys(ans).length < (i.rows || []).length) return 'Responda todas as linhas.';
+    if (type === 'hotspot_dropdown' && Object.keys(ans).length < (i.slots || []).length) return 'Preencha todos os dropdowns.';
+    if (type === 'build_list' && !(ans.order || []).length) return 'Monte a ordem antes de responder.';
+    if (type === 'drag_drop' && Object.keys(ans).length < (i.targets || []).length) return 'Preencha todos os destinos.';
+    if (type === 'image_hotspot' && !(ans.selected || []).length) return 'Selecione pelo menos uma área.';
+    return null;
+  }
+
+  function answerKeyHTML(q, correct) {
+    const type = q.question_type || 'single_choice', i = q.interaction || {};
+    if (!correct) return '';
+    const byOption = Object.fromEntries(optionsOf(q).map(o=>[String(o.id), o.text]));
+    let inner = '';
+
+    if (type === 'single_choice') {
+      const id = correct.selected || q.correct;
+      inner = `<strong>Gabarito:</strong> ${h(id)}${byOption[id] ? ') ' + h(byOption[id]) : ''}`;
+    } else if (type === 'multi_select') {
+      inner = `<strong>Gabarito:</strong><ul>${(correct.selected || []).map(id=>`<li>${h(id)}${byOption[id] ? ') ' + h(byOption[id]) : ''}</li>`).join('')}</ul>`;
+    } else if (type === 'yes_no_matrix') {
+      const rows = Object.fromEntries((i.rows || []).map(r=>[String(r.id),r.text]));
+      const cols = Object.fromEntries((i.columns || []).map(c=>[String(c.id),c.label]));
+      inner = `<strong>Gabarito por linha:</strong><ul>${Object.entries(correct).map(([k,v])=>`<li>${h(rows[k] || k)} → <strong>${h(cols[v] || v)}</strong></li>`).join('')}</ul>`;
+    } else if (type === 'hotspot_dropdown') {
+      const slots = Object.fromEntries((i.slots || []).map(s=>[String(s.id),s]));
+      inner = `<strong>Gabarito:</strong><ul>${Object.entries(correct).map(([k,v])=>{const o=(slots[k]?.options||[]).find(x=>String(typeof x==='string'?x:x.id)===String(v));const t=o?(typeof o==='string'?o:o.text):v;return `<li>${h(k)} → <strong>${h(t)}</strong></li>`}).join('')}</ul>`;
+    } else if (type === 'build_list') {
+      const by = Object.fromEntries((i.items || []).map(x=>[String(x.id),x.text]));
+      inner = `<strong>Ordem correta:</strong><ol>${(correct.order || []).map(id=>`<li>${h(by[id] || id)}</li>`).join('')}</ol>`;
+    } else if (type === 'drag_drop') {
+      const items = Object.fromEntries((i.items || []).map(x=>[String(x.id),x.text]));
+      const targets = Object.fromEntries((i.targets || []).map(x=>[String(x.id),x.label]));
+      inner = `<strong>Associações corretas:</strong><ul>${Object.entries(correct).map(([t,it])=>`<li>${h(targets[t] || t)} → <strong>${h(items[it] || it)}</strong></li>`).join('')}</ul>`;
+    } else if (type === 'image_hotspot') {
+      const hs = Object.fromEntries((i.hotspots || []).map(x=>[String(x.id),x.label || x.id]));
+      inner = `<strong>Área(s) correta(s):</strong><ul>${(correct.selected || []).map(id=>`<li>${h(hs[id] || id)}</li>`).join('')}</ul>`;
+    }
+    return inner ? `<div class="answer-key">${inner}</div>` : '';
+  }
+
+  function revealStudyVisual(q, selected, correct) {
+    const type = q.question_type || 'single_choice';
+    if (type === 'single_choice') {
+      const selectedId = selected?.selected;
+      const correctId = correct?.selected || q.correct;
+      optionsOf(q).forEach(o => {
+        const btn = document.getElementById('opt-' + o.id);
+        if (!btn) return;
+        btn.disabled = true;
+        if (String(o.id) === String(correctId)) btn.classList.add('correct');
+        else if (String(o.id) === String(selectedId)) btn.classList.add('wrong');
+      });
+      return;
+    }
+
+    document.querySelectorAll('#studyInteraction button,#studyInteraction input,#studyInteraction select').forEach(x=>x.disabled=true);
+
+    if (type === 'multi_select') {
+      const selectedSet = new Set(selected?.selected || []), correctSet = new Set(correct?.selected || []);
+      document.querySelectorAll('#studyInteraction [data-study-multi-row]').forEach(row => {
+        const id = row.dataset.studyMultiRow;
+        if (correctSet.has(id)) row.classList.add('correct-answer');
+        else if (selectedSet.has(id)) row.classList.add('wrong-answer');
+      });
+    }
+
+    if (type === 'yes_no_matrix') {
+      Object.entries(correct || {}).forEach(([r,c]) => {
+        document.querySelector(`#studyInteraction [data-study-matrix-cell="${CSS.escape(r+':'+c)}"]`)?.classList.add('matrix-correct');
+        const chosen = selected?.[r];
+        if (chosen && chosen !== c) document.querySelector(`#studyInteraction [data-study-matrix-cell="${CSS.escape(r+':'+chosen)}"]`)?.classList.add('matrix-wrong');
+      });
+    }
+
+    if (type === 'hotspot_dropdown') {
+      document.querySelectorAll('#studyInteraction [data-study-slot]').forEach(sel => {
+        const expected = correct?.[sel.dataset.studySlot];
+        sel.classList.add(String(sel.value) === String(expected) ? 'correct-answer' : 'wrong-answer');
+      });
+    }
+
+    if (type === 'image_hotspot') {
+      const s = new Set(selected?.selected || []), c = new Set(correct?.selected || []);
+      document.querySelectorAll('#studyInteraction [data-study-hotspot]').forEach(el => {
+        const id = el.dataset.studyHotspot;
+        if (c.has(id)) el.classList.add('correct-answer');
+        else if (s.has(id)) el.classList.add('wrong-answer');
+      });
+    }
+  }
+
   function renderCard() {
     const el = document.getElementById('fc');
     if (!sQueue.length) {
-      el.innerHTML = '<div class="empty">Nenhuma questão neste filtro.<br/>Adicione questões ou mude o filtro.</div>';
+      el.innerHTML = '<div class="empty">Nenhuma questão neste filtro.<br/>Adicione/importa questões ou mude o filtro.</div>';
       return;
     }
     if (sIdx >= sQueue.length) {
-      el.innerHTML = `<div class="fc-card" style="text-align:center;padding:40px;">
-        <div style="font-size:32px;margin-bottom:12px;">🎉</div>
-        <div style="font-size:17px;font-weight:700;margin-bottom:8px;">Sessão concluída!</div>
-        <div style="font-size:14px;color:#57606a;margin-bottom:20px;">Você revisou ${sQueue.length} questão(ões).</div>
-        <button class="btn bp" onclick="startStudy('all')">Recomeçar</button>
-      </div>`;
+      el.innerHTML = `<div class="fc-card" style="text-align:center;padding:40px;"><div style="font-size:32px;margin-bottom:12px;">🎉</div><div style="font-size:17px;font-weight:700;margin-bottom:8px;">Sessão concluída!</div><div style="font-size:14px;color:#57606a;margin-bottom:20px;">Você revisou ${sQueue.length} questão(ões).</div><button class="btn bp" onclick="startStudy('all')">Recomeçar</button></div>`;
       return;
     }
-    answered = false;
-    const q   = sQueue[sIdx];
-    const pct = Math.round(sIdx / sQueue.length * 100);
-    const opts = [
-      { letter:'A', text: q.option_a },
-      { letter:'B', text: q.option_b },
-      { letter:'C', text: q.option_c },
-      { letter:'D', text: q.option_d },
-    ];
 
-    // Marca o início da exibição para registrar o tempo real de resposta.
+    answered = false;
+    studyDragSelected = null;
+    const q = sQueue[sIdx];
+    const pct = Math.round(sIdx / sQueue.length * 100);
     questionStartedAt = Date.now();
 
     el.innerHTML = `
@@ -838,125 +1427,84 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
         <div class="fc-meta">
           <span class="badge exam-badge">${h(q.exam || currentExam)}</span>
           <span class="badge bt">${h(q.topic)}</span>
-          <span class="badge bd-${q.difficulty}">${q.difficulty}</span>
-          <span class="badge bs-${q.status}">${q.status}</span>
+          <span class="badge bd-${h(q.difficulty)}">${h(q.difficulty)}</span>
+          <span class="badge bs-${h(q.status)}">${h(q.status)}</span>
+          <span class="badge type-badge">${h(q.question_type || 'single_choice')}</span>
+          ${q.origin === 'real' ? '<span class="badge origin-badge">REAL</span>' : ''}
+          ${q.realism_level ? `<span class="badge realism-badge">R${h(q.realism_level)}</span>` : ''}
         </div>
+        ${renderCaseHTML(q)}
         <div class="fc-question">${h(q.question)}</div>
-        <div class="fc-options">
-          ${opts.map(o=>`
-            <button class="fc-opt" id="opt-${o.letter}" onclick="pick(${q.id},'${o.letter}')">
-              <span class="letter">${o.letter}</span>
-              <span>${h(o.text)}</span>
-            </button>`).join('')}
-        </div>
+        ${renderStudyInteraction(q)}
         <div class="fc-result" id="fc-result"></div>
+        <div id="fc-key"></div>
         <div id="fc-exp" style="display:none;">${structuredLearningHTML(q)}</div>
         <button class="fc-next" id="fc-next" onclick="nextCard()">Próxima →</button>
       </div>`;
   }
 
-  async function pick(qid, letter) {
+  async function submitStudyAttempt(q, answer) {
     if (answered) return;
-
     answered = true;
 
-    const q = sQueue[sIdx];
-
-    // Trava as alternativas enquanto o servidor registra e valida a tentativa.
-    ['A','B','C','D'].forEach(l => {
-      const btn = document.getElementById('opt-' + l);
-      if (btn) btn.disabled = true;
-    });
-
-    const responseMs = questionStartedAt
-      ? Date.now() - questionStartedAt
-      : null;
+    const responseMs = questionStartedAt ? Date.now() - questionStartedAt : null;
+    const submitBtn = document.querySelector('#studyInteraction .study-submit');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Corrigindo…'; }
 
     try {
       const result = await apiFetch(
         `/api/attempts?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(currentExam)}`,
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            question_id: qid,
-            selected_answer: letter,
-            study_mode: 'study',
-            response_ms: responseMs
-          })
-        }
+        { method:'POST', body:JSON.stringify({ question_id:q.id, answer, study_mode:'study', response_ms:responseMs }) }
       );
 
-      const correct = result.correct_answer;
-      const isRight = result.is_correct;
-      const status = result.status;
-
-      // Feedback visual com base no resultado retornado pelo servidor.
-      ['A','B','C','D'].forEach(l => {
-        const btn = document.getElementById('opt-' + l);
-        if (!btn) return;
-
-        if (l === correct) {
-          btn.classList.add('correct');
-        } else if (l === letter && !isRight) {
-          btn.classList.add('wrong');
-        }
-      });
-
+      revealStudyVisual(q, answer, result.correct_payload);
+      const isRight = result.is_correct, status = result.status;
+      const partial = Number(result.points_earned || 0) > 0 && !isRight;
       let mensagem = '';
+      if (isRight && status === 'acertei') mensagem = '✓ Correto! Domínio confirmado após intervalo de revisão.';
+      else if (isRight) mensagem = '✓ Correto! Continua em revisar até confirmar novamente após ≥24h.';
+      else if (partial) mensagem = `◐ Parcial: ${result.points_earned}/${result.points_max} ponto(s). A questão conta como não dominada até ficar 100% correta.`;
+      else if (status === 'errei') mensagem = '✗ Incorreto. Dois erros consecutivos → errei.';
+      else mensagem = '✗ Incorreto. Continua em revisar.';
 
-      if (isRight && status === 'acertei') {
-        mensagem = '✓ Correto! Domínio confirmado após intervalo de revisão.';
-      } else if (isRight) {
-        mensagem = '✓ Correto! Continua em revisar até confirmar novamente após ≥24h.';
-      } else if (status === 'errei') {
-        mensagem = `✗ Errado! 2 erros consecutivos → errei. Correta: ${correct}`;
-      } else {
-        mensagem = `✗ Errado! Continua em revisar. Correta: ${correct}`;
-      }
-
-      if (result.history) {
-        mensagem +=
-          ` | Tentativas: ${result.history.attempts}` +
-          ` | Acertos: ${result.history.correct}` +
-          ` | Erros: ${result.history.wrong}` +
-          ` | Histórico: ${result.history.accuracy_pct}%`;
-      }
+      if (result.history) mensagem += ` | Tentativas: ${result.history.attempts} | Acertos 100%: ${result.history.correct} | Erros: ${result.history.wrong} | Histórico: ${result.history.accuracy_pct}%`;
 
       const res = document.getElementById('fc-result');
       res.textContent = mensagem;
       res.className = 'fc-result ' + (isRight ? 'acertei' : 'errei');
       res.style.display = 'block';
-
-      if (structuredLearningHTML(q)) {
-        document.getElementById('fc-exp').style.display = 'block';
-      }
-
+      document.getElementById('fc-key').innerHTML = answerKeyHTML(q, result.correct_payload);
+      if (structuredLearningHTML(q)) document.getElementById('fc-exp').style.display = 'block';
       document.getElementById('fc-next').style.display = 'block';
 
-      // O status já foi persistido por /api/attempts.
       q.status = status;
-
-      const orig = qs.find(x => x.id === qid);
-      if (orig) orig.status = status;
-
+      const orig = qs.find(x=>x.id===q.id); if (orig) orig.status = status;
       renderStats();
       scheduleGeminiSync();
-
     } catch (e) {
       console.error(e);
-
       answered = false;
-
-      ['A','B','C','D'].forEach(l => {
-        const btn = document.getElementById('opt-' + l);
-        if (btn) btn.disabled = false;
-      });
-
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Responder'; }
       const res = document.getElementById('fc-result');
       res.textContent = 'Erro ao registrar tentativa: ' + e.message;
       res.className = 'fc-result errei';
       res.style.display = 'block';
     }
+  }
+
+  async function pick(qid, letter) {
+    const q = sQueue[sIdx];
+    if (!q || q.id !== qid || answered) return;
+    await submitStudyAttempt(q, { selected:letter });
+  }
+
+  async function submitStudyRich() {
+    const q = sQueue[sIdx];
+    if (!q || answered) return;
+    const answer = collectStudyAnswer(q);
+    const error = validateStudyAnswer(q, answer);
+    if (error) { alert(error); return; }
+    await submitStudyAttempt(q, answer);
   }
 
   function nextCard() { sIdx++; renderCard(); }
@@ -965,7 +1513,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
   let dQueue = [], dIdx = 0, dAnswered = false;
   let decorebaStartedAt = 0;
 
-  function isDecoreba(q) { return q.topic && q.topic.toLowerCase().startsWith('decoreba'); }
+  function isDecoreba(q) { return q.topic && q.topic.toLowerCase().startsWith('decoreba') && (q.question_type || 'single_choice') === 'single_choice'; }
 
   function startDecoreba(mode) {
     ['all','pend','err','rev','shuf'].forEach(k => {
@@ -1148,47 +1696,47 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
   function nextDecorebaCard() { dIdx++; renderDecorebaCard(); }
 
   // ── LIST ─────────────────────────────────────────────────
+  function richListSummary(q) {
+    const type = q.question_type || 'single_choice';
+    if (type === 'single_choice') {
+      const opts = optionsOf(q);
+      return `<div class="qi-opts">${opts.map(o=>`<div class="qi-opt${String(o.id)===String(q.correct || q.correct_payload?.selected)?' correct':''}"><strong>${h(o.id)})</strong> ${h(o.text)}</div>`).join('')}</div>`;
+    }
+    return `<div class="rich-admin-note"><strong>Formato:</strong> ${h(type)} · <strong>Pontos:</strong> ${h(q.points || 1)} · <strong>Realismo:</strong> ${h(q.realism_level || 1)}/5${q.case_id ? ` · <strong>Case:</strong> ${h(q.case_id)}` : ''}<br>${answerKeyHTML(q, q.correct_payload)}</div>`;
+  }
+
   function renderList() {
     const s  = document.getElementById('fsearch').value.toLowerCase();
     const tp = document.getElementById('ftopic').value;
     const st = document.getElementById('fstatus').value;
     const df = document.getElementById('fdiff').value;
 
-    const topics = [...new Set(qs.map(q=>q.topic))].sort();
+    const topics = [...new Set(qs.map(q=>q.topic).filter(Boolean))].sort();
     const sel = document.getElementById('ftopic'), cur = sel.value;
-    sel.innerHTML = '<option value="">Todos os tópicos</option>' +
-      topics.map(t=>`<option${t===cur?' selected':''}>${t}</option>`).join('');
+    sel.innerHTML = '<option value="">Todos os tópicos</option>' + topics.map(t=>`<option${t===cur?' selected':''}>${h(t)}</option>`).join('');
 
-    const f = qs.filter(q=>
-      (!tp||q.topic===tp)&&(!st||q.status===st)&&(!df||q.difficulty===df)&&
-      (!s||q.question.toLowerCase().includes(s))
-    );
+    const f = qs.filter(q=>(!tp||q.topic===tp)&&(!st||q.status===st)&&(!df||q.difficulty===df)&&(!s||String(q.question||'').toLowerCase().includes(s)));
     const el = document.getElementById('qlist');
     if (!f.length) { el.innerHTML='<div class="empty">Nenhuma questão encontrada.</div>'; return; }
 
-    el.innerHTML = f.map(q => {
-      const opts = [
-        { l:'A', t:q.option_a },{ l:'B', t:q.option_b },
-        { l:'C', t:q.option_c },{ l:'D', t:q.option_d },
-      ];
-      return `<div class="qi s-${q.status}">
-        <div class="qi-meta">
-          <span class="badge exam-badge">${h(q.exam || currentExam)}</span>
-          <span class="badge bt">${h(q.topic)}</span>
-          <span class="badge bd-${q.difficulty}">${q.difficulty}</span>
-          <span class="badge bs-${q.status}">${q.status}</span>
-        </div>
-        <div class="qi-q">${h(q.question)}</div>
-        <div class="qi-opts">
-          ${opts.map(o=>`<div class="qi-opt${o.l===q.correct?' correct':''}"><strong>${o.l})</strong> ${h(o.t)}</div>`).join('')}
-        </div>
-        ${structuredLearningHTML(q)}
-        <div class="qi-actions">
-          <button class="btn-sm bsm-s" onclick="editQ(${q.id})">Editar</button>
-          <button class="btn-sm bsm-r" onclick="delQ(${q.id})">Excluir</button>
-        </div>
-      </div>`;
-    }).join('');
+    el.innerHTML = f.map(q => `<div class="qi s-${h(q.status)}">
+      <div class="qi-meta">
+        <span class="badge exam-badge">${h(q.exam || currentExam)}</span>
+        <span class="badge bt">${h(q.topic)}</span>
+        <span class="badge bd-${h(q.difficulty)}">${h(q.difficulty)}</span>
+        <span class="badge bs-${h(q.status)}">${h(q.status)}</span>
+        <span class="badge type-badge">${h(q.question_type || 'single_choice')}</span>
+        ${q.origin === 'real' ? '<span class="badge origin-badge">REAL</span>' : ''}
+      </div>
+      ${q.case_data ? renderCaseHTML(q) : ''}
+      <div class="qi-q">${h(q.question)}</div>
+      ${richListSummary(q)}
+      ${structuredLearningHTML(q)}
+      <div class="qi-actions">
+        ${(q.question_type || 'single_choice') === 'single_choice' ? `<button class="btn-sm bsm-s" onclick="editQ(${q.id})">Editar</button>` : '<span class="rich-admin-note" style="margin:0;">Formato rico: edite via JSON/importação.</span>'}
+        <button class="btn-sm bsm-r" onclick="delQ(${q.id})">Excluir</button>
+      </div>
+    </div>`).join('');
   }
 
   async function delQ(id) {
@@ -1285,10 +1833,23 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
 
   // ── Export / Import ──────────────────────────────────────
   function openExport() {
-    // remove user_id antes de exportar
-    const clean = qs.map(({ user_id, ...rest }) => rest);
-    document.getElementById('expArea').value =
-      JSON.stringify({ version:'1.2', exam:currentExam, exportedAt:new Date().toISOString(), total:clean.length, questions:clean }, null, 2);
+    const clean = qs.map(q => {
+      const {
+        user_id, interaction_json, correct_json, case_json,
+        created_at, updated_at, last_reviewed, ...rest
+      } = q;
+      const out = { ...rest };
+      if (q.interaction) out.interaction = q.interaction;
+      if (q.correct_payload) out.correct_payload = q.correct_payload;
+      if (q.case_data) out.case_data = q.case_data;
+      delete out.interaction_json;
+      delete out.correct_json;
+      delete out.case_json;
+      return out;
+    });
+    document.getElementById('expArea').value = JSON.stringify({
+      version:'2.0', exam:currentExam, exportedAt:new Date().toISOString(), total:clean.length, questions:clean
+    }, null, 2);
     document.getElementById('expModal').classList.add('open');
   }
   function dlJSON() {
@@ -1329,7 +1890,13 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
       }));
 
       // mostra tela de confirmação
-      document.getElementById('impConfirmTxt').textContent = `${_impArr.length} questão(ões) encontrada(s). Exame padrão: ${fileExam}. Deseja importar?`;
+      const typeCounts = _impArr.reduce((acc, q) => {
+        const t = q.question_type || 'single_choice';
+        acc[t] = (acc[t] || 0) + 1;
+        return acc;
+      }, {});
+      const typeSummary = Object.entries(typeCounts).map(([k,v]) => `${k}: ${v}`).join(' · ');
+      document.getElementById('impConfirmTxt').textContent = `${_impArr.length} questão(ões) encontrada(s). Exame: ${fileExam}. Formatos: ${typeSummary}. Deseja importar?`;
       document.getElementById('impConfirm').style.display  = 'block';
       document.getElementById('impProgress').style.display = 'none';
       document.getElementById('impModal').classList.add('open');
@@ -1385,7 +1952,7 @@ e confirme qual foi a maior sequência consecutiva da mesma letra.</div>
       }
 
       // Recarrega do banco para obter IDs e estado real após o INSERT em lote.
-      qs = await apiFetch(apiUrl(API));
+      qs = (await apiFetch(apiUrl(API) + '&origin=all')).map(normalizeQuestion);
 
       bar.style.width = '100%';
       txt.innerHTML = `<strong style="color:#2e7d32;">✓ ${result.inserted || questions.length} questão(ões) importada(s)!</strong>`;
