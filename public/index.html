@@ -514,6 +514,58 @@ REALISMO
 - Misture dificuldades "facil", "medio" e "dificil", com predominância de médio/difícil.
 - Crie variações conceituais: não repita a mesma pergunta apenas trocando nomes.
 - Estudos de caso devem compartilhar contexto através de case_id + case_data e ter várias perguntas independentes quando fizer sentido.
+- PADRÃO MÍNIMO DE REALISMO: a questão deve exigir conhecimento específico de DP-300. Se puder ser respondida por bom senso, sem conhecer Azure SQL/SQL Server, REJEITE E REESCREVA.
+- Não crie perguntas "didáticas demais" em que a própria redação entrega a resposta. O objetivo é simular uma prova profissional, não um quiz introdutório.
+- Em formatos interativos, a dificuldade deve estar na distinção entre opções tecnicamente próximas, não em escolher entre uma opção correta e outra semanticamente absurda.
+
+QUALIDADE DAS ALTERNATIVAS E DISTRATORES — REGRA OBRIGATÓRIA
+- NUNCA use alternativas absurdas, cômicas, obviamente irrelevantes ou que possam ser eliminadas sem conhecimento técnico.
+- Toda alternativa incorreta deve ser tecnicamente plausível para o MESMO cenário e pertencer ao mesmo espaço de solução da resposta correta.
+- Um candidato preparado deve conseguir explicar por que uma alternativa errada parece atraente antes de perceber qual requisito ela viola.
+- Priorize distratores baseados em confusões reais: serviço parecido, tier inadequado, parâmetro quase correto, ordem incorreta, permissão excessiva, tecnologia válida mas incompatível com um requisito, DMV/comando próximo, estratégia que resolve parte do problema mas não todos os requisitos.
+- Não use como distrator itens sem relação técnica com o problema, como cor/ícone da interface, tamanho de senha sem relação com o requisito, BIOS, quantidade de dashboards, nome de resource group, nome de desenvolvedor ou qualquer detalhe administrativo irrelevante.
+- Não use opções impossíveis ou ridículas apenas para completar A/B/C/D.
+- Em single_choice, as quatro opções devem ser do mesmo nível de abstração. Exemplo: se a correta é um serviço/tier Azure, os distratores também devem ser serviços/tiers razoáveis; se a correta é um comando/DMV, os distratores devem ser comandos/DMVs plausíveis.
+- Em multi_select, TODAS as opções devem parecer candidatos possíveis. As incorretas devem falhar por uma diferença técnica específica, e não por serem de outra categoria.
+- Em yes_no_matrix, evite afirmações obviamente falsas. Cada linha deve exigir conhecimento real do comportamento/limite/recurso.
+- Em hotspot_dropdown, todas as opções de cada slot devem ser sintaticamente E semanticamente plausíveis naquele ponto do código/comando.
+- HOTSPOT/DROPDOWN — PADRÃO DE PROVA REAL:
+  - Cada dropdown deve avaliar uma decisão técnica real, não uma oposição óbvia.
+  - Evite dropdown binário quando uma opção torna a outra ridícula ou pertence a outra categoria.
+  - Prefira 3 ou 4 opções por slot quando existirem alternativas técnicas plausíveis.
+  - Todas as opções do mesmo slot devem pertencer à MESMA categoria técnica e ao MESMO nível de abstração.
+  - Se o slot pede um service tier, TODAS as opções devem ser service tiers plausíveis.
+  - Se o slot pede um cmdlet/parâmetro, TODAS as opções devem ser cmdlets/parâmetros plausíveis naquele comando.
+  - Se o slot pede uma DMV, TODAS as opções devem ser DMVs plausíveis para o diagnóstico.
+  - Se o slot pede uma configuração de HA/DR, TODAS as opções devem ser configurações de HA/DR tecnicamente defensáveis.
+  - NÃO use pares do tipo "OLTP" versus "Arquivo offline", "OneLake/Fabric" versus "acesso ao host físico", "habilite" versus uma ação sem relação, ou qualquer mistura de categorias que revele a resposta por semântica.
+  - NÃO use o próprio requisito do enunciado repetido literalmente como opção correta quando os distratores não reutilizam linguagem equivalente.
+  - Cada opção incorreta deve representar uma escolha que um profissional poderia fazer por confundir um recurso semelhante, um limite, uma condição, um parâmetro ou uma arquitetura.
+  - A resposta deve depender de conhecer o produto/recurso, não de reconhecer qual texto 'combina' gramaticalmente com a frase.
+  - Se apenas UMA opção forma uma frase natural/completa com o código ou texto, a questão é inválida.
+  - Se uma opção correta puder ser identificada sem conhecer DP-300 apenas por coerência semântica, a questão é inválida.
+  - TESTE DE SLOT: esconda o enunciado e leia somente as opções do dropdown. Todas devem parecer alternativas técnicas reais para o mesmo campo.
+  - TESTE DE TROCA: imagine trocar a correta por cada distrator. O resultado deve continuar sendo sintaticamente válido e tecnicamente crível, embora incorreto por um requisito específico.
+- Em build_list, inclua somente etapas que poderiam realmente fazer parte do procedimento. A dificuldade deve estar na ordem e na necessidade de cada etapa, não em itens absurdos.
+- Em drag_drop, todos os itens e destinos devem pertencer ao mesmo domínio técnico e permitir confusões realistas.
+- Se duas alternativas puderem ser descartadas imediatamente por bom senso, linguagem ou por não terem relação com o produto/recurso discutido, REESCREVA A QUESTÃO.
+- Evite pistas involuntárias: alternativa correta muito mais longa, precisa ou bem escrita que as demais; respostas com palavras copiadas literalmente do enunciado; absolutos como "sempre", "nunca" e "obrigatoriamente" usados apenas para tornar um distrator obviamente falso.
+- REGRA DE SIMETRIA DAS ALTERNATIVAS: a resposta correta NÃO pode se destacar visual ou linguisticamente. As alternativas devem ter comprimento, nível de detalhe, tom, estrutura gramatical e precisão técnica semelhantes.
+- Não escreva três alternativas curtas/genéricas e uma alternativa correta longa, explicativa e cheia de ressalvas.
+- Não faça a alternativa correta ser a única que menciona todos os requisitos do cenário. Os distratores também devem mencionar requisitos relevantes, mas falhar em um detalhe técnico específico.
+- Não faça a resposta correta parecer "texto de documentação" enquanto as erradas parecem frases improvisadas.
+- Sempre que possível, escreva as quatro alternativas com a MESMA estrutura sintática. Exemplo: todas começando por um verbo de ação, todas sendo nomes de serviços, todas sendo comandos, todas sendo configurações ou todas sendo decisões arquiteturais.
+- Mantenha diferença de tamanho pequena entre as alternativas. Se uma opção tiver muito mais palavras que as demais, reescreva todas para equilibrar.
+- Não use uma opção correta excessivamente qualificada ("use X porque Y e Z...") enquanto as erradas são apenas nomes curtos. Coloque justificativas na explicação, não dentro da alternativa, a menos que TODAS as alternativas tenham justificativas equivalentes.
+- Evite pistas por qualidade de escrita: todas as alternativas devem parecer igualmente profissionais, específicas e plausíveis.
+- Evite pistas por precisão: a correta não pode ser a única com versão, tier, parâmetro, métrica ou condição específica se os distratores forem vagos.
+- Evite pistas por terminologia: se a correta usa a nomenclatura oficial do produto, os distratores também devem usar nomenclatura oficial e tecnicamente possível.
+- TESTE DE CEGAMENTO: esconda o enunciado e observe apenas as alternativas. Não deve ser possível adivinhar a correta pela opção mais longa, mais técnica, mais completa ou mais bem escrita.
+- TESTE DE COMPRIMENTO: se a alternativa correta for claramente a maior ou menor que as demais, reescreva a questão antes de entregar.
+- TESTE DE PADRÃO: confirme que a posição da resposta correta não se correlaciona com alternativa mais longa, mais específica ou com maior número de condições.
+- Para questões difíceis, pelo menos dois distratores devem representar soluções que seriam corretas em um cenário semelhante, mas falham em um requisito específico do cenário atual.
+- Antes de aceitar uma questão, faça o TESTE DO DISTRATOR: "Um profissional competente poderia considerar seriamente esta opção por alguns segundos?" Se a resposta for não, substitua-a.
+- REGRA DE REJEIÇÃO: se a resposta puder ser descoberta apenas eliminando alternativas idiotas/irrelevantes, a questão é inválida e deve ser reescrita.
 
 FORMATOS SUPORTADOS
 Use uma mistura tecnicamente apropriada. Não force distribuição igual, mas NÃO gere um banco quase todo A/B/C/D. Como referência, tente manter no máximo ~40% em single_choice e use os demais formatos quando melhor representarem a habilidade avaliada:
@@ -796,11 +848,27 @@ ANTES DE ENTREGAR
 3. Para single_choice, confirme que existe UMA melhor resposta.
 4. Para multi_select, informe explicitamente quantas opções selecionar e faça min/max bater com o gabarito.
 5. Para matrizes/dropdowns/drag/build/hotspot, valide TODOS os subitens.
-6. Remova duplicatas e variações triviais.
-7. Evite padrões previsíveis de letras nas questões single_choice.
-8. Confirme que interaction e correct_payload seguem EXATAMENTE os formatos acima.
-9. Valide o JSON final.
-10. Entregue um arquivo .json pronto para download, sem comentários fora do JSON que quebrem a importação.
+6. Faça uma AUDITORIA DE DISTRATORES em TODAS as questões: nenhuma alternativa pode ser absurda, irrelevante ou eliminável sem conhecimento técnico.
+7. Para cada alternativa incorreta, identifique mentalmente qual requisito técnico específico ela viola. Se não houver um motivo técnico concreto, reescreva a alternativa.
+8. Em questões médio/difíceis, confirme que pelo menos dois distratores seriam defensáveis em um cenário semelhante.
+9. Confirme que opções da mesma questão possuem nível de abstração, tamanho, estrutura gramatical e especificidade comparáveis.
+10. Execute o TESTE DE CEGAMENTO: lendo somente as alternativas, a correta NÃO pode se destacar por ser mais longa, mais técnica, mais específica, mais completa ou mais bem escrita.
+11. Compare o comprimento das alternativas. Se a correta for claramente maior/menor que as demais, reescreva todas.
+12. Verifique se a correta é a única que repete palavras ou requisitos do enunciado. Se for, reescreva.
+13. Rejeite qualquer questão cuja resposta possa ser descoberta por estilo textual, comprimento, nível de detalhe ou eliminação de alternativas obviamente ruins.
+14. AUDITE CADA hotspot_dropdown separadamente:
+    - todas as opções de cada slot pertencem à mesma categoria técnica;
+    - nenhuma opção é absurda, genérica ou de outra camada arquitetural;
+    - todas as opções completam a frase/código de forma natural;
+    - nenhuma resposta é óbvia apenas pela semântica;
+    - prefira 3–4 opções plausíveis por slot;
+    - se o usuário puder acertar sem conhecimento técnico, REESCREVA o slot.
+15. Faça o TESTE DE PROVA REAL: para cada questão, pergunte "um candidato que NÃO estudou este tópico conseguiria acertar apenas por linguagem, bom senso ou exclusão?" Se sim, a questão é inválida.
+16. Remova duplicatas e variações triviais.
+17. Evite padrões previsíveis de letras nas questões single_choice.
+18. Confirme que interaction e correct_payload seguem EXATAMENTE os formatos acima.
+19. Valide o JSON final.
+20. Entregue um arquivo .json pronto para download, sem comentários fora do JSON que quebrem a importação.
 
 No final da resposta, fora do arquivo, informe um resumo com:
 - quantidade por question_type;
