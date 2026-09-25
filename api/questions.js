@@ -1,4 +1,4 @@
-const { sql, openPool, cleanUid, cleanExam } = require('./_lib/db');
+const { sql, openPool, cleanUid, cleanExam } = require('../lib/db');
 
 function jsonText(value) {
   if (value == null || value === '') return null;

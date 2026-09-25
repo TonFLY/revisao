@@ -1,5 +1,5 @@
-const { sql, openPool, cleanUid, cleanExam } = require('./_lib/db');
-const { evaluateQuestion } = require('./_lib/evaluator');
+const { sql, openPool, cleanUid, cleanExam } = require('../lib/db');
+const { evaluateQuestion } = require('../lib/evaluator');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');

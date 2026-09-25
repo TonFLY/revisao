@@ -13,5 +13,31 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/api/exam/start",
+      "destination": "/api/exam?action=start"
+    },
+    {
+      "source": "/api/exam/session",
+      "destination": "/api/exam?action=session"
+    },
+    {
+      "source": "/api/exam/answer",
+      "destination": "/api/exam?action=answer"
+    },
+    {
+      "source": "/api/exam/mark",
+      "destination": "/api/exam?action=mark"
+    },
+    {
+      "source": "/api/exam/submit",
+      "destination": "/api/exam?action=submit"
+    },
+    {
+      "source": "/api/exam/pool",
+      "destination": "/api/exam?action=pool"
+    }
   ]
 }
