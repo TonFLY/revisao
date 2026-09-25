@@ -243,7 +243,7 @@
     @media(max-width:540px) { .source-row { grid-template-columns:1fr; } }
 
 
-    /* ── IMPORTADOR DE PDF ── */
+    /* ── EXPORTADOR DE PDF ── */
     .pdf-import-shell { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:18px; }
     .pdf-import-shell h2 { color:#1a237e; font-size:18px; margin:0 0 6px; }
     .pdf-import-shell .lead { color:#57606a; font-size:13px; line-height:1.55; margin-bottom:16px; }
@@ -268,6 +268,37 @@
     .pdf-chip.warn { background:#fff3e0; color:#e65100; }
     .pdf-chip.bad { background:#ffebee; color:#c62828; }
     .pdf-warning { background:#fff8e8; border:1px solid #ffe0b2; border-radius:8px; padding:9px 11px; font-size:12px; color:#7a4d00; margin-top:10px; }
+
+    .pdf-export-host { position:fixed; left:-100000px; top:0; width:190mm; background:#fff; color:#1f2937; font-family:Arial,Helvetica,sans-serif; z-index:-1; }
+    .pdf-doc { width:100%; background:#fff; font-size:11.5px; line-height:1.48; }
+    .pdf-cover { padding:14mm 8mm 10mm; border-bottom:2px solid #1a237e; margin-bottom:7mm; }
+    .pdf-cover h1 { margin:0 0 4mm; color:#1a237e; font-size:24px; }
+    .pdf-question { padding:0 5mm 6mm; margin:0 0 6mm; border-bottom:1px solid #dfe3e8; break-inside:avoid; }
+    .pdf-page-break { break-before:page; page-break-before:always; }
+    .pdf-question:first-of-type.pdf-page-break { break-before:auto; page-break-before:auto; }
+    .pdf-qnum { font-size:14px; font-weight:800; color:#1a237e; margin-bottom:1mm; }
+    .pdf-meta { color:#667085; font-size:9.5px; margin-bottom:2.5mm; }
+    .pdf-stem { font-weight:700; margin-bottom:3mm; white-space:pre-wrap; }
+    .pdf-opt { margin:1.3mm 0; padding-left:2mm; }
+    .pdf-code { white-space:pre-wrap; border:1px solid #cfd5dd; background:#f6f8fa; padding:3mm; border-radius:2mm; font-size:10px; }
+    .pdf-blank { display:inline-block; min-width:22mm; padding:0 1mm; border-bottom:1px solid #555; font-weight:700; }
+    .pdf-slot { margin:1.5mm 0; font-size:10px; }
+    .pdf-table { width:100%; border-collapse:collapse; margin:3mm 0; }
+    .pdf-table th,.pdf-table td { border:1px solid #cfd5dd; padding:2mm; vertical-align:top; }
+    .pdf-table th { background:#f3f4f6; }
+    .pdf-cell { width:14mm; text-align:center; font-size:14px; }
+    .pdf-drag { display:grid; grid-template-columns:1fr 1fr; gap:5mm; }
+    .pdf-answer { margin-top:4mm; padding:2.5mm; background:#eef7ee; border-left:3px solid #2e7d32; }
+    .pdf-explain,.pdf-wrong,.pdf-memory,.pdf-source { margin-top:2mm; padding:2.2mm; background:#f8fafc; border-left:2px solid #c7ced8; }
+    .pdf-wrong { background:#fff5f5; }
+    .pdf-memory { background:#fff8e8; }
+    .pdf-source { font-size:9px; color:#5f6b7a; word-break:break-all; }
+    .pdf-case { margin:0 5mm 6mm; padding:4mm; border:1px solid #bec7d3; background:#f6f8fb; break-inside:avoid; }
+    .pdf-case-title { font-size:14px; color:#1a237e; font-weight:800; margin-bottom:2mm; }
+    .pdf-key { break-before:page; page-break-before:always; padding:5mm; }
+    .pdf-key h2 { color:#1a237e; }
+    .pdf-key-row { padding:3mm 0; border-bottom:1px solid #e2e6ea; break-inside:avoid; }
+    .pdf-hotspot-img { max-width:100%; max-height:120mm; object-fit:contain; display:block; margin:3mm auto; }
     @media(max-width:850px) { .pdf-grid { grid-template-columns:1fr 1fr; } .pdf-summary { grid-template-columns:repeat(3,1fr); } }
     @media(max-width:540px) { .pdf-grid { grid-template-columns:1fr; } .pdf-summary { grid-template-columns:repeat(2,1fr); } }
 
@@ -362,7 +393,7 @@
     <div class="tab" onclick="goTab('decoreba')">Decoreba</div>
     <div class="tab" onclick="goTab('list')">Questões</div>
     <div class="tab" onclick="goTab('add')">Adicionar</div>
-    <div class="tab" onclick="goTab('pdf')">Importar PDF</div>
+    <div class="tab" onclick="goTab('pdf')">Exportar PDF</div>
   </div>
 
   <!-- ── STUDY ── -->
@@ -503,58 +534,63 @@
     </div>
   </div>
 
-  <!-- ── IMPORTAR PDF ── -->
+  <!-- ── EXPORTAR PDF ── -->
   <div class="panel" id="panel-pdf">
     <div class="pdf-import-shell">
-      <h2>Importar questões de PDF</h2>
-      <div class="lead">O PDF é lido no navegador. Você escolhe quantidade, páginas, assunto, presença de gabarito e se quer importar explicações. Só quando clicar em <strong>Importar no banco</strong> as questões selecionadas são enviadas à aplicação.</div>
+      <h2>Exportar questões para PDF</h2>
+      <div class="lead">Monte um caderno de estudo ou simulado usando as questões que já existem no Certification Review. Você escolhe quantidade, assunto, status, origem, formato e quanto do gabarito/explicação deve aparecer.</div>
 
       <div class="pdf-grid">
-        <div class="fg"><label>Arquivo PDF</label><input id="pdfFile" type="file" accept="application/pdf,.pdf" onchange="pdfChooseFile(event)" /></div>
-        <div class="fg"><label>Exame</label><input id="pdfExam" list="examOptions" value="DP-300" maxlength="6" /></div>
+        <div class="fg"><label>Exame</label><input id="pdfExam" value="DP-300" disabled /></div>
+        <div class="fg"><label>Título do PDF</label><input id="pdfTitle" placeholder="Ex.: DP-300 - Revisão de Performance" oninput="pdfApplyFilters()" /></div>
         <div class="fg"><label>Quantidade</label><input id="pdfQty" type="number" min="1" placeholder="Vazio = todas" oninput="pdfApplyFilters()" /></div>
 
-        <div class="fg"><label>Filtro por assunto / palavras-chave</label><input id="pdfSubject" placeholder="Ex.: elastic pool, Hyperscale" oninput="pdfApplyFilters()" /></div>
+        <div class="fg"><label>Assunto / palavras-chave</label><input id="pdfSubject" placeholder="Ex.: elastic pool, Hyperscale" oninput="pdfApplyFilters()" /></div>
         <div class="fg"><label>Modo do filtro</label><select id="pdfSubjectMode" onchange="pdfApplyFilters()"><option value="any">Qualquer termo</option><option value="all">Todos os termos</option></select></div>
-        <div class="fg"><label>Tópico salvo no app</label><input id="pdfTopic" placeholder="Ex.: Banco PDF - Plataforma" oninput="pdfApplyFilters()" /></div>
+        <div class="fg"><label>Tópico</label><select id="pdfTopic" onchange="pdfApplyFilters()"><option value="">Todos os tópicos</option></select></div>
 
-        <div class="fg"><label>Página inicial</label><input id="pdfPageFrom" type="number" min="1" placeholder="1" oninput="pdfApplyFilters()" /></div>
-        <div class="fg"><label>Página final</label><input id="pdfPageTo" type="number" min="1" placeholder="Última" oninput="pdfApplyFilters()" /></div>
-        <div class="fg"><label>Gabarito no PDF</label><select id="pdfAnswerFilter" onchange="pdfApplyFilters()"><option value="all">Com ou sem gabarito</option><option value="with">Somente com gabarito</option><option value="without">Somente sem gabarito</option></select></div>
+        <div class="fg"><label>Respondidas / status</label><select id="pdfStatusFilter" onchange="pdfApplyFilters()">
+          <option value="all">Todas</option><option value="answered">Somente respondidas</option><option value="unanswered">Somente não respondidas</option>
+          <option value="acertei">Acertei</option><option value="revisar">Revisar</option><option value="errei">Errei</option><option value="pendente">Pendente</option>
+        </select></div>
+        <div class="fg"><label>Origem</label><select id="pdfOriginFilter" onchange="pdfApplyFilters()"><option value="all">Todas</option><option value="real">V2 / REAL</option><option value="existing">Existentes / Legacy</option></select></div>
+        <div class="fg"><label>Decoreba</label><select id="pdfDecorebaFilter" onchange="pdfApplyFilters()"><option value="exclude">Excluir Decoreba</option><option value="include">Incluir</option><option value="only">Somente Decoreba</option></select></div>
 
-        <div class="fg"><label>Ordem da seleção</label><select id="pdfPickMode" onchange="pdfApplyFilters()"><option value="first">Ordem do PDF</option><option value="random">Aleatória</option></select></div>
-        <div class="fg"><label>Dificuldade padrão</label><select id="pdfDifficulty" onchange="pdfApplyFilters()"><option value="medio">Médio</option><option value="dificil">Difícil</option><option value="facil">Fácil</option></select></div>
-        <div class="fg"><label>Formato aceito</label><select id="pdfFormatFilter" onchange="pdfApplyFilters()"><option value="choice">Escolha única / múltipla detectável</option><option value="alltext">Também listar formatos não estruturados</option></select></div>
+        <div class="fg"><label>Tipo de questão</label><select id="pdfTypeFilter" onchange="pdfApplyFilters()">
+          <option value="all">Todos os formatos</option><option value="single_choice">Escolha única</option><option value="multi_select">Múltipla seleção</option>
+          <option value="yes_no_matrix">Matriz Sim/Não</option><option value="hotspot_dropdown">Completar / dropdown</option><option value="build_list">Ordenar etapas</option>
+          <option value="drag_drop">Associação / drag & drop</option><option value="image_hotspot">Hotspot em imagem</option>
+        </select></div>
+        <div class="fg"><label>Dificuldade</label><select id="pdfDifficulty" onchange="pdfApplyFilters()"><option value="">Todas</option><option value="facil">Fácil</option><option value="medio">Médio</option><option value="dificil">Difícil</option></select></div>
+        <div class="fg"><label>Ordem</label><select id="pdfOrder" onchange="pdfApplyFilters()"><option value="random">Aleatória</option><option value="id">ID / cadastro</option><option value="topic">Tópico</option><option value="status">Status</option></select></div>
+
+        <div class="fg"><label>Gabarito</label><select id="pdfAnswerMode" onchange="pdfApplyFilters()"><option value="none">Sem gabarito</option><option value="inline">Após cada questão</option><option value="end">Gabarito no final</option></select></div>
+        <div class="fg"><label>Layout</label><select id="pdfLayout" onchange="pdfApplyFilters()"><option value="flow">Fluxo contínuo</option><option value="page">Uma questão por página</option></select></div>
+        <div class="fg"><label>Nome do arquivo</label><input id="pdfFileName" placeholder="dp300-revisao.pdf" /></div>
       </div>
 
       <div class="pdf-checks">
-        <label><input id="pdfBringAnswer" type="checkbox" checked onchange="pdfApplyFilters()" /> Trazer gabarito quando detectado</label>
-        <label><input id="pdfBringExplanation" type="checkbox" checked onchange="pdfApplyFilters()" /> Trazer explicação quando detectada</label>
-        <label><input id="pdfDedupe" type="checkbox" checked onchange="pdfApplyFilters()" /> Excluir questões já existentes</label>
-        <label><input id="pdfSourceMeta" type="checkbox" checked onchange="pdfApplyFilters()" /> Salvar nome do PDF como fonte</label>
+        <label><input id="pdfIncludeExplanation" type="checkbox" onchange="pdfApplyFilters()" /> Incluir explicação</label>
+        <label><input id="pdfIncludeWrong" type="checkbox" onchange="pdfApplyFilters()" /> Por que as incorretas estão erradas</label>
+        <label><input id="pdfIncludeMemory" type="checkbox" onchange="pdfApplyFilters()" /> Palavra-chave, memória e pegadinha</label>
+        <label><input id="pdfIncludeSource" type="checkbox" onchange="pdfApplyFilters()" /> Fonte / URL</label>
+        <label><input id="pdfIncludeStatus" type="checkbox" onchange="pdfApplyFilters()" /> Status e metadados</label>
+        <label><input id="pdfIncludeCase" type="checkbox" checked onchange="pdfApplyFilters()" /> Contexto de case study</label>
       </div>
 
-      <div class="pdf-warning"><strong>Importante:</strong> HOTSPOT, DRAG DROP, SIMULATION e questões cuja área de resposta está somente em imagem não podem ser reconstruídas com segurança pelo extrator textual. Elas são contabilizadas e ignoradas por padrão. Questões sem gabarito podem ser importadas para a lista, mas ficam fora de <strong>Estudar</strong> e <strong>Simulado REAL</strong> até receberem um gabarito.</div>
+      <div class="pdf-warning"><strong>Dica:</strong> use <strong>Sem gabarito</strong> para montar um simulado em papel; <strong>Gabarito no final</strong> para autocorreção; ou <strong>Após cada questão + explicação</strong> para criar uma apostila de revisão. Questões interativas são convertidas para uma representação textual adequada ao PDF.</div>
 
       <div class="pdf-actions">
-        <button class="btn bp" onclick="pdfAnalyze()">Analisar PDF</button>
-        <button class="btn bs" onclick="pdfApplyFilters()">Reaplicar filtros</button>
-        <button class="btn bs" onclick="pdfReset()">Limpar</button>
+        <button class="btn bs" onclick="pdfApplyFilters()">Atualizar seleção</button>
+        <button class="btn bs" onclick="pdfReset()">Limpar filtros</button>
+        <button class="btn bp" onclick="pdfExport()">Gerar PDF</button>
       </div>
 
-      <div class="pdf-status" id="pdfStatus">Selecione um PDF e clique em <strong>Analisar PDF</strong>.</div>
-      <div class="pdf-progress"><div id="pdfBar"></div></div>
-
+      <div class="pdf-status" id="pdfStatus">Os filtros usam as questões já carregadas do exame atual.</div>
       <div class="pdf-summary" id="pdfSummary"></div>
-      <div class="pdf-preview" id="pdfPreview"><div class="empty">Nenhum PDF analisado.</div></div>
-
-      <div class="pdf-actions" id="pdfFinalActions" style="display:none;">
-        <button class="btn bs" onclick="pdfDownloadJSON()">Baixar JSON V2</button>
-        <button class="btn bp" onclick="pdfImportSelected()">Importar no banco</button>
-      </div>
+      <div class="pdf-preview" id="pdfPreview"><div class="empty">Abra esta aba para preparar o PDF.</div></div>
     </div>
   </div>
-
 </div>
 
 
@@ -1015,7 +1051,7 @@ No final da resposta, fora do arquivo, informe um resumo com:
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
   const API = '/api/questions';
   let qs = [], sQueue = [], sIdx = 0, answered = false;
@@ -1208,6 +1244,7 @@ No final da resposta, fora do arquivo, informe um resumo com:
     if (name==='list')     renderList();
     if (name==='study')    renderCard();
     if (name==='decoreba') startDecoreba('all');
+    if (name==='pdf')      pdfApplyFilters();
   }
 
   function optionText(q, letter) {
@@ -1998,320 +2035,258 @@ No final da resposta, fora do arquivo, informe um resumo com:
   }
 
 
-  // ── PDF -> QUESTÕES ─────────────────────────────────────
-  const pdfState = { file:null, pages:[], parsed:[], selected:[], unsupported:0, invalid:0, pageCount:0 };
-
-  function pdfChooseFile(e) {
-    pdfState.file = e.target.files?.[0] || null;
-    pdfState.pages = []; pdfState.parsed = []; pdfState.selected = [];
-    $('pdfBar').style.width = '0';
-    $('pdfSummary').innerHTML = '';
-    $('pdfPreview').innerHTML = '<div class="empty">Clique em Analisar PDF.</div>';
-    $('pdfFinalActions').style.display = 'none';
-    $('pdfStatus').innerHTML = pdfState.file ? `<strong>${h(pdfState.file.name)}</strong> selecionado.` : 'Selecione um PDF.';
-    if (pdfState.file && !$('pdfTopic').value) $('pdfTopic').value = 'PDF - ' + pdfState.file.name.replace(/\.pdf$/i,'');
-  }
+  // ── QUESTÕES -> PDF ─────────────────────────────────────
+  const pdfState = { selected:[] };
 
   function $(id) { return document.getElementById(id); }
 
-  function pdfNormalizeText(s) {
-    return String(s || '').replace(/\u00ad/g,'').replace(/[ \t]+/g,' ').replace(/\s+([,.;:!?])/g,'$1').trim();
+  function pdfText(v) {
+    return String(v == null ? '' : v).replace(/\s+/g,' ').trim();
   }
 
-  function pdfLinesFromItems(items) {
-    const rows = [];
-    for (const item of items || []) {
-      const text = pdfNormalizeText(item.str);
-      if (!text) continue;
-      const x = Number(item.transform?.[4] || 0), y = Number(item.transform?.[5] || 0);
-      let row = rows.find(r => Math.abs(r.y - y) <= 2.2);
-      if (!row) { row = { y, items:[] }; rows.push(row); }
-      row.items.push({ x, text });
-    }
-    rows.sort((a,b)=>b.y-a.y);
-    return rows.map(r => pdfNormalizeText(r.items.sort((a,b)=>a.x-b.x).map(x=>x.text).join(' '))).filter(Boolean);
+  function pdfIsDecoreba(q) {
+    return /^decoreba/i.test(String(q.topic || '').trim());
   }
 
-  function pdfAnswerLetters(raw) {
-    let s = String(raw || '').toUpperCase().replace(/[^A-H,; ]/g,' ').trim();
-    let letters = s.match(/\b[A-H]\b/g) || [];
-    if (!letters.length) {
-      const compact = s.replace(/[^A-H]/g,'');
-      if (/^[A-H]{1,6}$/.test(compact)) letters = compact.split('');
-    }
-    return [...new Set(letters)];
+  function pdfAllSearchText(q) {
+    const interaction = q.interaction || {};
+    const rich = [];
+    (interaction.options || []).forEach(x=>rich.push(x.text || x.label || ''));
+    (interaction.rows || []).forEach(x=>rich.push(x.text || x.label || ''));
+    (interaction.items || []).forEach(x=>rich.push(x.text || x.label || ''));
+    (interaction.targets || []).forEach(x=>rich.push(x.text || x.label || ''));
+    (interaction.slots || []).forEach(s=>(s.options || []).forEach(x=>rich.push(x.text || x.label || '')));
+    return [q.question,q.topic,q.domain_code,q.explanation,q.why_correct,q.exam_keyword,q.memory_rule,q.trap,
+      q.option_a,q.option_b,q.option_c,q.option_d,...rich].map(pdfText).join(' ').toLowerCase();
   }
 
-  function pdfParseBlock(lines, number, page) {
-    const joined = lines.join('\n');
-    const upper = joined.toUpperCase();
-    const unsupported = /\b(HOTSPOT|DRAG\s*DROP|SIMULATION|LABORATORY)\b/.test(upper);
-    const answerIdx = lines.findIndex(x => /^(?:ANSWER|RESPOSTA|GABARITO)\s*:/i.test(x));
-    const explIdx = lines.findIndex(x => /^(?:EXPLANATION|EXPLICA[CÇ][AÃ]O)\s*:/i.test(x));
-    const stopStem = [answerIdx, explIdx].filter(x=>x>=0);
-    const endBefore = stopStem.length ? Math.min(...stopStem) : lines.length;
-    const body = lines.slice(0, endBefore);
-
-    const options = [];
-    const stem = [];
-    let current = null;
-    for (const line of body) {
-      const om = line.match(/^([A-H])[\.\)\:\-]\s*(.+)$/i);
-      if (om) {
-        current = { id:om[1].toUpperCase(), text:pdfNormalizeText(om[2]) };
-        options.push(current);
-      } else if (current) {
-        current.text = pdfNormalizeText(current.text + ' ' + line);
-      } else {
-        stem.push(line);
-      }
-    }
-
-    let rawAnswer = '';
-    if (answerIdx >= 0) {
-      rawAnswer = lines[answerIdx].replace(/^(?:ANSWER|RESPOSTA|GABARITO)\s*:\s*/i,'');
-      if (!rawAnswer && answerIdx + 1 < lines.length && answerIdx + 1 !== explIdx) rawAnswer = lines[answerIdx+1];
-    }
-    const answers = pdfAnswerLetters(rawAnswer);
-
-    let explanation = '';
-    if (explIdx >= 0) {
-      const first = lines[explIdx].replace(/^(?:EXPLANATION|EXPLICA[CÇ][AÃ]O)\s*:\s*/i,'');
-      explanation = pdfNormalizeText([first, ...lines.slice(explIdx+1)].join(' '));
-    }
-
-    const question = pdfNormalizeText(stem.filter(x => !/^QUESTION\s+\d+/i.test(x) && !/^QUEST(?:ÃO|AO)\s+\d+/i.test(x)).join(' '));
-    const choiceLike = options.length >= 2;
-    return { number, page, question, options, answers, explanation, unsupported, choiceLike, raw:joined };
+  function pdfInitTopics() {
+    const sel = $('pdfTopic');
+    if (!sel) return;
+    const keep = sel.value;
+    const topics = [...new Set(qs.map(q=>pdfText(q.topic)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'pt-BR'));
+    sel.innerHTML = '<option value="">Todos os tópicos</option>' + topics.map(t=>`<option value="${ha(t)}">${h(t)}</option>`).join('');
+    if (topics.includes(keep)) sel.value = keep;
   }
 
-  function pdfParseQuestions() {
-    const flat = [];
-    for (const p of pdfState.pages) for (const line of p.lines) flat.push({ page:p.page, text:line });
-    const blocks = [];
-    let cur = null;
-    const qre = /^\s*(?:QUESTION|QUEST(?:ÃO|AO))\s+(\d+)\b/i;
-    for (const row of flat) {
-      const m = row.text.match(qre);
-      if (m) {
-        if (cur) blocks.push(cur);
-        cur = { number:Number(m[1]), page:row.page, lines:[row.text] };
-      } else if (cur) cur.lines.push(row.text);
-    }
-    if (cur) blocks.push(cur);
-
-    pdfState.parsed = [];
-    pdfState.unsupported = 0;
-    pdfState.invalid = 0;
-    for (const b of blocks) {
-      const q = pdfParseBlock(b.lines, b.number, b.page);
-      if (q.unsupported) pdfState.unsupported++;
-      if (!q.question || !q.choiceLike) pdfState.invalid++;
-      pdfState.parsed.push(q);
-    }
-  }
-
-  function pdfExistingKey(text) {
-    return pdfNormalizeText(text).toLowerCase().replace(/\s+/g,' ');
-  }
-
-  function pdfBuildQuestion(p) {
-    const exam = normalizeExamCode($('pdfExam').value) || currentExam;
-    const topic = $('pdfTopic').value.trim() || `PDF - ${pdfState.file?.name?.replace(/\.pdf$/i,'') || 'Importado'}`;
-    const difficulty = $('pdfDifficulty').value || 'medio';
-    const bringAnswer = $('pdfBringAnswer').checked;
-    const bringExplanation = $('pdfBringExplanation').checked;
-    const bringSource = $('pdfSourceMeta').checked;
-    const answers = bringAnswer ? p.answers : [];
-    const ids = p.options.map(o=>o.id);
-    const singleABCD = ids.every(x=>'ABCD'.includes(x)) && ids.length <= 4 && answers.length <= 1;
-
-    const base = {
-      id: p.number,
-      question: p.question,
-      option_a:null, option_b:null, option_c:null, option_d:null,
-      correct:null,
-      explanation: bringExplanation ? (p.explanation || '') : '',
-      why_correct:null, why_a_wrong:null, why_b_wrong:null, why_c_wrong:null, why_d_wrong:null,
-      exam_keyword:null, memory_rule:null, trap:null,
-      source_name: bringSource ? `PDF: ${pdfState.file?.name || 'arquivo.pdf'} · pág. ${p.page}` : null,
-      source_url:null,
-      verified:false,
-      topic,
-      difficulty,
-      status:'pendente',
-      created_at:null, updated_at:null, last_reviewed:null,
-      exam,
-      origin: answers.length ? 'pdf' : 'pdf_unanswered',
-      domain_code:null,
-      case_id:null, case_data:null,
-      realism_level:3,
-      points: Math.max(1, answers.length || 1)
-    };
-
-    if (singleABCD) {
-      base.question_type = 'single_choice';
-      for (const o of p.options) base['option_' + o.id.toLowerCase()] = o.text;
-      base.correct = answers[0] || null;
-      base.correct_payload = answers[0] ? { selected:answers[0] } : null;
-      base.interaction = null;
-    } else {
-      base.question_type = 'multi_select';
-      base.interaction = { min: Math.max(1, answers.length || 1), max: Math.max(1, answers.length || 1), options:p.options.map(o=>({id:o.id,text:o.text})) };
-      base.correct_payload = answers.length ? { selected:answers } : null;
-    }
-    return base;
+  function pdfShuffle(arr) {
+    arr = [...arr];
+    for (let i=arr.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
+    return arr;
   }
 
   function pdfApplyFilters() {
-    if (!pdfState.parsed.length) return;
-    const from = Math.max(1, parseInt($('pdfPageFrom').value || '1',10));
-    const to = Math.min(pdfState.pageCount || 999999, parseInt($('pdfPageTo').value || String(pdfState.pageCount || 999999),10));
-    const terms = $('pdfSubject').value.split(',').map(x=>pdfNormalizeText(x).toLowerCase()).filter(Boolean);
+    if (!$('pdfPreview')) return;
+    pdfInitTopics();
+    if ($('pdfExam')) $('pdfExam').value = currentExam;
+    if ($('pdfTitle') && !$('pdfTitle').value) $('pdfTitle').value = `${currentExam} - Caderno de questões`;
+    if ($('pdfFileName') && !$('pdfFileName').value) $('pdfFileName').value = `${currentExam.toLowerCase()}-questoes.pdf`;
+
+    const terms = pdfText($('pdfSubject').value).toLowerCase().split(',').map(x=>x.trim()).filter(Boolean);
     const termMode = $('pdfSubjectMode').value;
-    const answerFilter = $('pdfAnswerFilter').value;
-    const formatFilter = $('pdfFormatFilter').value;
-    const dedupe = $('pdfDedupe').checked;
-    const existing = new Set(qs.map(q=>pdfExistingKey(q.question)));
+    const topic = $('pdfTopic').value;
+    const status = $('pdfStatusFilter').value;
+    const origin = $('pdfOriginFilter').value;
+    const decoreba = $('pdfDecorebaFilter').value;
+    const type = $('pdfTypeFilter').value;
+    const diff = $('pdfDifficulty').value;
 
-    let arr = pdfState.parsed.filter(p => p.page >= from && p.page <= to);
-    if (terms.length) arr = arr.filter(p => {
-      const hay = pdfExistingKey([p.question, ...p.options.map(o=>o.text), p.explanation].join(' '));
-      return termMode === 'all' ? terms.every(t=>hay.includes(t)) : terms.some(t=>hay.includes(t));
+    let arr = qs.filter(q => {
+      if (terms.length) {
+        const hay = pdfAllSearchText(q);
+        const ok = termMode === 'all' ? terms.every(t=>hay.includes(t)) : terms.some(t=>hay.includes(t));
+        if (!ok) return false;
+      }
+      if (topic && pdfText(q.topic) !== topic) return false;
+      const answered = q.status && q.status !== 'pendente';
+      if (status === 'answered' && !answered) return false;
+      if (status === 'unanswered' && answered) return false;
+      if (!['all','answered','unanswered'].includes(status) && q.status !== status) return false;
+      if (origin === 'real' && q.origin !== 'real') return false;
+      if (origin === 'existing' && q.origin === 'real') return false;
+      if (decoreba === 'exclude' && pdfIsDecoreba(q)) return false;
+      if (decoreba === 'only' && !pdfIsDecoreba(q)) return false;
+      if (type !== 'all' && (q.question_type || 'single_choice') !== type) return false;
+      if (diff && q.difficulty !== diff) return false;
+      return true;
     });
-    if (answerFilter === 'with') arr = arr.filter(p=>p.answers.length > 0);
-    if (answerFilter === 'without') arr = arr.filter(p=>p.answers.length === 0);
-    if (formatFilter === 'choice') arr = arr.filter(p=>p.choiceLike && !p.unsupported);
-    else arr = arr.filter(p=>p.choiceLike);
-    if (dedupe) arr = arr.filter(p=>!existing.has(pdfExistingKey(p.question)));
 
-    if ($('pdfPickMode').value === 'random') {
-      arr = [...arr];
-      for (let i=arr.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; }
-    }
-    const qty = parseInt($('pdfQty').value || '0',10);
-    if (qty > 0) arr = arr.slice(0, qty);
-    pdfState.selected = arr.map(pdfBuildQuestion);
-    pdfRenderPreview(arr);
+    const order = $('pdfOrder').value;
+    if (order === 'random') arr = pdfShuffle(arr);
+    if (order === 'id') arr = [...arr].sort((a,b)=>(a.id||0)-(b.id||0));
+    if (order === 'topic') arr = [...arr].sort((a,b)=>pdfText(a.topic).localeCompare(pdfText(b.topic),'pt-BR') || (a.id||0)-(b.id||0));
+    if (order === 'status') arr = [...arr].sort((a,b)=>pdfText(a.status).localeCompare(pdfText(b.status),'pt-BR') || (a.id||0)-(b.id||0));
+
+    const qty = Math.max(0, parseInt($('pdfQty').value || '0',10) || 0);
+    if (qty) arr = arr.slice(0, qty);
+    pdfState.selected = arr;
+    pdfRenderPreview();
   }
 
-  function pdfRenderPreview(rawSelected) {
-    const all = pdfState.parsed.length;
-    const recognized = pdfState.parsed.filter(p=>p.choiceLike && !p.unsupported).length;
-    const withAns = pdfState.parsed.filter(p=>p.answers.length).length;
-    const withoutAns = pdfState.parsed.filter(p=>!p.answers.length).length;
-    const selected = pdfState.selected.length;
+  function pdfTypeLabel(t) {
+    return ({single_choice:'Escolha única',multi_select:'Múltipla seleção',yes_no_matrix:'Matriz Sim/Não',hotspot_dropdown:'Completar / dropdown',build_list:'Ordenar etapas',drag_drop:'Associação',image_hotspot:'Hotspot em imagem'})[t] || t || 'Escolha única';
+  }
+
+  function pdfOptionTextById(options, id) {
+    const x = (options || []).find(o=>String(o.id)===String(id));
+    return x ? pdfText(x.text || x.label || x.id) : pdfText(id);
+  }
+
+  function pdfCorrectSummary(q) {
+    const t = q.question_type || 'single_choice';
+    const cp = q.correct_payload || {};
+    if (t === 'single_choice') {
+      const id = String(q.correct || cp.selected || '').toUpperCase();
+      return id ? `${id}) ${pdfText(q['option_'+id.toLowerCase()])}` : 'Sem gabarito';
+    }
+    if (t === 'multi_select') {
+      return (cp.selected || []).map(id=>`${id}) ${pdfOptionTextById(q.interaction?.options,id)}`).join(' | ') || 'Sem gabarito';
+    }
+    if (t === 'yes_no_matrix') {
+      return (q.interaction?.rows || []).map(r=>`${pdfText(r.text)}: ${String(cp[r.id]||'').toLowerCase()==='yes'?'Sim':String(cp[r.id]||'').toLowerCase()==='no'?'Não':pdfText(cp[r.id])}`).join(' | ') || 'Sem gabarito';
+    }
+    if (t === 'hotspot_dropdown') {
+      return (q.interaction?.slots || []).map(s=>`${s.id}: ${pdfOptionTextById(s.options,cp[s.id])}`).join(' | ') || 'Sem gabarito';
+    }
+    if (t === 'build_list') {
+      const items = q.interaction?.items || [];
+      return (cp.order || []).map((id,i)=>`${i+1}. ${pdfOptionTextById(items,id)}`).join(' | ') || 'Sem gabarito';
+    }
+    if (t === 'drag_drop') {
+      const targets = q.interaction?.targets || [], items = q.interaction?.items || [];
+      return targets.map(tg=>`${pdfText(tg.label)} -> ${pdfOptionTextById(items,cp[tg.id])}`).join(' | ') || 'Sem gabarito';
+    }
+    if (t === 'image_hotspot') {
+      const hs = q.interaction?.hotspots || [];
+      return (cp.selected || []).map(id=>pdfOptionTextById(hs,id)).join(' | ') || 'Sem gabarito';
+    }
+    return JSON.stringify(cp || {});
+  }
+
+  function pdfCaseHTML(q) {
+    if (!$('pdfIncludeCase').checked || !q.case_data) return '';
+    const c = q.case_data;
+    const keys = [['overview','Visão geral'],['environment','Ambiente'],['requirements','Requisitos'],['problem','Problema'],['business_requirements','Requisitos de negócio']];
+    let body = keys.filter(([k])=>c[k]).map(([k,label])=>`<div><b>${label}:</b> ${h(Array.isArray(c[k])?c[k].join('; '):String(c[k]))}</div>`).join('');
+    return `<div class="pdf-case"><div class="pdf-case-title">${h(c.title || 'Estudo de caso')}</div>${body}</div>`;
+  }
+
+  function pdfInteractionHTML(q) {
+    const t = q.question_type || 'single_choice';
+    const x = q.interaction || {};
+    if (t === 'single_choice') return ['A','B','C','D'].filter(L=>q['option_'+L.toLowerCase()]).map(L=>`<div class="pdf-opt"><b>${L})</b> ${h(q['option_'+L.toLowerCase()])}</div>`).join('');
+    if (t === 'multi_select') return (x.options || []).map(o=>`<div class="pdf-opt"><b>${h(o.id)})</b> ${h(o.text)}</div>`).join('');
+    if (t === 'yes_no_matrix') return `<table class="pdf-table"><thead><tr><th>Afirmação</th>${(x.columns||[]).map(c=>`<th>${h(c.label)}</th>`).join('')}</tr></thead><tbody>${(x.rows||[]).map(r=>`<tr><td>${h(r.text)}</td>${(x.columns||[]).map(()=>'<td class="pdf-cell">□</td>').join('')}</tr>`).join('')}</tbody></table>`;
+    if (t === 'hotspot_dropdown') {
+      let code = h(String(x.code || '')).replace(/\{\{([^}]+)\}\}/g,'<span class="pdf-blank">[$1]</span>');
+      const slots = (x.slots||[]).map(s=>`<div class="pdf-slot"><b>${h(s.id)}:</b> ${(s.options||[]).map(o=>h(o.text)).join(' / ')}</div>`).join('');
+      return `<pre class="pdf-code">${code}</pre>${slots}`;
+    }
+    if (t === 'build_list') return `<div class="pdf-subtitle">Ordene:</div>` + (x.items||[]).map(i=>`<div class="pdf-opt">___ ${h(i.text)}</div>`).join('');
+    if (t === 'drag_drop') return `<div class="pdf-drag"><div><b>Itens</b>${(x.items||[]).map(i=>`<div class="pdf-opt">${h(i.id)} - ${h(i.text)}</div>`).join('')}</div><div><b>Destinos</b>${(x.targets||[]).map(tg=>`<div class="pdf-opt">${h(tg.label)}: __________________</div>`).join('')}</div></div>`;
+    if (t === 'image_hotspot') return `${x.image_url?`<img class="pdf-hotspot-img" crossorigin="anonymous" src="${ha(x.image_url)}" />`:''}<div class="pdf-subtitle">Áreas:</div>${(x.hotspots||[]).map(z=>`<div class="pdf-opt">${h(z.id)} - ${h(z.label||'Área')}</div>`).join('')}`;
+    return '';
+  }
+
+  function pdfLearningHTML(q) {
+    const includeExplanation = $('pdfIncludeExplanation').checked;
+    const includeWrong = $('pdfIncludeWrong').checked;
+    const includeMemory = $('pdfIncludeMemory').checked;
+    const includeSource = $('pdfIncludeSource').checked;
+    let out = '';
+    if (includeExplanation && (q.why_correct || q.explanation)) out += `<div class="pdf-explain"><b>Explicação:</b> ${h(q.why_correct || q.explanation)}</div>`;
+    if (includeWrong && (q.question_type || 'single_choice') === 'single_choice') {
+      const corr = String(q.correct || q.correct_payload?.selected || '').toUpperCase();
+      ['A','B','C','D'].filter(L=>L!==corr && q['why_'+L.toLowerCase()+'_wrong']).forEach(L=>{ out += `<div class="pdf-wrong"><b>${L} incorreta:</b> ${h(q['why_'+L.toLowerCase()+'_wrong'])}</div>`; });
+    }
+    if (includeMemory) {
+      if (q.exam_keyword) out += `<div class="pdf-memory"><b>Palavra-chave:</b> ${h(q.exam_keyword)}</div>`;
+      if (q.memory_rule) out += `<div class="pdf-memory"><b>Regra:</b> ${h(q.memory_rule)}</div>`;
+      if (q.trap) out += `<div class="pdf-memory"><b>Pegadinha:</b> ${h(q.trap)}</div>`;
+    }
+    if (includeSource && (q.source_name || q.source_url)) out += `<div class="pdf-source"><b>Fonte:</b> ${h(q.source_name || '')}${q.source_url?` - ${h(q.source_url)}`:''}</div>`;
+    return out;
+  }
+
+  function pdfQuestionHTML(q, idx, answerMode, seenCases) {
+    let caseHtml = '';
+    if ($('pdfIncludeCase').checked && q.case_data) {
+      const key = q.case_id || `case-${q.id}`;
+      if (!seenCases.has(key)) { seenCases.add(key); caseHtml = pdfCaseHTML(q); }
+    }
+    const metadata = $('pdfIncludeStatus').checked
+      ? `<div class="pdf-meta">ID ${h(q.id)} · ${h(q.topic||'Sem tópico')} · ${h(q.difficulty||'')} · ${h(q.status||'')} · ${h(pdfTypeLabel(q.question_type||'single_choice'))} · ${h(q.origin||'legacy')}</div>`
+      : `<div class="pdf-meta">${h(q.topic||'')} · ${h(pdfTypeLabel(q.question_type||'single_choice'))}</div>`;
+    const answer = answerMode === 'inline' ? `<div class="pdf-answer"><b>Resposta:</b> ${h(pdfCorrectSummary(q))}</div>${pdfLearningHTML(q)}` : '';
+    const cls = $('pdfLayout').value === 'page' ? ' pdf-page-break' : '';
+    return `${caseHtml}<section class="pdf-question${cls}"><div class="pdf-qnum">Questão ${idx+1}</div>${metadata}<div class="pdf-stem">${h(q.question)}</div>${pdfInteractionHTML(q)}${answer}</section>`;
+  }
+
+  function pdfAnswerKeyHTML(arr) {
+    if ($('pdfAnswerMode').value !== 'end') return '';
+    return `<section class="pdf-key"><h2>Gabarito</h2>${arr.map((q,i)=>`<div class="pdf-key-row"><b>${i+1}.</b> ${h(pdfCorrectSummary(q))}${pdfLearningHTML(q)}</div>`).join('')}</section>`;
+  }
+
+  function pdfDocumentHTML(arr) {
+    const title = pdfText($('pdfTitle').value) || `${currentExam} - Caderno de questões`;
+    const seenCases = new Set();
+    const mode = $('pdfAnswerMode').value;
+    return `<div class="pdf-doc">
+      <div class="pdf-cover"><h1>${h(title)}</h1><div>${h(currentExam)} · ${arr.length} questão(ões) · gerado em ${h(new Date().toLocaleString('pt-BR'))}</div></div>
+      ${arr.map((q,i)=>pdfQuestionHTML(q,i,mode,seenCases)).join('')}
+      ${pdfAnswerKeyHTML(arr)}
+    </div>`;
+  }
+
+  function pdfRenderPreview() {
+    const arr = pdfState.selected;
+    const counts = arr.reduce((m,q)=>{ const k=q.question_type||'single_choice'; m[k]=(m[k]||0)+1; return m; },{});
+    const answered = arr.filter(q=>q.status && q.status!=='pendente').length;
+    const real = arr.filter(q=>q.origin==='real').length;
     $('pdfSummary').innerHTML = [
-      ['Blocos',all],['Reconhecidas',recognized],['Com gabarito',withAns],['Sem gabarito',withoutAns],['Interativas ignoradas',pdfState.unsupported],['Selecionadas',selected]
+      ['Selecionadas',arr.length],['Respondidas',answered],['Não respondidas',arr.length-answered],['V2 / REAL',real],['Existentes',arr.length-real],['Formatos',Object.keys(counts).length]
     ].map(([label,n])=>`<div class="pdf-stat"><strong>${n}</strong><span>${label}</span></div>`).join('');
-
-    $('pdfFinalActions').style.display = selected ? 'flex' : 'none';
-    if (!selected) {
-      $('pdfPreview').innerHTML = '<div class="empty">Nenhuma questão atende aos filtros.</div>';
-      return;
-    }
-    const show = rawSelected.slice(0, 30);
-    $('pdfPreview').innerHTML = show.map((p,i)=>{
-      const built = pdfState.selected[i];
-      const answer = p.answers.length ? p.answers.join(', ') : 'sem gabarito';
-      return `<div class="pdf-preview-row"><div class="m"><span class="pdf-chip">Q${h(p.number)}</span><span class="pdf-chip">pág. ${h(p.page)}</span><span class="pdf-chip ${p.answers.length?'ok':'warn'}">${h(answer)}</span><span class="pdf-chip">${h(built.question_type)}</span>${p.explanation?'<span class="pdf-chip ok">explicação</span>':'<span class="pdf-chip warn">sem explicação</span>'}</div><strong>${h(p.question)}</strong><div style="margin-top:5px;color:#57606a;">${p.options.slice(0,4).map(o=>`${h(o.id)}) ${h(o.text)}`).join(' · ')}</div></div>`;
-    }).join('') + (selected > 30 ? `<div class="pdf-preview-row" style="text-align:center;color:#57606a;">… mais ${selected-30} questão(ões) selecionada(s)</div>` : '');
+    $('pdfStatus').innerHTML = arr.length ? `<strong>${arr.length} questão(ões)</strong> prontas para exportação.` : 'Nenhuma questão atende aos filtros.';
+    if (!arr.length) { $('pdfPreview').innerHTML='<div class="empty">Nenhuma questão atende aos filtros.</div>'; return; }
+    $('pdfPreview').innerHTML = arr.slice(0,20).map((q,i)=>`<div class="pdf-preview-row"><div class="m"><span class="pdf-chip">${i+1}</span><span class="pdf-chip">${h(q.topic||'')}</span><span class="pdf-chip">${h(q.status||'')}</span><span class="pdf-chip">${h(pdfTypeLabel(q.question_type||'single_choice'))}</span></div><strong>${h(q.question)}</strong></div>`).join('') + (arr.length>20?`<div class="pdf-preview-row" style="text-align:center">... mais ${arr.length-20} questão(ões)</div>`:'');
   }
 
-  async function pdfAnalyze() {
-    if (!pdfState.file) { alert('Selecione um arquivo PDF.'); return; }
-    if (!window.pdfjsLib) { alert('Não foi possível carregar o leitor de PDF. Verifique sua conexão e recarregue a página.'); return; }
-    const exam = normalizeExamCode($('pdfExam').value);
-    if (!exam) { alert('Informe o exame no formato DP-XXX.'); return; }
+  async function pdfExport() {
+    pdfApplyFilters();
+    if (!pdfState.selected.length) { alert('Nenhuma questão atende aos filtros.'); return; }
+    if (!window.html2pdf) { alert('Não foi possível carregar o gerador de PDF. Verifique a conexão e recarregue a página.'); return; }
+    const file = (pdfText($('pdfFileName').value) || `${currentExam.toLowerCase()}-questoes.pdf`).replace(/[\\/:*?"<>|]+/g,'-');
+    const filename = /\.pdf$/i.test(file) ? file : file + '.pdf';
+    const host = document.createElement('div');
+    host.className = 'pdf-export-host';
+    host.innerHTML = pdfDocumentHTML(pdfState.selected);
+    document.body.appendChild(host);
+    $('pdfStatus').textContent = 'Gerando PDF...';
     try {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      $('pdfStatus').textContent = 'Abrindo PDF…'; $('pdfBar').style.width = '3%';
-      const data = new Uint8Array(await pdfState.file.arrayBuffer());
-      const doc = await pdfjsLib.getDocument({data}).promise;
-      pdfState.pageCount = doc.numPages;
-      pdfState.pages = [];
-      for (let n=1;n<=doc.numPages;n++) {
-        $('pdfStatus').textContent = `Extraindo texto: página ${n} de ${doc.numPages}…`;
-        $('pdfBar').style.width = `${Math.max(5, Math.round(n/doc.numPages*82))}%`;
-        const page = await doc.getPage(n);
-        const content = await page.getTextContent();
-        pdfState.pages.push({page:n, lines:pdfLinesFromItems(content.items)});
-        await new Promise(r=>setTimeout(r,0));
-      }
-      $('pdfStatus').textContent = 'Identificando questões, opções, gabaritos e explicações…';
-      $('pdfBar').style.width = '90%';
-      pdfParseQuestions();
-      if (!$('pdfPageTo').value) $('pdfPageTo').placeholder = String(doc.numPages);
-      pdfApplyFilters();
-      $('pdfBar').style.width = '100%';
-      $('pdfStatus').innerHTML = `<strong>Concluído.</strong> ${pdfState.parsed.length} bloco(s) de questão detectado(s) em ${doc.numPages} página(s). Ajuste os filtros sem precisar reler o PDF.`;
+      await html2pdf().set({
+        margin:[10,10,12,10], filename,
+        image:{type:'jpeg',quality:0.96},
+        html2canvas:{scale:1.6,useCORS:true,letterRendering:true,backgroundColor:'#ffffff'},
+        jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
+        pagebreak:{mode:['css','legacy'],before:'.pdf-page-break'}
+      }).from(host).save();
+      $('pdfStatus').innerHTML = `<strong style="color:#2e7d32;">PDF gerado:</strong> ${h(filename)} · ${pdfState.selected.length} questão(ões).`;
     } catch (e) {
       console.error(e);
-      $('pdfBar').style.width = '100%';
-      $('pdfStatus').innerHTML = `<strong style="color:#c62828;">Falha ao ler o PDF:</strong> ${h(e.message || e)}`;
-    }
-  }
-
-  function pdfPayload() {
-    return {
-      version:'2.0',
-      exam:normalizeExamCode($('pdfExam').value) || currentExam,
-      origin:'pdf',
-      exportedAt:new Date().toISOString(),
-      total:pdfState.selected.length,
-      questions:pdfState.selected
-    };
-  }
-
-  function pdfDownloadJSON() {
-    if (!pdfState.selected.length) return;
-    const payload = JSON.stringify(pdfPayload(), null, 2);
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([payload], {type:'application/json'}));
-    const base = (pdfState.file?.name || 'pdf').replace(/\.pdf$/i,'').replace(/[^a-z0-9_-]+/gi,'-').replace(/^-|-$/g,'');
-    a.download = `${base || 'pdf'}-questions-v2.json`;
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  }
-
-  async function pdfImportSelected() {
-    if (!pdfState.selected.length) { alert('Nenhuma questão selecionada.'); return; }
-    const exam = normalizeExamCode($('pdfExam').value) || currentExam;
-    const ungraded = pdfState.selected.filter(q=>!isGradableQuestion(q)).length;
-    const msg = ungraded
-      ? `${pdfState.selected.length} questão(ões) serão importadas. ${ungraded} estão sem gabarito e ficarão apenas na lista até serem completadas. Continuar?`
-      : `Importar ${pdfState.selected.length} questão(ões) para ${exam}?`;
-    if (!confirm(msg)) return;
-    try {
-      $('pdfStatus').textContent = `Importando ${pdfState.selected.length} questão(ões)…`;
-      $('pdfBar').style.width = '35%';
-      const result = await apiFetch(`/api/questions/import?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(exam)}`, {
-        method:'POST', body:JSON.stringify({questions:pdfState.selected.map(({user_id,...q})=>q)})
-      });
-      $('pdfBar').style.width = '80%';
-      if (exam !== currentExam) {
-        currentExam = exam;
-        localStorage.setItem('review_exam', currentExam);
-        setExamUI();
-      }
-      qs = (await apiFetch(apiUrl(API) + '&origin=all')).map(normalizeQuestion);
-      renderStats();
-      $('pdfBar').style.width = '100%';
-      $('pdfStatus').innerHTML = `<strong style="color:#2e7d32;">✓ ${result.inserted || pdfState.selected.length} questão(ões) importada(s).</strong>${ungraded ? ` ${ungraded} sem gabarito não entram no treino/simulado.` : ''}`;
-      scheduleGeminiSync();
-    } catch (e) {
-      console.error(e);
-      $('pdfStatus').innerHTML = `<strong style="color:#c62828;">Falha na importação:</strong> ${h(e.message || e)}`;
-      $('pdfBar').style.width = '100%';
+      $('pdfStatus').innerHTML = `<strong style="color:#c62828;">Falha ao gerar PDF:</strong> ${h(e.message || e)}`;
+    } finally {
+      host.remove();
     }
   }
 
   function pdfReset() {
-    pdfState.file = null; pdfState.pages=[]; pdfState.parsed=[]; pdfState.selected=[]; pdfState.unsupported=0; pdfState.invalid=0; pdfState.pageCount=0;
-    $('pdfFile').value=''; $('pdfQty').value=''; $('pdfSubject').value=''; $('pdfPageFrom').value=''; $('pdfPageTo').value='';
-    $('pdfAnswerFilter').value='all'; $('pdfPickMode').value='first'; $('pdfSummary').innerHTML=''; $('pdfBar').style.width='0';
-    $('pdfPreview').innerHTML='<div class="empty">Nenhum PDF analisado.</div>'; $('pdfFinalActions').style.display='none';
-    $('pdfStatus').textContent='Selecione um PDF e clique em Analisar PDF.';
+    ['pdfQty','pdfSubject'].forEach(id=>$(id).value='');
+    $('pdfSubjectMode').value='any'; $('pdfTopic').value=''; $('pdfStatusFilter').value='all'; $('pdfOriginFilter').value='all';
+    $('pdfDecorebaFilter').value='exclude'; $('pdfTypeFilter').value='all'; $('pdfDifficulty').value=''; $('pdfOrder').value='random';
+    $('pdfAnswerMode').value='none'; $('pdfLayout').value='flow';
+    ['pdfIncludeExplanation','pdfIncludeWrong','pdfIncludeMemory','pdfIncludeSource','pdfIncludeStatus'].forEach(id=>$(id).checked=false);
+    $('pdfIncludeCase').checked=true;
+    pdfApplyFilters();
   }
 
   // ── Export / Import ──────────────────────────────────────
