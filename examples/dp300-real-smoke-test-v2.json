@@ -1,0 +1,212 @@
+{
+  "version": "2.0",
+  "exam": "DP-300",
+  "origin": "real",
+  "purpose": "SMOKE TEST do motor interativo. Não é banco final de estudo.",
+  "questions": [
+    {
+      "question": "Uma empresa SaaS mantém 60 bancos Azure SQL Database, um por cliente. Nos últimos 30 dias, cada banco ficou abaixo de 15% de CPU na maior parte do tempo, mas atingiu picos de 70% a 90%. No máximo oito bancos atingem pico simultaneamente. Cada cliente deve continuar tendo banco e restauração independentes. Você precisa reduzir capacidade ociosa sem alterar o modelo de isolamento. Qual opção atende melhor ao requisito?",
+      "question_type": "single_choice",
+      "origin": "real",
+      "domain_code": "platform",
+      "topic": "Planejar e implantar soluções SQL do Azure",
+      "difficulty": "dificil",
+      "realism_level": 4,
+      "option_a": "Mover os 60 bancos para uma única Azure SQL Managed Instance.",
+      "option_b": "Colocar os bancos em um Azure SQL Database elastic pool dimensionado pelo consumo agregado.",
+      "option_c": "Converter cada banco para serverless com o mesmo máximo de vCores do pico observado.",
+      "option_d": "Migrar os bancos para SQL Server em Azure VM e aumentar o tamanho da VM.",
+      "correct": "B",
+      "correct_payload": {"selected":"B"},
+      "explanation": "Elastic pools compartilham recursos entre vários bancos com padrões variáveis e preservam bancos independentes.",
+      "why_correct": "O padrão descrito é exatamente o de vários bancos independentes com utilização média baixa e picos não simultâneos, permitindo compartilhar uma reserva agregada.",
+      "trap": "Serverless é por banco individual; ele não cria uma reserva de compute compartilhada entre os 60 bancos.",
+      "source_name": "Microsoft Learn — Elastic pools",
+      "source_url": "https://learn.microsoft.com/azure/azure-sql/database/elastic-pool-overview?view=azuresql",
+      "verified": true
+    },
+    {
+      "question": "Um aplicativo usa uma identidade gerenciada para consultar um Azure SQL Database. A autenticação do Microsoft Entra já está configurada e o administrador do Microsoft Entra para o servidor lógico já existe. Você precisa conceder somente leitura ao aplicativo no banco SalesDB. Quais DUAS ações deve executar dentro de SalesDB?",
+      "question_type": "multi_select",
+      "origin": "real",
+      "domain_code": "security",
+      "topic": "Configurar autenticação e autorização",
+      "difficulty": "dificil",
+      "realism_level": 4,
+      "interaction": {
+        "min": 2,
+        "max": 2,
+        "options": [
+          {"id":"A","text":"CREATE USER [sales-api-mi] FROM EXTERNAL PROVIDER;"},
+          {"id":"B","text":"CREATE LOGIN [sales-api-mi] WITH PASSWORD = '...';"},
+          {"id":"C","text":"ALTER ROLE db_datareader ADD MEMBER [sales-api-mi];"},
+          {"id":"D","text":"ALTER SERVER ROLE sysadmin ADD MEMBER [sales-api-mi];"}
+        ]
+      },
+      "correct_payload": {"selected":["A","C"]},
+      "explanation": "A identidade do Microsoft Entra pode ser criada como usuário contido com FROM EXTERNAL PROVIDER e adicionada a db_datareader para leitura.",
+      "source_name": "Microsoft Learn — Microsoft Entra authentication",
+      "source_url": "https://learn.microsoft.com/azure/azure-sql/database/authentication-aad-configure?view=azuresql",
+      "verified": true
+    },
+    {
+      "question": "Você investiga regressões de desempenho em um Azure SQL Database com Query Store habilitado. Para cada afirmação, selecione Sim ou Não.",
+      "question_type": "yes_no_matrix",
+      "origin": "real",
+      "domain_code": "performance",
+      "topic": "Monitorar e otimizar desempenho",
+      "difficulty": "dificil",
+      "realism_level": 4,
+      "interaction": {
+        "rows": [
+          {"id":"r1","text":"sys.query_store_wait_stats permite analisar categorias de espera associadas a planos armazenados no Query Store."},
+          {"id":"r2","text":"É necessário desabilitar o Query Store antes de consultar sys.query_store_wait_stats."},
+          {"id":"r3","text":"As estatísticas de espera do Query Store podem ajudar a diferenciar regressões por CPU, bloqueio e I/O."}
+        ],
+        "columns": [
+          {"id":"yes","label":"Sim"},
+          {"id":"no","label":"Não"}
+        ]
+      },
+      "correct_payload": {"r1":"yes","r2":"no","r3":"yes"},
+      "explanation": "A view sys.query_store_wait_stats contém informações de espera por plano e intervalo do Query Store.",
+      "source_name": "Microsoft Learn — sys.query_store_wait_stats",
+      "source_url": "https://learn.microsoft.com/sql/relational-databases/system-catalog-views/sys-query-store-wait-stats-transact-sql",
+      "verified": true
+    },
+    {
+      "question": "Usuários relatam timeouts em atualizações. Você precisa listar requisições que estão sendo bloqueadas e identificar a sessão bloqueadora. Complete a consulta.",
+      "question_type": "hotspot_dropdown",
+      "origin": "real",
+      "domain_code": "performance",
+      "topic": "Diagnosticar bloqueios",
+      "difficulty": "dificil",
+      "realism_level": 5,
+      "interaction": {
+        "code": "SELECT session_id, blocking_session_id, wait_type, wait_resource\nFROM {{source}}\nWHERE {{predicate}} <> 0;",
+        "slots": [
+          {"id":"source","options":[
+            {"id":"requests","text":"sys.dm_exec_requests"},
+            {"id":"waits","text":"sys.dm_os_wait_stats"},
+            {"id":"locks","text":"sys.dm_tran_locks"}
+          ]},
+          {"id":"predicate","options":[
+            {"id":"blocking","text":"blocking_session_id"},
+            {"id":"open_tran","text":"open_transaction_count"},
+            {"id":"cpu","text":"cpu_time"}
+          ]}
+        ]
+      },
+      "correct_payload": {"source":"requests","predicate":"blocking"},
+      "points": 2,
+      "explanation": "sys.dm_exec_requests expõe blocking_session_id para requisições em execução.",
+      "source_name": "Microsoft Learn — sys.dm_exec_requests",
+      "source_url": "https://learn.microsoft.com/sql/relational-databases/system-dynamic-management-views/sys-dm-exec-requests-transact-sql",
+      "verified": true
+    },
+    {
+      "question": "Você precisa automatizar um script T-SQL semanal em centenas de bancos Azure SQL Database. Ordene as etapas principais para implementar Elastic Jobs.",
+      "question_type": "build_list",
+      "origin": "real",
+      "domain_code": "automation",
+      "topic": "Automatizar tarefas",
+      "difficulty": "dificil",
+      "realism_level": 4,
+      "interaction": {
+        "items": [
+          {"id":"s1","text":"Disponibilizar um banco Azure SQL Database para atuar como job database."},
+          {"id":"s2","text":"Criar o Elastic Job agent usando o job database."},
+          {"id":"s3","text":"Definir o target group com os bancos/servidores que receberão o trabalho."},
+          {"id":"s4","text":"Criar o job e a job step contendo o T-SQL e o target group."},
+          {"id":"s5","text":"Configurar o schedule ou iniciar o job sob demanda."}
+        ]
+      },
+      "correct_payload": {"order":["s1","s2","s3","s4","s5"]},
+      "points": 5,
+      "explanation": "O agente usa um job database; depois você define destinos, trabalho/etapas e agendamento/execução.",
+      "source_name": "Microsoft Learn — Elastic Jobs",
+      "source_url": "https://learn.microsoft.com/azure/azure-sql/database/elastic-jobs-overview?view=azuresql",
+      "verified": true
+    },
+    {
+      "question": "Associe cada requisito de continuidade de negócios do Azure SQL Database ao recurso mais adequado.",
+      "question_type": "drag_drop",
+      "origin": "real",
+      "domain_code": "hadr",
+      "topic": "Planejar HA/DR",
+      "difficulty": "dificil",
+      "realism_level": 4,
+      "interaction": {
+        "items": [
+          {"id":"i1","text":"Failover group"},
+          {"id":"i2","text":"Zone redundancy"},
+          {"id":"i3","text":"Geo-restore"}
+        ],
+        "targets": [
+          {"id":"t1","label":"Manter listeners de leitura/gravação estáveis ao alternar um grupo de bancos para outra região."},
+          {"id":"t2","label":"Aumentar resiliência contra falha de zona de disponibilidade sem usar outra região."},
+          {"id":"t3","label":"Recuperar um banco em outra região a partir de backups geo-redundantes, aceitando maior RTO."}
+        ]
+      },
+      "correct_payload": {"t1":"i1","t2":"i2","t3":"i3"},
+      "points": 3,
+      "explanation": "Failover groups fornecem endpoints estáveis e failover geográfico; zone redundancy protege contra falha de zona; geo-restore restaura a partir de backups geo-redundantes.",
+      "source_name": "Microsoft Learn — Failover groups",
+      "source_url": "https://learn.microsoft.com/azure/azure-sql/database/failover-group-sql-db?view=azuresql",
+      "verified": true
+    },
+    {
+      "question": "Você está conectado ao banco AppDB como administrador do Microsoft Entra. Complete o T-SQL para criar um usuário contido para a identidade gerenciada app-mi e conceder somente leitura.",
+      "question_type": "hotspot_dropdown",
+      "origin": "real",
+      "domain_code": "security",
+      "topic": "Microsoft Entra e autorização",
+      "difficulty": "medio",
+      "realism_level": 4,
+      "interaction": {
+        "code": "{{create}} [app-mi] {{provider}};\nALTER ROLE {{role}} ADD MEMBER [app-mi];",
+        "slots": [
+          {"id":"create","options":[{"id":"create_user","text":"CREATE USER"},{"id":"create_login","text":"CREATE LOGIN"}]},
+          {"id":"provider","options":[{"id":"external","text":"FROM EXTERNAL PROVIDER"},{"id":"login","text":"FROM LOGIN [app-mi]"}]},
+          {"id":"role","options":[{"id":"reader","text":"db_datareader"},{"id":"owner","text":"db_owner"},{"id":"ddl","text":"db_ddladmin"}]}
+        ]
+      },
+      "correct_payload": {"create":"create_user","provider":"external","role":"reader"},
+      "points": 3,
+      "source_name": "Microsoft Learn — Microsoft Entra authentication",
+      "source_url": "https://learn.microsoft.com/azure/azure-sql/database/authentication-aad-configure?view=azuresql",
+      "verified": true
+    },
+    {
+      "case_id": "contoso-dr-01",
+      "case_data": {
+        "title": "Contoso — continuidade de negócios",
+        "overview": "A Contoso mantém quatro bancos Azure SQL Database usados por um único aplicativo transacional.",
+        "environment": "Os bancos estão no mesmo servidor lógico na região Brazil South. O aplicativo usa uma única configuração de conexão e não pode ser recompilado durante um desastre regional.",
+        "requirements": "Os quatro bancos devem alternar como uma unidade para outra região. A cadeia de conexão usada pelo aplicativo deve permanecer estável. O time quer permitir failover planejado sem perda de dados e também recuperação forçada em desastre regional."
+      },
+      "question": "Quais DUAS características tornam failover groups adequados a esse caso?",
+      "question_type": "multi_select",
+      "origin": "real",
+      "domain_code": "hadr",
+      "topic": "Failover groups",
+      "difficulty": "dificil",
+      "realism_level": 5,
+      "interaction": {
+        "min": 2,
+        "max": 2,
+        "options": [
+          {"id":"A","text":"Podem agrupar vários bancos para failover como uma unidade."},
+          {"id":"B","text":"Fornecem listeners que permanecem estáveis quando o primário muda entre regiões."},
+          {"id":"C","text":"Mantêm réplicas síncronas entre quaisquer duas regiões sem possibilidade de perda de dados em failover forçado."},
+          {"id":"D","text":"Eliminam a necessidade de configurar autenticação e rede no servidor secundário."}
+        ]
+      },
+      "correct_payload": {"selected":["A","B"]},
+      "explanation": "Failover groups agrupam bancos e fornecem endpoints de listener estáveis. Um failover forçado pode envolver perda de dados, e dependências como rede/autenticação no secundário ainda precisam ser preparadas.",
+      "source_name": "Microsoft Learn — Failover groups",
+      "source_url": "https://learn.microsoft.com/azure/azure-sql/database/failover-group-sql-db?view=azuresql",
+      "verified": true
+    }
+  ]
+}
