@@ -1,0 +1,134 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 20 minutos</strong></p>
+<p>Você foi contratado como Engenheiro de Dados Sênior para ajudar a automatizar as operações diárias de administração de bancos de dados. Essa automação deve ajudar a garantir que os bancos da AdventureWorks continuem operando com alto desempenho e também fornecer mecanismos de alerta com base em determinados critérios.</p>
+<blockquote>
+<p>📝 Estes exercícios pedem que você copie e cole código T-SQL e usam recursos SQL já existentes. Antes de executar o código, confirme que ele foi copiado corretamente.</p>
+</blockquote>
+<h2>Configurar o ambiente</h2>
+<p>Se a máquina virtual do laboratório tiver sido fornecida e pré-configurada, os arquivos do laboratório deverão estar disponíveis na pasta <strong>C:\LabFiles</strong>. <em>Reserve um momento para conferir. Se os arquivos já estiverem lá, pule esta seção.</em> Porém, se você estiver usando sua própria máquina ou os arquivos do laboratório estiverem ausentes, será necessário cloná-los do <em>GitHub</em> para continuar.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code.</p>
+</li>
+<li><p>Abra a command palette (Ctrl+Shift+P), digite <strong>Git: Clone</strong> e selecione <strong>Git: Clone</strong>.</p>
+</li>
+<li><p>Cole a URL abaixo no campo <strong>Repository URL</strong> e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-url">https://github.com/MicrosoftLearning/dp-300-database-administrator.git
+</code></pre>
+</li>
+<li><p>Salve o repositório na pasta <strong>C:\LabFiles</strong> da máquina virtual do laboratório ou da sua máquina local, criando a pasta se necessário.</p>
+</li>
+</ol>
+<h2>Configurar seu SQL Server no Azure</h2>
+<p>Entre no Azure e verifique se já existe uma instância de Azure SQL Server em execução. <em>Pule esta seção se você já tiver uma instância de SQL Server em execução no Azure.</em></p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie o Visual Studio Code e navegue até o repositório clonado na seção anterior.</p>
+</li>
+<li><p>Clique com o botão direito na pasta <strong>/Allfiles/Labs</strong> e selecione <strong>Open in Integrated Terminal</strong>.</p>
+</li>
+<li><p>Conecte ao Azure usando o Azure CLI. Digite o comando abaixo e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-bash">az login
+</code></pre>
+<blockquote>
+<p>📝 Uma janela do navegador será aberta. Use suas credenciais do Azure para entrar.</p>
+</blockquote>
+</li>
+<li><p>Depois de entrar no Azure, crie um resource group caso ele ainda não exista e crie um SQL server e um database nesse grupo. Digite o comando abaixo e pressione <strong>Enter</strong>. <em>O script levará alguns minutos para ser concluído.</em></p>
+<pre class="lab-code"><code class="language-bash">cd ./Setup
+./deploy-sql-database.ps1
+</code></pre>
+<blockquote>
+<p>📝 Por padrão, esse script criará um resource group chamado <strong>contoso-rg</strong> ou usará um recurso cujo nome comece com <em>contoso-rg</em>, se já existir. Por padrão, os recursos também serão criados na região <strong>West US 2</strong> (westus2). O script gerará uma senha aleatória de 12 caracteres para o <strong>SQL admin password</strong>. Você pode alterar esses valores usando os parâmetros <strong>-rgName</strong>, <strong>-location</strong> e <strong>-sqlAdminPw</strong>. A senha deve atender aos requisitos de complexidade do Azure SQL: pelo menos 12 caracteres, incluindo ao menos 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial.</p>
+</blockquote>
+<blockquote>
+<p>📝 O script adicionará seu endereço IP público atual às regras de firewall do SQL server.</p>
+</blockquote>
+</li>
+<li><p>Quando o script terminar, ele retornará o nome do resource group, o nome do SQL server, o nome do database e o nome de usuário e a senha do administrador. <em>Anote esses valores, pois eles serão necessários mais tarde no laboratório.</em></p>
+</li>
+</ol>
+<hr/>
+<h2>Criar um alerta quando a CPU ultrapassar uma média de 80 por cento</h2>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra uma sessão do navegador e acesse <a href="https://portal.azure.com/" rel="noopener noreferrer" target="_blank">https://portal.azure.com</a>. Entre no portal usando suas credenciais do Azure.</p>
+</li>
+<li><p>No Azure portal, na barra de pesquisa na parte superior, digite <strong>SQL databases</strong> e selecione <strong>SQL databases</strong>. Selecione o banco <strong>AdventureWorksLT</strong> listado.</p>
+</li>
+<li><p>No painel principal do banco <strong>AdventureWorksLT</strong>, navegue até a seção de monitoramento. Selecione <strong>Alerts</strong>.</p>
+</li>
+<li><p>Selecione <strong>Create alert rule</strong>.</p>
+</li>
+<li><p>Na página <strong>Create an alert rule</strong>, selecione <strong>CPU percentage</strong>.</p>
+</li>
+<li><p>Na seção <strong>Alert logic</strong>, selecione <strong>Static</strong> em <strong>Threshold type</strong>. Confirme que <strong>Aggregation</strong> está definido como <strong>Average</strong> e que <strong>Value is</strong> está definido como <strong>Greater than</strong>. Em <strong>Threshold</strong>, informe <strong>80</strong>. Revise também os valores de <em>Check every</em> e <em>lookback period</em>.</p>
+</li>
+<li><p>Selecione <strong>Next: Actions &gt;</strong>.</p>
+</li>
+<li><p>Na guia <strong>Actions</strong>, selecione <strong>Create action group</strong>.</p>
+</li>
+<li><p>Na tela <strong>Action Group</strong>, digite <strong>emailgroup</strong> nos campos <strong>Action group name</strong> e <strong>Display name</strong> e selecione <strong>Next: Notifications</strong>.</p>
+</li>
+<li><p>Na guia <strong>Notifications</strong>, informe os seguintes dados:</p>
+<ul>
+<li><p><strong>Notification type:</strong> Email/SMS message/Push/Voice</p>
+<blockquote>
+<p>📝 Ao selecionar essa opção, será aberto um painel Email/SMS message/Push/Voice. Marque a propriedade Email e informe o nome de usuário do Azure com o qual você entrou. Selecione <strong>OK</strong>.</p>
+</blockquote>
+</li>
+<li><p><strong>Name:</strong> DemoLab</p>
+</li>
+</ul>
+</li>
+<li><p>Selecione <strong>Review + create</strong> e depois <strong>Create</strong>.</p>
+</li>
+<li><p>De volta à página <strong>Create an alert rule</strong>, selecione <strong>Next: Details</strong> e dê um nome exclusivo à regra de alerta.</p>
+</li>
+<li><p>Selecione <strong>Review + create</strong> e depois <strong>Create</strong>.</p>
+</li>
+<li><p>Com o alerta configurado, se a utilização média de CPU ultrapassar 80%, um e-mail será enviado.</p>
+</li>
+</ol>
+<hr/>
+<h2>Limpar os recursos</h2>
+<p>Se você não for usar o Azure SQL Server para nenhuma outra finalidade, poderá remover os recursos criados neste laboratório.</p>
+<h3>Excluir o grupo de recursos</h3>
+<p>Se você criou um novo grupo de recursos para este laboratório, pode excluí-lo para remover todos os recursos criados nele.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos criado para este laboratório. Ele conterá o Azure SQL Server e os outros recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione <strong>Delete resource group</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resource group</strong>, digite o nome do grupo de recursos para confirmar e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Aguarde a exclusão do grupo de recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir somente os recursos do laboratório</h3>
+<p>Se você não criou um novo grupo de recursos para este laboratório e deseja manter o grupo e seus recursos anteriores, ainda poderá excluir somente os recursos criados neste lab.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos usado neste laboratório. Ele conterá o Azure SQL Server e os outros recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione todos os recursos cujo nome começa com o nome do SQL Server informado anteriormente no laboratório.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resources</strong>, digite <strong>delete</strong> e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> novamente para confirmar a exclusão dos recursos.</p>
+</li>
+<li><p>Aguarde a exclusão dos recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+<p>Alertas podem enviar um e-mail ou chamar um webhook quando alguma métrica — por exemplo, tamanho do banco ou uso de CPU — atinge um limite definido por você. Neste laboratório, você viu como configurar facilmente alertas para Azure SQL Databases.</p>
+
+</div>

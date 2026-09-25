@@ -1,0 +1,203 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 15 minutos</strong></p>
+<p>Os alunos usarão as informações aprendidas nas aulas para definir os entregáveis de um projeto de transformação digital na AdventureWorks. Examinando o Azure portal e outras ferramentas, determinarão como usar ferramentas nativas para identificar e resolver problemas relacionados a desempenho. Ao final, serão capazes de avaliar um design de banco de dados em busca de problemas de normalização, escolha de tipos de dados e desenho de índices.</p>
+<p>Você foi contratado como administrador de banco de dados para identificar problemas de desempenho e fornecer soluções viáveis para os problemas encontrados. A AdventureWorks vende bicicletas e peças de bicicletas diretamente para consumidores e distribuidores há mais de uma década. Seu trabalho é identificar problemas de performance das consultas e corrigi-los usando as técnicas aprendidas neste módulo.</p>
+<blockquote>
+<p>📝 Estes exercícios pedem que você copie e cole código T-SQL. Antes de executar o código, confirme que ele foi copiado corretamente.</p>
+</blockquote>
+<h2>Configurar o ambiente</h2>
+<p>Se a máquina virtual do laboratório tiver sido fornecida e pré-configurada, os arquivos do laboratório deverão estar disponíveis na pasta <strong>C:\LabFiles</strong>. <em>Reserve um momento para conferir. Se os arquivos já estiverem lá, pule esta seção.</em> Porém, se você estiver usando sua própria máquina ou os arquivos do laboratório estiverem ausentes, será necessário cloná-los do <em>GitHub</em> para continuar.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code.</p>
+</li>
+<li><p>Abra a command palette (Ctrl+Shift+P), digite <strong>Git: Clone</strong> e selecione <strong>Git: Clone</strong>.</p>
+</li>
+<li><p>Cole a URL abaixo no campo <strong>Repository URL</strong> e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-url">https://github.com/MicrosoftLearning/dp-300-database-administrator.git
+</code></pre>
+</li>
+<li><p>Salve o repositório na pasta <strong>C:\LabFiles</strong> da máquina virtual do laboratório ou da sua máquina local, criando a pasta se necessário.</p>
+</li>
+</ol>
+<hr/>
+<h2>Restaurar um banco de dados</h2>
+<p>Se você já tiver o banco <strong>AdventureWorks2017</strong> restaurado, poderá pular esta seção.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do SQL Server Management Studio (SSMS).</p>
+</li>
+<li><p>Quando o SSMS abrir, a caixa de diálogo <strong>Connect to Server</strong> aparecerá por padrão. Escolha a instância Default e selecione <strong>Connect</strong>. Talvez seja necessário marcar <strong>Trust server certificate</strong>.</p>
+<blockquote>
+<p>📝 Se você estiver usando sua própria instância do SQL Server, deverá conectar usando o nome de instância e as credenciais apropriadas.</p>
+</blockquote>
+</li>
+<li><p>Selecione a pasta <strong>Databases</strong> e depois <strong>New Query</strong>.</p>
+</li>
+<li><p>Na nova janela de consulta, copie e cole o T-SQL abaixo. Execute a consulta para restaurar o banco.</p>
+<pre class="lab-code"><code class="language-sql">RESTORE DATABASE AdventureWorks2017
+FROM DISK = 'C:\LabFiles\dp-300-database-administrator\Allfiles\Labs\Shared\AdventureWorks2017.bak'
+WITH RECOVERY,
+      MOVE 'AdventureWorks2017' 
+        TO 'C:\LabFiles\AdventureWorks2017.mdf',
+      MOVE 'AdventureWorks2017_log'
+        TO 'C:\LabFiles\AdventureWorks2017_log.ldf';
+</code></pre>
+<blockquote>
+<p>📝 É necessário existir uma pasta chamada <strong>C:\LabFiles</strong>. Se ela não existir, crie a pasta ou informe outro local para os arquivos do banco e do backup.</p>
+</blockquote>
+</li>
+<li><p>Na guia <strong>Messages</strong>, você deverá ver uma mensagem informando que o banco foi restaurado com sucesso.</p>
+</li>
+</ol>
+<h2>Examinar a consulta e identificar o problema</h2>
+<ol>
+<li><p>Selecione <strong>New Query</strong>. Copie e cole o T-SQL abaixo na janela de consulta. Selecione <strong>Execute</strong> para executar a consulta.</p>
+<pre class="lab-code"><code class="language-sql">USE AdventureWorks2017
+
+GO
+
+SELECT BusinessEntityID, NationalIDNumber, LoginID, HireDate, JobTitle
+FROM HumanResources.Employee
+WHERE NationalIDNumber = 14417807;
+</code></pre>
+</li>
+<li><p>Antes de executar a consulta, selecione o ícone <strong>Include Actual Execution Plan</strong> à direita do botão <strong>Execute</strong> ou pressione <strong>CTRL+M</strong>. Isso fará com que o plano de execução seja exibido quando a consulta for executada. Selecione <strong>Execute</strong>.</p>
+</li>
+<li><p>Acesse o plano de execução selecionando a guia <strong>Execution plan</strong> no painel de resultados. Observe que o operador <strong>SELECT</strong> apresenta um triângulo amarelo com um ponto de exclamação. Isso indica que existe uma mensagem de aviso associada ao operador. Passe o mouse sobre o ícone de aviso para ver e ler a mensagem.</p>
+<blockquote>
+<p>📝 A mensagem de aviso informa que existe uma conversão implícita na consulta. Isso significa que o otimizador de consultas do SQL Server precisou converter o tipo de dados de uma das colunas para outro tipo para poder executar a consulta.</p>
+</blockquote>
+</li>
+</ol>
+<h2>Identificar formas de corrigir a mensagem de aviso</h2>
+<p>A estrutura da tabela <em>[HumanResources].[Employee]</em> é definida pela instrução DDL abaixo. Compare os campos usados na consulta SQL anterior com essa definição e preste atenção aos tipos de dados.</p>
+<pre class="lab-code"><code class="language-sql">CREATE TABLE [HumanResources].[Employee](
+     [BusinessEntityID] [int] NOT NULL,
+     [NationalIDNumber] [nvarchar](15) NOT NULL,
+     [LoginID] [nvarchar](256) NOT NULL,
+     [OrganizationNode] [hierarchyid] NULL,
+     [OrganizationLevel] AS ([OrganizationNode].[GetLevel]()),
+     [JobTitle] [nvarchar](50) NOT NULL,
+     [BirthDate] [date] NOT NULL,
+     [MaritalStatus] [nchar](1) NOT NULL,
+     [Gender] [nchar](1) NOT NULL,
+     [HireDate] [date] NOT NULL,
+     [SalariedFlag] [dbo].[Flag] NOT NULL,
+     [VacationHours] [smallint] NOT NULL,
+     [SickLeaveHours] [smallint] NOT NULL,
+     [CurrentFlag] [dbo].[Flag] NOT NULL,
+     [rowguid] [uniqueidentifier] ROWGUIDCOL NOT NULL,
+     [ModifiedDate] [datetime] NOT NULL
+) ON [PRIMARY]
+</code></pre>
+<ol>
+<li><p>De acordo com a mensagem de aviso apresentada no plano de execução, que alteração você recomendaria?</p>
+<ol>
+<li><p>Identifique qual campo está causando a conversão implícita e por quê.</p>
+</li>
+<li><p>Revise a consulta:</p>
+<pre class="lab-code"><code class="language-sql">SELECT BusinessEntityID, NationalIDNumber, LoginID, HireDate, JobTitle
+FROM HumanResources.Employee
+WHERE NationalIDNumber = 14417807;
+</code></pre>
+<p>Observe que o valor comparado à coluna <em>NationalIDNumber</em> na cláusula <strong>WHERE</strong> está sendo tratado como número, pois <strong>14417807</strong> não está entre aspas.</p>
+<p>Ao examinar a estrutura da tabela, você verá que a coluna <em>NationalIDNumber</em> usa o tipo <strong>NVARCHAR</strong>, e não <strong>INT</strong>. Essa inconsistência faz com que o otimizador converta implicitamente o número para um valor <em>NVARCHAR</em>, adicionando overhead à consulta e produzindo um plano subótimo.</p>
+</li>
+</ol>
+</li>
+</ol>
+<p>Existem duas abordagens para corrigir o aviso de conversão implícita. Você investigará cada uma nas próximas etapas.</p>
+<h3>Alterar o código</h3>
+<ol>
+<li><p>Como você alteraria o código para resolver a conversão implícita? Faça a alteração e execute novamente a consulta.</p>
+<p>Lembre-se de habilitar <strong>Include Actual Execution Plan</strong> (<strong>CTRL+M</strong>) se a opção ainda não estiver habilitada.</p>
+<p>Neste cenário, basta colocar o valor entre aspas simples para convertê-lo de número para texto. Mantenha a janela de consulta aberta.</p>
+<p>Execute a consulta SQL atualizada:</p>
+<pre class="lab-code"><code class="language-sql">SELECT BusinessEntityID, NationalIDNumber, LoginID, HireDate, JobTitle
+FROM HumanResources.Employee
+WHERE NationalIDNumber = '14417807';
+</code></pre>
+<blockquote>
+<p>📝 Observe que a mensagem de aviso desapareceu e o plano de consulta melhorou. Ao alterar a cláusula <em>WHERE</em> para que o valor comparado à coluna <em>NationalIDNumber</em> corresponda ao tipo de dados da coluna na tabela, o otimizador consegue eliminar a conversão implícita e gerar um plano mais adequado.</p>
+</blockquote>
+</li>
+</ol>
+<h3>Alterar o tipo de dados</h3>
+<ol>
+<li><p>Também podemos corrigir o aviso de conversão implícita alterando a estrutura da tabela.</p>
+<p>Para tentar corrigir o problema, copie e cole a consulta abaixo em uma nova janela e tente executá-la selecionando <strong>Execute</strong> ou pressionando <kbd>F5</kbd>.</p>
+<pre class="lab-code"><code class="language-sql">ALTER TABLE [HumanResources].[Employee] ALTER COLUMN [NationalIDNumber] INT NOT NULL;
+</code></pre>
+<p>Alterar o tipo da coluna <em>NationalIDNumber</em> para INT resolveria o problema de conversão. Porém, essa mudança introduz outro problema que você, como administrador de banco de dados, precisa resolver. A execução da consulta acima resultará na seguinte mensagem de erro:</p>
+<p><span style="color:red">Msg 5074, Level 16, Sate 1, Line1
+The index 'AK_Employee_NationalIDNumber' is dependent on column 'NationalIDNumber
+Msg 4922, Level 16, State 9, Line 1
+ALTER TABLE ALTER COLUMN NationalIDNumber failed because one or more objects access this column</span></p>
+<p>A coluna <em>NationalIDNumber</em> faz parte de um índice nonclustered já existente. O índice precisa ser reconstruído/recriado para que o tipo de dados seja alterado. <strong>Isso pode causar downtime prolongado em produção, destacando a importância de escolher os tipos de dados corretos ainda durante o design.</strong></p>
+</li>
+<li><p>Para resolver o problema, copie e cole o código abaixo na janela de consulta e execute-o selecionando <strong>Execute</strong>.</p>
+<pre class="lab-code"><code class="language-sql">USE AdventureWorks2017
+
+GO
+
+--Dropping the index first
+DROP INDEX [AK_Employee_NationalIDNumber] ON [HumanResources].[Employee]
+
+GO
+
+--Changing the column data type to resolve the implicit conversion warning
+ALTER TABLE [HumanResources].[Employee] ALTER COLUMN [NationalIDNumber] INT NOT NULL;
+
+GO
+
+--Recreating the index
+CREATE UNIQUE NONCLUSTERED INDEX [AK_Employee_NationalIDNumber] ON [HumanResources].[Employee]( [NationalIDNumber] ASC );
+
+GO
+</code></pre>
+</li>
+<li><p>Execute a consulta abaixo para confirmar que o tipo de dados foi alterado com sucesso.</p>
+<pre class="lab-code"><code class="language-sql">SELECT c.name, t.name
+FROM sys.all_columns c INNER JOIN sys.types t
+    ON (c.system_type_id = t.user_type_id)
+WHERE OBJECT_ID('[HumanResources].[Employee]') = c.object_id
+    AND c.name = 'NationalIDNumber'
+</code></pre>
+</li>
+<li><p>Agora verifique o plano de execução. Execute novamente a consulta original, sem as aspas.</p>
+<pre class="lab-code"><code class="language-sql">USE AdventureWorks2017
+GO
+
+SELECT BusinessEntityID, NationalIDNumber, LoginID, HireDate, JobTitle
+FROM HumanResources.Employee
+WHERE NationalIDNumber = 14417807;
+</code></pre>
+<p>Examine o plano e observe que agora é possível usar um inteiro para filtrar por <em>NationalIDNumber</em> sem o aviso de conversão implícita. O otimizador de consultas SQL pode gerar e executar um plano mais adequado.</p>
+</li>
+</ol>
+<blockquote>
+<p>📝 Embora alterar o tipo de dados de uma coluna possa resolver problemas de conversão implícita, isso nem sempre é a melhor solução. Neste caso, mudar <em>NationalIDNumber</em> para <strong>INT</strong> causaria downtime em produção, pois o índice da coluna precisaria ser removido e recriado. É importante considerar o impacto de alterar o tipo de uma coluna sobre consultas e índices existentes antes de fazer a mudança. Além disso, outras consultas podem depender de <em>NationalIDNumber</em> ser <strong>NVARCHAR</strong>, e a alteração poderia quebrá-las.</p>
+</blockquote>
+<hr/>
+<h2>Limpeza</h2>
+<p>Se você não for usar o banco de dados nem os arquivos do laboratório para nenhuma outra finalidade, poderá remover os objetos criados neste lab.</p>
+<h3>Excluir a pasta C:\LabFiles</h3>
+<ol>
+<li>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra o <strong>File Explorer</strong>.</li>
+<li>Navegue até <strong>C:\</strong>.</li>
+<li>Exclua a pasta <strong>C:\LabFiles</strong>.</li>
+</ol>
+<h2>Excluir o banco AdventureWorks2017</h2>
+<ol>
+<li>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do SQL Server Management Studio (SSMS).</li>
+<li>Quando o SSMS abrir, a caixa de diálogo <strong>Connect to Server</strong> aparecerá por padrão. Escolha a instância Default e selecione <strong>Connect</strong>. Talvez seja necessário marcar <strong>Trust server certificate</strong>.</li>
+<li>No <strong>Object Explorer</strong>, expanda a pasta <strong>Databases</strong>.</li>
+<li>Clique com o botão direito no banco <strong>AdventureWorks2017</strong> e selecione <strong>Delete</strong>.</li>
+<li>Na caixa de diálogo <strong>Delete Object</strong>, marque <strong>Close existing connections</strong>.</li>
+<li>Selecione <strong>OK</strong>.</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+<p>Neste exercício, você aprendeu a identificar problemas de consulta causados por conversões implícitas de tipo de dados e como corrigi-los para melhorar o plano de execução.</p>
+
+</div>

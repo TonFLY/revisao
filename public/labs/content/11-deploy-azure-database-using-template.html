@@ -1,0 +1,143 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 15 minutos</strong></p>
+<p>Você foi contratado como Engenheiro de Dados Sênior para ajudar a automatizar as operações diárias de administração de bancos de dados. Essa automação deve ajudar a garantir que os bancos da AdventureWorks continuem operando com alto desempenho e fornecer formas de gerar alertas com base em determinados critérios. A AdventureWorks usa SQL Server tanto em ofertas de Infrastructure as a Service (IaaS) quanto de Platform as a Service (PaaS).</p>
+<h2>Explorar um template do Azure Resource Manager</h2>
+<ol>
+<li><p>No Microsoft Edge, abra uma nova guia e acesse o caminho abaixo em um repositório do GitHub. Ele contém um ARM template para implantar um recurso SQL Database.</p>
+<pre class="lab-code"><code class="language-url">https://github.com/Azure/azure-quickstart-templates/tree/master/quickstarts/microsoft.sql/sql-database
+</code></pre>
+</li>
+<li><p>Clique com o botão direito em <strong>azuredeploy.json</strong> e selecione <strong>Open link in new tab</strong> para visualizar o ARM template, que deverá ser semelhante ao seguinte:</p>
+<pre class="lab-code"><code class="language-JSON">{
+"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+"contentVersion": "1.0.0.0",
+"parameters": {
+    "serverName": {
+    "type": "string",
+    "defaultValue": "[uniqueString('sql', resourceGroup().id)]",
+    "metadata": {
+        "description": "The name of the SQL logical server."
+    }
+    },
+    "sqlDBName": {
+    "type": "string",
+    "defaultValue": "SampleDB",
+    "metadata": {
+        "description": "The name of the SQL Database."
+    }
+    },
+    "location": {
+    "type": "string",
+    "defaultValue": "[resourceGroup().location]",
+    "metadata": {
+        "description": "Location for all resources."
+    }
+    },
+    "administratorLogin": {
+    "type": "string",
+    "metadata": {
+        "description": "The administrator username of the SQL logical server."
+    }
+    },
+    "administratorLoginPassword": {
+    "type": "securestring",
+    "metadata": {
+        "description": "The administrator password of the SQL logical server."
+    }
+    }
+},
+"variables": {},
+"resources": [
+    {
+    "type": "Microsoft.Sql/servers",
+    "apiVersion": "2020-02-02-preview",
+    "name": "[parameters('serverName')]",
+    "location": "[parameters('location')]",
+    "properties": {
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
+    },
+    "resources": [
+        {
+        "type": "databases",
+        "apiVersion": "2020-08-01-preview",
+        "name": "[parameters('sqlDBName')]",
+        "location": "[parameters('location')]",
+        "sku": {
+            "name": "Standard",
+            "tier": "Standard"
+        },
+        "dependsOn": [
+            "[resourceId('Microsoft.Sql/servers', concat(parameters('serverName')))]"
+        ]
+        }
+    ]
+    }
+]
+}
+</code></pre>
+</li>
+<li><p>Revise e observe as propriedades JSON.</p>
+</li>
+<li><p>Feche a guia <strong>azuredeploy.json</strong> e volte à guia que contém a pasta <strong>sql-database</strong> no GitHub. Role a página para baixo e selecione <strong>Deploy to Azure</strong>.</p>
+<p><img alt="Botão Deploy to Azure" class="lab-image" loading="lazy" src="/labs/images/dp-300-module-11-lab-01.png"/></p>
+</li>
+<li><p>A página do quickstart template <strong>Create a SQL Server and Database</strong> será aberta no Azure portal, com os detalhes do recurso parcialmente preenchidos pelo ARM template. Preencha os campos em branco com as informações abaixo:</p>
+<ul>
+<li><strong>Resource group:</strong> um nome começando com <em>contoso-rg</em></li>
+<li><strong>Sql Administrator Login:</strong> labadmin</li>
+<li><strong>Sql Administrator Login Password:</strong> &lt;informe uma senha forte&gt;</li>
+</ul>
+</li>
+<li><p>Selecione <strong>Review + create</strong> e depois <strong>Create</strong>. A implantação levará aproximadamente 5 minutos.</p>
+<p><img alt="Tela de implantação" class="lab-image" loading="lazy" src="/labs/images/dp-300-module-11-lab-02.png"/></p>
+</li>
+<li><p>Quando a implantação for concluída, selecione <strong>Go to resource group</strong>. Você será direcionado ao Azure Resource Group, que conterá um recurso <strong>SQL Server</strong> com nome aleatório criado pelo deployment.</p>
+<p><img alt="Resource group com SQL Server" class="lab-image" loading="lazy" src="/labs/images/dp-300-module-11-lab-03.png"/></p>
+</li>
+</ol>
+<hr/>
+<h2>Limpar os recursos</h2>
+<p>Se você não for usar o Azure SQL Server para nenhuma outra finalidade, poderá remover os recursos criados neste laboratório.</p>
+<h3>Excluir o grupo de recursos</h3>
+<p>Se você criou um novo grupo de recursos para este laboratório, pode excluí-lo para remover todos os recursos criados nele.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos criado para este laboratório. Ele conterá o Azure SQL Server e os demais recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione <strong>Delete resource group</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resource group</strong>, digite o nome do grupo de recursos para confirmar e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Aguarde a exclusão do grupo de recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir somente os recursos do laboratório</h3>
+<p>Se você não criou um novo grupo de recursos para este laboratório e deseja manter o grupo e seus recursos anteriores, ainda poderá excluir somente os recursos criados neste lab.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos usado neste laboratório. Ele conterá o Azure SQL Server e os outros recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione todos os recursos cujo nome começa com o nome do SQL Server informado anteriormente no laboratório.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resources</strong>, digite <strong>delete</strong> e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> novamente para confirmar a exclusão dos recursos.</p>
+</li>
+<li><p>Aguarde a exclusão dos recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+<p>Você acabou de ver como, com um único clique em um link de Azure Resource Manager template, é possível criar facilmente um Azure SQL server e um database.</p>
+
+</div>

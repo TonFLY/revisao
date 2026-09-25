@@ -1,0 +1,180 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 30 minutos</strong></p>
+<p>Os alunos usarão as informações aprendidas nas aulas para definir os entregáveis de um projeto de transformação digital na AdventureWorksLT. Examinando o Azure portal e outras ferramentas, determinarão como usar os recursos disponíveis para identificar e resolver problemas relacionados a desempenho.</p>
+<p>Você foi contratado como administrador de banco de dados para identificar problemas de desempenho e fornecer soluções viáveis para os problemas encontrados. Você precisa usar o Azure portal para identificar os problemas de performance e sugerir formas de resolvê-los.</p>
+<blockquote>
+<p>📝 Estes exercícios pedem que você copie e cole código T-SQL e usam recursos SQL já existentes. Antes de executar o código, confirme que ele foi copiado corretamente.</p>
+</blockquote>
+<h2>Configurar o ambiente</h2>
+<p>Se a máquina virtual do laboratório tiver sido fornecida e pré-configurada, os arquivos do laboratório deverão estar disponíveis na pasta <strong>C:\LabFiles</strong>. <em>Reserve um momento para conferir. Se os arquivos já estiverem lá, pule esta seção.</em> Porém, se você estiver usando sua própria máquina ou os arquivos do laboratório estiverem ausentes, será necessário cloná-los do <em>GitHub</em> para continuar.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code.</p>
+</li>
+<li><p>Abra a command palette (Ctrl+Shift+P), digite <strong>Git: Clone</strong> e selecione <strong>Git: Clone</strong>.</p>
+</li>
+<li><p>Cole a URL abaixo no campo <strong>Repository URL</strong> e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-url">https://github.com/MicrosoftLearning/dp-300-database-administrator.git
+</code></pre>
+</li>
+<li><p>Salve o repositório na pasta <strong>C:\LabFiles</strong> da máquina virtual do laboratório ou da sua máquina local, criando a pasta se necessário.</p>
+</li>
+</ol>
+<h2>Configurar seu SQL Server no Azure</h2>
+<p>Entre no Azure e verifique se já existe uma instância de Azure SQL Server em execução. <em>Pule esta seção se você já tiver uma instância de SQL Server em execução no Azure.</em></p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie o Visual Studio Code e navegue até o repositório clonado na seção anterior.</p>
+</li>
+<li><p>Clique com o botão direito na pasta <strong>/Allfiles/Labs</strong> e selecione <strong>Open in Integrated Terminal</strong>.</p>
+</li>
+<li><p>Conecte ao Azure usando o Azure CLI. Digite o comando abaixo e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-bash">az login
+</code></pre>
+<blockquote>
+<p>📝 Uma janela do navegador será aberta. Use suas credenciais do Azure para entrar.</p>
+</blockquote>
+</li>
+<li><p>Depois de entrar no Azure, crie um resource group caso ele ainda não exista e crie um SQL server e um database nesse grupo. Digite o comando abaixo e pressione <strong>Enter</strong>. <em>O script levará alguns minutos para ser concluído.</em></p>
+<pre class="lab-code"><code class="language-bash">cd ./Setup
+./deploy-sql-database.ps1
+</code></pre>
+<blockquote>
+<p>📝 Por padrão, o script criará um resource group chamado <strong>contoso-rg</strong> ou usará um recurso cujo nome comece com <em>contoso-rg</em>, se já existir. Por padrão, os recursos serão criados na região <strong>West US 2</strong> (westus2). O script também gerará uma senha aleatória de 12 caracteres para o <strong>SQL admin password</strong>. Você pode alterar esses valores usando os parâmetros <strong>-rgName</strong>, <strong>-location</strong> e <strong>-sqlAdminPw</strong>. A senha deve atender aos requisitos de complexidade do Azure SQL: pelo menos 12 caracteres, incluindo ao menos 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial.</p>
+</blockquote>
+<blockquote>
+<p>📝 O script adicionará seu endereço IP público atual às regras de firewall do SQL server.</p>
+</blockquote>
+</li>
+<li><p>Quando o script terminar, ele retornará o nome do resource group, o nome do SQL server, o nome do database e o nome de usuário e a senha do administrador. <em>Anote esses valores, pois eles serão necessários mais tarde no laboratório.</em></p>
+</li>
+</ol>
+<hr/>
+<h2>Revisar a utilização de CPU no Azure portal</h2>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra uma sessão do navegador e acesse <a href="https://portal.azure.com/" rel="noopener noreferrer" target="_blank">https://portal.azure.com</a>. Entre no portal usando suas credenciais do Azure.</p>
+</li>
+<li><p>No Azure portal, pesquise <em>SQL servers</em> na caixa de pesquisa na parte superior e selecione <strong>SQL servers</strong> na lista de opções.</p>
+</li>
+<li><p>Selecione o SQL server <strong>dp300-lab-xxxxxxxx</strong>, em que <em>xxxxxxxx</em> é uma sequência numérica aleatória.</p>
+<blockquote>
+<p>📝 Se você estiver usando seu próprio Azure SQL server e ele não tiver sido criado por este laboratório, selecione o nome desse SQL server.</p>
+</blockquote>
+</li>
+<li><p>Na página principal do Azure SQL server, em <strong>Security</strong>, selecione <strong>Networking</strong>.</p>
+</li>
+<li><p>Na página <strong>Networking</strong>, verifique se seu IP público atual já está presente na lista <strong>Firewall rules</strong>. Se não estiver, selecione <strong>+ Add your client IPv4 address (your IP address)</strong> para adicioná-lo e depois selecione <strong>Save</strong>.</p>
+</li>
+<li><p>No painel principal do Azure SQL server, navegue até a seção <strong>Settings</strong>, selecione <strong>SQL databases</strong> e depois o banco <strong>AdventureWorksLT</strong>.</p>
+</li>
+<li><p>No painel de navegação esquerdo, selecione <strong>Query editor (preview)</strong>.</p>
+<p><strong>Observação:</strong> esse recurso está em preview.</p>
+</li>
+<li><p>Selecione o nome do usuário administrador do SQL Server e informe a senha, ou use suas credenciais Microsoft Entra, se estiverem atribuídas, para conectar ao banco.</p>
+<ul>
+<li><strong>Server name:</strong> &lt;<em>cole aqui o nome do servidor do Azure SQL Database</em>&gt;</li>
+<li><strong>Authentication:</strong> SQL Server Authentication</li>
+<li><strong>Server admin login:</strong> seu login de administrador do Azure SQL Database server</li>
+<li><strong>Password:</strong> sua senha de administrador do Azure SQL Database server</li>
+</ul>
+</li>
+<li><p>Em <strong>Query 1</strong>, digite a consulta abaixo e selecione <strong>Run</strong>:</p>
+<pre class="lab-code"><code class="language-sql">DECLARE @Counter INT 
+SET @Counter=1
+WHILE ( @Counter &lt;= 10000)
+BEGIN
+    SELECT 
+         RTRIM(a.Firstname) + ' ' + RTRIM(a.LastName)
+        , b.AddressLine1
+        , b.AddressLine2
+        , RTRIM(b.City) + ', ' + RTRIM(b.StateProvince) + '  ' + RTRIM(b.PostalCode)
+        , CountryRegion
+        FROM SalesLT.Customer a
+        INNER JOIN SalesLT.CustomerAddress c 
+            ON a.CustomerID = c.CustomerID
+        RIGHT OUTER JOIN SalesLT.Address b
+            ON b.AddressID = c.AddressID
+    ORDER BY a.LastName ASC
+    SET @Counter  = @Counter  + 1
+END
+</code></pre>
+</li>
+<li><p>Aguarde a conclusão da consulta.</p>
+</li>
+<li><p>Execute novamente a consulta mais <em>duas</em> vezes para gerar alguma carga de CPU no banco.</p>
+</li>
+<li><p>No painel do banco <strong>AdventureWorksLT</strong>, selecione o ícone <strong>Metrics</strong> na seção <strong>Monitoring</strong>.</p>
+<p>Se aparecer a mensagem <em>Your unsaved changes will be discarded</em>, selecione <strong>OK</strong>.</p>
+</li>
+<li><p>Altere a opção <strong>Metric</strong> para <strong>CPU Percentage</strong> e selecione <strong>Avg</strong> em <strong>Aggregation</strong>. Isso exibirá o percentual médio de CPU no período selecionado.</p>
+</li>
+<li><p>Observe a média de CPU ao longo do tempo. Você deverá perceber um pico de utilização de CPU no final do gráfico, correspondente ao período em que a consulta estava sendo executada.</p>
+</li>
+</ol>
+<h2>Identificar consultas com alto consumo de CPU</h2>
+<ol>
+<li><p>Localize o ícone <strong>Query Performance Insight</strong> na seção <strong>Intelligent Performance</strong> do painel do banco <strong>AdventureWorksLT</strong>.</p>
+</li>
+<li><p>Selecione <strong>Reset settings</strong>.</p>
+</li>
+<li><p>Selecione a consulta na grade abaixo do gráfico. Se a consulta executada várias vezes anteriormente não aparecer, aguarde de 2 a 5 minutos e selecione <strong>Refresh</strong>.</p>
+<blockquote>
+<p>📝 Se houver mais de uma consulta listada, selecione cada uma para observar os resultados. Observe a quantidade de informações disponíveis para cada consulta.</p>
+</blockquote>
+</li>
+<li><p>Para a consulta executada anteriormente, observe que a duração total foi superior a um minuto e que ela foi executada aproximadamente trinta mil vezes.</p>
+</li>
+<li><p>Ao comparar o texto SQL da página <strong>Query details</strong> com a consulta executada, observe que <strong>Query details</strong> inclui somente a instrução <strong>SELECT</strong>, e não o loop <strong>WHILE</strong> nem outras instruções. Isso ocorre porque o <strong>Query Performance Insight</strong> usa dados do <strong>Query Store</strong>, que rastreia somente instruções de Data Manipulation Language (DML), como <strong>SELECT, INSERT, UPDATE, DELETE, MERGE</strong> e <strong>BULK INSERT</strong>, ignorando instruções de Data Definition Language (DDL).</p>
+</li>
+</ol>
+<p>Nem todos os problemas de desempenho estão relacionados a uma única execução de consulta com alto uso de CPU. Neste caso, a consulta foi executada milhares de vezes, o que também pode causar alta utilização de CPU.</p>
+<hr/>
+<h2>Limpar os recursos</h2>
+<p>Se você não for usar o Azure SQL Server para nenhuma outra finalidade, poderá remover os recursos criados neste laboratório.</p>
+<h3>Excluir o grupo de recursos</h3>
+<p>Se você criou um novo grupo de recursos para este laboratório, pode excluí-lo para remover todos os recursos criados nele.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos criado para este laboratório. Ele conterá o Azure SQL Server e outros recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione <strong>Delete resource group</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resource group</strong>, digite o nome do grupo de recursos para confirmar e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Aguarde a exclusão do grupo de recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir somente os recursos do laboratório</h3>
+<p>Se você não criou um novo grupo de recursos para este laboratório e deseja manter o grupo e seus recursos anteriores, ainda poderá excluir somente os recursos criados neste lab.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos usado neste laboratório. Ele conterá o Azure SQL Server e os demais recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione todos os recursos cujo nome começa com o nome do SQL Server informado anteriormente no laboratório.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resources</strong>, digite <strong>delete</strong> e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> novamente para confirmar a exclusão dos recursos.</p>
+</li>
+<li><p>Aguarde a exclusão dos recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir a pasta LabFiles</h3>
+<p>Se você criou uma nova pasta LabFiles para este laboratório e não precisa mais dela, poderá excluí-la para remover todos os arquivos criados durante o lab.</p>
+<ol>
+<li>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra o File Explorer e navegue até a unidade <strong>C:\</strong>.</li>
+<li>Clique com o botão direito na pasta <strong>LabFiles</strong> e selecione <strong>Delete</strong>.</li>
+<li>Selecione <strong>Yes</strong> para confirmar a exclusão da pasta.</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+<p>Neste exercício, você aprendeu a explorar os recursos do servidor de um Azure SQL Database e a identificar possíveis problemas de desempenho de consultas usando o Query Performance Insight.</p>
+
+</div>

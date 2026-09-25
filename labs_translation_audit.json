@@ -1,0 +1,192 @@
+[
+  {
+    "file": "00-setup-environment.md",
+    "source_fences": 0,
+    "pt_fences": 0,
+    "source_headings": 9,
+    "pt_headings": 9,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "01-provision-sql-vm.md",
+    "source_fences": 0,
+    "pt_fences": 0,
+    "source_headings": 6,
+    "pt_headings": 6,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "02-provision-sql-database.md",
+    "source_fences": 4,
+    "pt_fences": 4,
+    "source_headings": 10,
+    "pt_headings": 10,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "03-authorize-access-azure-sql-database.md",
+    "source_fences": 18,
+    "pt_fences": 18,
+    "source_headings": 9,
+    "pt_headings": 9,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "04-configure-firewall-rule.md",
+    "source_fences": 10,
+    "pt_fences": 10,
+    "source_headings": 8,
+    "pt_headings": 8,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "05-enable-sql-defender-and-data-classification.md",
+    "source_fences": 18,
+    "pt_fences": 18,
+    "source_headings": 13,
+    "pt_headings": 13,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "06-isolate-performance-problems.md",
+    "source_fences": 8,
+    "pt_fences": 8,
+    "source_headings": 9,
+    "pt_headings": 9,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "07-detect-correct-fragmentation-issues.md",
+    "source_fences": 16,
+    "pt_fences": 16,
+    "source_headings": 8,
+    "pt_headings": 8,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "08-identify-resolve-blocking-issues.md",
+    "source_fences": 20,
+    "pt_fences": 20,
+    "source_headings": 8,
+    "pt_headings": 8,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "09-identify-issues-database-design.md",
+    "source_fences": 20,
+    "pt_fences": 20,
+    "source_headings": 10,
+    "pt_headings": 10,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "10-isolate-problem-areas-poor-performing-queries.md",
+    "source_fences": 26,
+    "pt_fences": 26,
+    "source_headings": 13,
+    "pt_headings": 13,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "11-deploy-azure-database-using-template.md",
+    "source_fences": 4,
+    "pt_fences": 4,
+    "source_headings": 5,
+    "pt_headings": 5,
+    "source_images": 3,
+    "pt_images": 3,
+    "structure_ok": true
+  },
+  {
+    "file": "12-create-cpu-status-alert.md",
+    "source_fences": 6,
+    "pt_fences": 6,
+    "source_headings": 7,
+    "pt_headings": 7,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "13-deploy-automation-runbook-rebuild-indexes.md",
+    "source_fences": 8,
+    "pt_fences": 8,
+    "source_headings": 12,
+    "pt_headings": 12,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "14-configure-geo-replication-for-azure-sql-database.md",
+    "source_fences": 6,
+    "pt_fences": 6,
+    "source_headings": 9,
+    "pt_headings": 9,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "15-backup-url.md",
+    "source_fences": 32,
+    "pt_fences": 32,
+    "source_headings": 14,
+    "pt_headings": 14,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "16-diagnose-slow-query-copilot.md",
+    "source_fences": 8,
+    "pt_fences": 8,
+    "source_headings": 8,
+    "pt_headings": 8,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "17-secure-semantic-search.md",
+    "source_fences": 14,
+    "pt_fences": 14,
+    "source_headings": 10,
+    "pt_headings": 10,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  },
+  {
+    "file": "18-convert-oracle-schema-to-postgresql.md",
+    "source_fences": 0,
+    "pt_fences": 0,
+    "source_headings": 9,
+    "pt_headings": 9,
+    "source_images": 0,
+    "pt_images": 0,
+    "structure_ok": true
+  }
+]

@@ -1,0 +1,121 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 20 minutos</strong></p>
+<p>Você é o DBA do banco <strong>ContosoOps</strong>. A equipe de operações informa que <code>dbo.usp_GetOpenWorkOrdersByTechnician</code> está lenta — uma consulta que deveria retornar em milissegundos leva vários segundos. Seu trabalho é usar o GitHub Copilot no SSMS para investigar, gerar uma correção, validá-la e aplicá-la, seguindo o validation gate da unidade anterior.</p>
+<h2>Pré-requisitos</h2>
+<ul>
+<li>SSMS instalado com o workload <strong>AI Assistance</strong> — adicionado pelo Visual Studio Installer.</li>
+<li>Uma assinatura ativa do GitHub Copilot.</li>
+<li>Uma instância do SQL Server ou Azure SQL Database na qual você possa criar o banco <strong>ContosoOps</strong>.</li>
+</ul>
+<blockquote class="lab-callout note"><div class="lab-callout-label">Observação</div>
+<p>Você também pode acompanhar este laboratório usando qualquer banco que contenha uma stored procedure com uma consulta lenta e baseada fortemente em scan. As etapas e os padrões de validação são os mesmos independentemente do schema.</p>
+</blockquote>
+<hr/>
+<h2>Configurar o ambiente</h2>
+<p>O script de setup cria e popula o banco <strong>ContosoOps</strong> usado durante todo este lab. Se os arquivos do laboratório já estiverem na pasta <strong>C:\LabFiles</strong>, você pode pular a clonagem; caso contrário, clone este repositório para <strong>C:\LabFiles</strong> antes de continuar.</p>
+<ol>
+<li><p>Abra o SSMS e conecte à sua instância do SQL Server ou ao Azure SQL Database.</p>
+</li>
+<li><p>Abra o arquivo <strong>C:\LabFiles\dp-300-database-administrator\Instructions\Templates\01-ContosoOps-Setup.sql</strong> e selecione <strong>Execute</strong>. Esse script:</p>
+<ul>
+<li>Cria o banco <strong>ContosoOps</strong>, as tabelas <code>Technicians</code> e <code>WorkOrders</code> e a stored procedure <code>dbo.usp_GetOpenWorkOrdersByTechnician</code>.</li>
+<li>Insere aproximadamente 2 milhões de linhas em <code>WorkOrders</code> sem um índice de suporte, fazendo com que a stored procedure faça scan da tabela e execute lentamente.</li>
+</ul>
+<blockquote>
+<p>📝 A etapa de carga insere aproximadamente 2 milhões de linhas e leva alguns minutos. Aguarde a mensagem <strong>setup complete</strong> antes de continuar.</p>
+</blockquote>
+</li>
+</ol>
+<hr/>
+<h2>Abrir a consulta lenta no SSMS e analisar com GitHub Copilot</h2>
+<ol>
+<li><p>No SSMS, abra uma nova janela de consulta conectada ao banco <strong>ContosoOps</strong>.</p>
+</li>
+<li><p>Habilite <strong>Include Actual Execution Plan</strong> — ou pressione <strong>Ctrl+M</strong> — e execute a stored procedure com estatísticas de I/O e tempo habilitadas para confirmar que ela está lenta:</p>
+<pre class="lab-code"><code class="language-sql">SET STATISTICS IO ON;
+SET STATISTICS TIME ON;
+GO
+
+EXEC dbo.usp_GetOpenWorkOrdersByTechnician @TechnicianID = 42;
+GO
+
+SET STATISTICS IO OFF;
+SET STATISTICS TIME OFF;
+</code></pre>
+<p>Anote os <strong>logical reads</strong> e o <strong>elapsed time</strong> na guia Messages — esse será seu baseline. No plano de execução, confirme a presença de um <strong>table scan</strong> — clustered index scan — em <code>WorkOrders</code>.</p>
+</li>
+<li><p>Abra a definição da stored procedure. No <strong>Object Explorer</strong>, expanda <strong>ContosoOps</strong> &gt; <strong>Programmability</strong> &gt; <strong>Stored Procedures</strong>, clique com o botão direito em <code>dbo.usp_GetOpenWorkOrdersByTechnician</code> e selecione <strong>Modify</strong> para visualizar o texto da consulta.</p>
+</li>
+<li><p>Selecione a instrução <code>SELECT</code> dentro da procedure, clique com o botão direito na seleção e escolha <strong>Explain with Copilot</strong>. O GitHub Copilot abrirá um painel de chat e descreverá a consulta. Na explicação, o Copilot identifica um table scan em <code>WorkOrders</code> causado por um predicado de filtro em <code>TechnicianID</code> e <code>Status</code> sem um índice de suporte.</p>
+</li>
+</ol>
+<hr/>
+<h2>Pedir ao Copilot uma recomendação de índice</h2>
+<ol>
+<li><p>No chat do Copilot, digite:</p>
+<blockquote>
+<p>"This query has a table scan on WorkOrders filtered by TechnicianID and Status. What index would you recommend?"</p>
+</blockquote>
+</li>
+<li><p>O Copilot responderá com uma recomendação de índice semelhante à seguinte:</p>
+<pre class="lab-code"><code class="language-sql">-- Copilot-suggested index
+CREATE NONCLUSTERED INDEX IX_WorkOrders_TechnicianID_Status
+ON dbo.WorkOrders (TechnicianID, Status)
+INCLUDE (WorkOrderID, OpenedDate, Description);
+</code></pre>
+</li>
+<li><p>Leia a explicação fornecida pelo Copilot junto com o índice. Ela deverá descrever a ordem das colunas-chave — <code>TechnicianID</code> primeiro, como predicado de igualdade, e <code>Status</code> em seguida, como predicado de range ou igualdade — e explicar por que as colunas em <code>INCLUDE</code> evitam um key lookup.</p>
+</li>
+</ol>
+<blockquote class="lab-callout note"><div class="lab-callout-label">Observação</div>
+<p>As colunas de <code>INCLUDE</code> sugeridas pelo Copilot dependem das colunas que ele consegue inferir do texto da consulta. Se a stored procedure selecionar colunas adicionais que não estejam no contexto do Copilot, adicione-as à lista <code>INCLUDE</code> antes de criar o índice.</p>
+</blockquote>
+<hr/>
+<h2>Validar a recomendação</h2>
+<p>Antes de criar o índice, aplique o validation gate aprendido anteriormente.</p>
+<ol>
+<li><p>Verifique se já existe um índice semelhante para evitar índices redundantes:</p>
+<pre class="lab-code"><code class="language-sql">-- Check for existing indexes on WorkOrders
+SELECT
+    i.name             AS index_name,
+    i.type_desc,
+    c.name             AS column_name,
+    ic.is_included_column,
+    ic.key_ordinal
+FROM sys.indexes AS i
+JOIN sys.index_columns AS ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+JOIN sys.columns       AS c  ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+WHERE i.object_id = OBJECT_ID('dbo.WorkOrders')
+ORDER BY i.index_id, ic.key_ordinal;
+</code></pre>
+<p>Se já existir um índice em <code>TechnicianID</code>, verifique se ele inclui <code>Status</code> e as colunas do <code>INCLUDE</code>. Se incluir, você não precisa criar um novo índice — peça ao Copilot para refinar a recomendação considerando o índice existente.</p>
+</li>
+</ol>
+<blockquote class="lab-callout note"><div class="lab-callout-label">Observação</div>
+<p>Você já capturou um baseline — logical reads, elapsed time e o table scan no plano de execução — quando confirmou que a procedure estava lenta. Mantenha esses valores disponíveis para compará-los após a criação do índice.</p>
+</blockquote>
+<hr/>
+<h2>Aplicar e verificar</h2>
+<ol>
+<li><p>Crie o índice sugerido pelo Copilot:</p>
+<pre class="lab-code"><code class="language-sql">CREATE NONCLUSTERED INDEX IX_WorkOrders_TechnicianID_Status
+ON dbo.WorkOrders (TechnicianID, Status)
+INCLUDE (WorkOrderID, OpenedDate, Description);
+</code></pre>
+</li>
+<li><p>Execute novamente a stored procedure com <code>SET STATISTICS IO ON; SET STATISTICS TIME ON;</code> e compare os novos logical reads e elapsed time com o baseline capturado anteriormente. Confirme que os logical reads caíram significativamente e que o elapsed time caiu para menos de um segundo.</p>
+</li>
+<li><p>Inspecione novamente o plano de execução real. Confirme que agora existe um <strong>Index Seek</strong> em <code>IX_WorkOrders_TechnicianID_Status</code> no lugar do table scan.</p>
+</li>
+<li><p>Em um ambiente real, valide primeiro a alteração fora de produção e depois agende a criação do índice em produção durante uma janela de manutenção.</p>
+</li>
+</ol>
+<hr/>
+<h2>Resultado esperado</h2>
+<p>Um índice nonclustered direcionado elimina o table scan em <code>WorkOrders</code>, e a stored procedure passa a retornar em menos de um segundo, em vez de levar vários segundos. Você seguiu todo o validation gate: confirmou a consulta lenta e capturou um baseline, verificou a existência de índices redundantes, aplicou o índice recomendado pelo Copilot e validou a melhoria com estatísticas e com o plano de execução.</p>
+<blockquote class="lab-callout important"><div class="lab-callout-label">Importante</div>
+<p>A própria criação do índice causa um bloqueio breve da tabela nas edições padrão. Para tabelas grandes em produção, use a opção <code>ONLINE = ON</code> se o seu service tier oferecer suporte e agende a operação para horários de menor tráfego.</p>
+</blockquote>
+
+</div>

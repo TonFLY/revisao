@@ -354,7 +354,79 @@
       .fc-card { padding:18px 14px; }
       .fc-question { font-size:15px; }
     }
-  </style>
+  
+    /* Labs DP-300 */
+    .labs-shell { padding:18px; }
+    .labs-hero { display:flex; justify-content:space-between; gap:18px; align-items:flex-start; flex-wrap:wrap; margin-bottom:16px; }
+    .labs-hero h2 { margin:0 0 5px; color:#1a237e; }
+    .labs-hero p { margin:0; color:#59636e; max-width:780px; line-height:1.45; }
+    .labs-progress-card { min-width:260px; background:#f7f9fc; border:1px solid #dde4ef; border-radius:12px; padding:12px 14px; }
+    .labs-progress-row { display:flex; justify-content:space-between; font-size:12px; margin-bottom:7px; }
+    .labs-progress-track { height:10px; background:#e5e7eb; border-radius:99px; overflow:hidden; }
+    .labs-progress-fill { height:100%; background:#1a237e; width:0%; transition:width .2s; }
+    .labs-filters { display:grid; grid-template-columns:1.6fr repeat(2,minmax(160px,1fr)); gap:8px; margin:14px 0; }
+    .labs-filters input,.labs-filters select { border:1px solid #d0d7de; border-radius:8px; padding:9px 10px; background:#fff; }
+    .labs-toolbar { display:flex; gap:8px; flex-wrap:wrap; margin:8px 0 14px; }
+    .labs-toolbar button { border:1px solid #cbd3df; background:#fff; color:#334155; border-radius:8px; padding:7px 10px; cursor:pointer; font-weight:700; }
+    .labs-toolbar button.active { background:#1a237e; color:white; border-color:#1a237e; }
+    .labs-group { margin:18px 0 24px; }
+    .labs-group-title { font-size:14px; font-weight:900; color:#1a237e; background:#f4f6fb; border-left:4px solid #1a237e; padding:8px 10px; margin-bottom:7px; }
+    .lab-row { display:grid; grid-template-columns:34px 1fr auto auto; align-items:center; gap:10px; padding:11px 10px; border-bottom:1px solid #eceff3; background:#fff; }
+    .lab-row:hover { background:#fafbff; }
+    .lab-check { width:19px; height:19px; accent-color:#1a237e; cursor:pointer; }
+    .lab-title { font-weight:800; color:#1f2937; cursor:pointer; }
+    .lab-meta { display:flex; gap:7px; flex-wrap:wrap; margin-top:5px; font-size:11px; color:#667085; }
+    .lab-chip { border-radius:99px; background:#eef2f7; padding:3px 7px; }
+    .lab-status { font-size:11px; font-weight:900; border-radius:99px; padding:5px 8px; white-space:nowrap; }
+    .lab-status.not_started { background:#f1f5f9; color:#64748b; }
+    .lab-status.in_progress { background:#fff3cd; color:#7a5b00; }
+    .lab-status.completed { background:#e8f5e9; color:#1b5e20; }
+    .lab-open { border:1px solid #cbd3df; background:white; border-radius:8px; padding:7px 10px; cursor:pointer; font-weight:800; color:#1a237e; }
+    .lab-detail { display:none; }
+    .lab-detail.open { display:block; }
+    .lab-index.hidden { display:none; }
+    .lab-detail-top { display:flex; justify-content:space-between; gap:14px; align-items:flex-start; flex-wrap:wrap; border-bottom:1px solid #e5e7eb; padding-bottom:14px; margin-bottom:16px; }
+    .lab-detail-top h2 { margin:4px 0 8px; color:#1a237e; }
+    .lab-back { border:none; background:none; color:#1a237e; font-weight:900; cursor:pointer; padding:0; }
+    .lab-complete-box { display:flex; align-items:center; gap:8px; background:#f7f9fc; border:1px solid #dde4ef; padding:10px 12px; border-radius:10px; font-weight:800; }
+    .lab-guide { max-width:900px; margin:0 auto; line-height:1.58; color:#263238; }
+    .lab-guide h3 { color:#1a237e; margin-top:24px; }
+    .lab-guide ol,.lab-guide ul { padding-left:22px; }
+    .lab-guide li { margin:7px 0; }
+    .lab-source-box { margin-top:22px; border:1px solid #d8dee8; border-radius:10px; background:#f8fafc; padding:12px; }
+    .lab-source-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .lab-source-actions a { display:inline-block; text-decoration:none; border:1px solid #cbd3df; border-radius:8px; padding:7px 10px; color:#1a237e; background:#fff; font-weight:800; }
+    .lab-original-frame { width:100%; height:70vh; border:1px solid #cbd3df; border-radius:10px; margin-top:12px; background:#fff; display:none; }
+    .lab-original-frame.show { display:block; }
+    .lab-translation-note { border-left:4px solid #ffb300; background:#fff8e1; color:#664d03; padding:10px 12px; border-radius:6px; margin:12px 0; font-size:12px; }
+    .labs-storage-note { font-size:11px; color:#64748b; margin-top:8px; }
+    @media(max-width:800px){ .labs-filters{grid-template-columns:1fr;} .lab-row{grid-template-columns:30px 1fr auto;} .lab-open{grid-column:2/4;} }
+
+
+    .lab-full-content { font-size:14px; }
+    .lab-full-content > :first-child { margin-top:0; }
+    .lab-full-content h2 { color:#1a237e; margin:28px 0 10px; padding-bottom:6px; border-bottom:1px solid #e5e7eb; font-size:20px; }
+    .lab-full-content h3 { color:#253858; margin:23px 0 8px; font-size:16px; }
+    .lab-full-content h4 { color:#334155; margin:18px 0 7px; }
+    .lab-full-content p { margin:10px 0; }
+    .lab-full-content a { color:#0969da; text-decoration:none; }
+    .lab-full-content a:hover { text-decoration:underline; }
+    .lab-code { background:#0f172a; color:#e2e8f0; border-radius:9px; padding:13px 15px; overflow:auto; line-height:1.45; margin:12px 0; }
+    .lab-code code { color:inherit; background:transparent; padding:0; white-space:pre; }
+    .lab-full-content :not(pre)>code { background:#f1f5f9; color:#9d174d; border-radius:5px; padding:2px 5px; font-size:.92em; }
+    .lab-table { width:100%; border-collapse:collapse; margin:14px 0; display:block; overflow-x:auto; }
+    .lab-table th,.lab-table td { border:1px solid #d8dee8; padding:8px 10px; text-align:left; vertical-align:top; }
+    .lab-table th { background:#f6f8fa; }
+    .lab-image { display:block; max-width:100%; height:auto; margin:14px auto; border:1px solid #e1e5ea; border-radius:8px; }
+    .lab-callout { border:0; border-left:4px solid #64748b; background:#f8fafc; margin:14px 0; padding:10px 13px; border-radius:6px; }
+    .lab-callout.note { border-color:#0969da; background:#f0f7ff; }
+    .lab-callout.tip { border-color:#1a7f37; background:#f0fff4; }
+    .lab-callout.important { border-color:#8250df; background:#f8f4ff; }
+    .lab-callout.warning,.lab-callout.caution { border-color:#bf8700; background:#fff8c5; }
+    .lab-callout-label { font-weight:900; margin-bottom:4px; }
+    .lab-fidelity-note { border:1px solid #d8dee8; border-radius:9px; background:#f8fafc; padding:9px 11px; color:#59636e; font-size:12px; margin-bottom:16px; }
+
+</style>
 </head>
 <body>
 
@@ -415,6 +487,7 @@
     <div class="tab" onclick="goTab('list')">Questões</div>
     <div class="tab" onclick="goTab('add')">Adicionar</div>
     <div class="tab" onclick="goTab('pdf')">Exportar PDF</div>
+    <div class="tab" id="labsTab" onclick="goTab('labs')">Labs DP-300</div>
   </div>
 
   <!-- ── STUDY ── -->
@@ -616,6 +689,60 @@
 
 
 <!-- tutorial de criação de questões com ChatGPT -->
+
+  <!-- ── LABS DP-300 ── -->
+  <div class="panel" id="panel-labs">
+    <div class="labs-shell">
+      <div class="lab-index" id="labsIndex">
+        <div class="labs-hero">
+          <div>
+            <h2>Laboratórios DP-300</h2>
+            <p>Laboratórios do <strong>MicrosoftLearning/dp-300-database-administrator</strong>, traduzidos para português a partir do repositório enviado. Os comandos, caminhos, nomes técnicos e a ordem das instruções foram preservados. Marque cada laboratório quando concluir; o progresso é separado por usuário.</p>
+          </div>
+          <div class="labs-progress-card">
+            <div class="labs-progress-row"><strong>Progresso geral</strong><span id="labsProgressText">0 / 0</span></div>
+            <div class="labs-progress-track"><div class="labs-progress-fill" id="labsProgressFill"></div></div>
+            <div class="labs-storage-note" id="labsStorageNote">Carregando progresso...</div>
+          </div>
+        </div>
+
+        <div class="labs-toolbar">
+          <button id="labsStatus-all" class="active" onclick="setLabsStatusFilter('all')">Todos</button>
+          <button id="labsStatus-not_started" onclick="setLabsStatusFilter('not_started')">Pendentes</button>
+          <button id="labsStatus-in_progress" onclick="setLabsStatusFilter('in_progress')">Em andamento</button>
+          <button id="labsStatus-completed" onclick="setLabsStatusFilter('completed')">Concluídos</button>
+          <button onclick="continueLastLab()">Continuar último laboratório</button>
+        </div>
+
+        <div class="labs-filters">
+          <input id="labsSearch" placeholder="Buscar laboratório..." oninput="renderLabs()" />
+          <select id="labsDomain" onchange="renderLabs()">
+            <option value="">Todos os domínios</option>
+            <option value="setup">Configuração</option>
+            <option value="platform">Plataforma</option>
+            <option value="security">Segurança</option>
+            <option value="performance">Performance</option>
+            <option value="automation">Automação</option>
+            <option value="hadr">HA/DR</option>
+            <option value="migration">Migração</option>
+          </select>
+          <select id="labsSort" onchange="renderLabs()">
+            <option value="order">Ordem oficial</option>
+            <option value="status">Status</option>
+            <option value="duration">Menor duração</option>
+          </select>
+        </div>
+
+        <div id="labsList"><div class="loader">Carregando laboratórios...</div></div>
+      </div>
+
+      <div class="lab-detail" id="labDetail">
+        <button class="lab-back" onclick="closeLab()">← Voltar aos laboratórios</button>
+        <div id="labDetailContent"></div>
+      </div>
+    </div>
+  </div>
+
 <div class="modal-bg" id="tutorialModal">
   <div class="modal tutorial-modal">
     <h3>📚 Criar banco REAL / treino interativo com o ChatGPT</h3>
@@ -1131,6 +1258,9 @@ No final da resposta, fora do arquivo, informe um resumo com:
     if (formExam && !document.getElementById('eid').value) formExam.value = currentExam;
     const pdfExam = document.getElementById('pdfExam');
     if (pdfExam) pdfExam.value = currentExam;
+    const labsTab = document.getElementById('labsTab');
+    if (labsTab) labsTab.style.display = currentExam === 'DP-300' ? '' : 'none';
+    if (currentExam !== 'DP-300' && document.getElementById('panel-labs')?.classList.contains('active')) goTab('study');
   }
 
   async function changeExam(exam) {
@@ -1262,13 +1392,16 @@ No final da resposta, fora do arquivo, informe um resumo com:
 
   // ── tabs ─────────────────────────────────────────────────
   function goTab(name) {
-    document.querySelectorAll('.tab').forEach((t,i)=> t.classList.toggle('active',['study','decoreba','list','add','pdf'][i]===name));
+    const names=['study','decoreba','list','add','pdf','labs'];
+    document.querySelectorAll('.tab').forEach((t,i)=> t.classList.toggle('active',names[i]===name));
     document.querySelectorAll('.panel').forEach(p=> p.classList.remove('active'));
-    document.getElementById('panel-'+name).classList.add('active');
+    const panel = document.getElementById('panel-'+name);
+    if (panel) panel.classList.add('active');
     if (name==='list')     renderList();
     if (name==='study')    renderCard();
     if (name==='decoreba') startDecoreba('all');
     if (name==='pdf')      pdfApplyFilters();
+    if (name==='labs')     loadLabs();
   }
 
   function optionText(q, letter) {
@@ -2766,6 +2899,268 @@ No final da resposta, fora do arquivo, informe um resumo com:
       if (_impFileInput) _impFileInput.value = '';
     }
   }
+
+
+  // ── LABS DP-300 ───────────────────────────────────────────
+  let labsCatalog = [];
+  let labsProgress = {};
+  let labsLoaded = false;
+  let labsStatusFilter = 'all';
+  let labsStorageMode = 'server';
+  const labsContentCache = new Map();
+
+  function labsLocalKey() {
+    return `review_labs_v1_${currentUid || 'default'}_${currentExam}`;
+  }
+  function readLabsLocal() {
+    try { return JSON.parse(localStorage.getItem(labsLocalKey()) || '{}'); }
+    catch { return {}; }
+  }
+  function writeLabsLocal() { localStorage.setItem(labsLocalKey(), JSON.stringify(labsProgress)); }
+  function labStatus(id) { return labsProgress[id]?.status || 'not_started'; }
+  function labStatusLabel(status) { return status === 'completed' ? 'Concluído' : status === 'in_progress' ? 'Em andamento' : 'Não iniciado'; }
+  function labDomainLabel(code) {
+    return ({setup:'Configuração',platform:'Plataforma',security:'Segurança',performance:'Performance',
+      automation:'Automação',hadr:'HA/DR',migration:'Migração'})[code] || code || 'Outro';
+  }
+
+  async function loadLabs(force=false) {
+    if (currentExam !== 'DP-300') return;
+    if (!labsLoaded || force) {
+      const c = await fetch('/labs/catalog.json', {cache:'no-store'}).then(r => {
+        if (!r.ok) throw new Error('Falha ao carregar catálogo de labs.');
+        return r.json();
+      });
+      labsCatalog = c.labs || [];
+      labsLoaded = true;
+    }
+    try {
+      const r = await apiFetch(`/api/labs?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(currentExam)}`);
+      labsProgress = {};
+      (r.items || []).forEach(x => { labsProgress[x.lab_id] = x; });
+      labsStorageMode = 'server';
+    } catch (e) {
+      console.warn('[labs] progresso SQL indisponível; usando fallback local', e);
+      labsProgress = readLabsLocal();
+      labsStorageMode = 'local';
+    }
+    updateLabsProgress();
+    renderLabs();
+  }
+
+  function updateLabsProgress() {
+    const total = labsCatalog.length;
+    const completed = labsCatalog.filter(x => labStatus(x.id) === 'completed').length;
+    const pct = total ? Math.round(completed / total * 100) : 0;
+    const txt = document.getElementById('labsProgressText');
+    const fill = document.getElementById('labsProgressFill');
+    const note = document.getElementById('labsStorageNote');
+    if (txt) txt.textContent = `${completed} / ${total} concluídos (${pct}%)`;
+    if (fill) fill.style.width = pct + '%';
+    if (note) note.textContent = labsStorageMode === 'server'
+      ? 'Progresso salvo no SQL Server para este usuário.'
+      : 'Fallback local ativo. Execute sql/003_labs_progress.sql para persistência no SQL Server.';
+  }
+
+  function setLabsStatusFilter(status) {
+    labsStatusFilter = status;
+    ['all','not_started','in_progress','completed'].forEach(s => {
+      document.getElementById('labsStatus-'+s)?.classList.toggle('active', s === status);
+    });
+    renderLabs();
+  }
+
+  function renderLabs() {
+    const el = document.getElementById('labsList');
+    if (!el) return;
+    if (!labsCatalog.length) { el.innerHTML = '<div class="empty">Nenhum laboratório no catálogo.</div>'; return; }
+
+    const search = String(document.getElementById('labsSearch')?.value || '').trim().toLowerCase();
+    const domain = document.getElementById('labsDomain')?.value || '';
+    const sort = document.getElementById('labsSort')?.value || 'order';
+
+    let arr = labsCatalog.filter(l => {
+      const st = labStatus(l.id);
+      if (labsStatusFilter !== 'all' && st !== labsStatusFilter) return false;
+      if (domain && l.domain_code !== domain) return false;
+      if (search) {
+        const hay = `${l.title_pt} ${l.module_pt} ${l.summary_pt} ${l.source}`.toLowerCase();
+        if (!hay.includes(search)) return false;
+      }
+      return true;
+    });
+
+    if (sort === 'order') arr.sort((a,b)=>(a.order||0)-(b.order||0));
+    if (sort === 'duration') arr.sort((a,b)=>(a.duration_minutes||999)-(b.duration_minutes||999) || (a.order||0)-(b.order||0));
+    if (sort === 'status') {
+      const rank={in_progress:0,not_started:1,completed:2};
+      arr.sort((a,b)=>(rank[labStatus(a.id)]-rank[labStatus(b.id)]) || (a.order||0)-(b.order||0));
+    }
+
+    if (!arr.length) { el.innerHTML = '<div class="empty">Nenhum laboratório atende aos filtros.</div>'; return; }
+
+    const groups = new Map();
+    arr.forEach(l => {
+      const key = `${l.source}|${l.module_pt}`;
+      if (!groups.has(key)) groups.set(key, {source:l.source,module:l.module_pt,items:[]});
+      groups.get(key).items.push(l);
+    });
+
+    el.innerHTML = [...groups.values()].map(g => `
+      <section class="labs-group">
+        <div class="labs-group-title">${h(g.module)} <span style="font-weight:500;color:#64748b">· ${h(g.source)}</span></div>
+        ${g.items.map(l => {
+          const st = labStatus(l.id);
+          const p = labsProgress[l.id] || {};
+          const doneDate = p.completed_at ? new Date(p.completed_at).toLocaleDateString('pt-BR') : '';
+          return `<div class="lab-row">
+            <input class="lab-check" type="checkbox" ${st==='completed'?'checked':''}
+              aria-label="Concluído" onchange="toggleLabCompleted('${ha(l.id)}',this.checked,event)">
+            <div>
+              <div class="lab-title" onclick="openLab('${ha(l.id)}')">${h(l.title_pt)}</div>
+              <div class="lab-meta">
+                <span class="lab-chip">${h(labDomainLabel(l.domain_code))}</span>
+                <span class="lab-chip">~${l.duration_minutes} min</span>
+                ${doneDate ? `<span class="lab-chip">Concluído em ${h(doneDate)}</span>` : ''}
+              </div>
+            </div>
+            <span class="lab-status ${st}">${h(labStatusLabel(st))}</span>
+            <button class="lab-open" onclick="openLab('${ha(l.id)}')">Abrir laboratório</button>
+          </div>`;
+        }).join('')}
+      </section>`).join('');
+  }
+
+  async function saveLabProgress(labId, action, status) {
+    const localNow = new Date().toISOString();
+    try {
+      if (labsStorageMode === 'server') {
+        const r = await apiFetch(`/api/labs?uid=${encodeURIComponent(currentUid)}&exam=${encodeURIComponent(currentExam)}`, {
+          method:'POST', body:JSON.stringify({lab_id:labId,action,status})
+        });
+        labsProgress[labId] = r;
+      } else {
+        throw new Error('local');
+      }
+    } catch (e) {
+      labsStorageMode = 'local';
+      const old = labsProgress[labId] || {};
+      let st = status || old.status || 'in_progress';
+      if (action === 'open') st = old.status === 'completed' ? 'completed' : 'in_progress';
+      if (action === 'complete') st = 'completed';
+      if (action === 'reset') st = 'not_started';
+      labsProgress[labId] = {
+        ...old, lab_id:labId, status:st, completed:st==='completed',
+        started_at:st==='not_started'?null:(old.started_at || localNow),
+        completed_at:st==='completed'?(old.completed_at || localNow):null,
+        last_opened_at:action==='open'?localNow:(old.last_opened_at || null),
+        updated_at:localNow
+      };
+      writeLabsLocal();
+    }
+    updateLabsProgress();
+    renderLabs();
+  }
+
+  async function toggleLabCompleted(labId, checked, ev) {
+    ev?.stopPropagation?.();
+    await saveLabProgress(labId, checked ? 'complete' : 'status', checked ? 'completed' : 'in_progress');
+    if (document.getElementById('labDetail')?.classList.contains('open')) {
+      const current = document.getElementById('labDetail')?.dataset.labId;
+      if (current === labId) renderLabDetail(labId);
+    }
+  }
+
+  async function openLab(labId) {
+    const l = labsCatalog.find(x => x.id === labId);
+    if (!l) return;
+    if (labStatus(labId) !== 'completed') await saveLabProgress(labId,'open','in_progress');
+    document.getElementById('labsIndex').classList.add('hidden');
+    const detail = document.getElementById('labDetail');
+    detail.classList.add('open');
+    detail.dataset.labId = labId;
+    document.getElementById('labDetailContent').innerHTML = '<div class="loader">Carregando laboratório em português...</div>';
+    await renderLabDetail(labId);
+    detail.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+
+  async function getLabContent(l) {
+    if (labsContentCache.has(l.id)) return labsContentCache.get(l.id);
+    const r = await fetch(l.content_url, {cache:'no-store'});
+    if (!r.ok) throw new Error(`Falha ao carregar o conteúdo do laboratório (${r.status}).`);
+    const text = await r.text();
+    labsContentCache.set(l.id, text);
+    return text;
+  }
+
+  async function renderLabDetail(labId) {
+    const l = labsCatalog.find(x => x.id === labId);
+    if (!l) return;
+    const st = labStatus(labId);
+    const p = labsProgress[labId] || {};
+    const completeDate = p.completed_at ? new Date(p.completed_at).toLocaleString('pt-BR') : '';
+    let content = '';
+    try { content = await getLabContent(l); }
+    catch (e) { content = `<div class="empty">${h(e.message || e)}</div>`; }
+
+    document.getElementById('labDetailContent').innerHTML = `
+      <div class="lab-detail-top">
+        <div>
+          <div class="lab-meta"><span class="lab-chip">MicrosoftLearning</span><span class="lab-chip">${h(labDomainLabel(l.domain_code))}</span><span class="lab-chip">~${l.duration_minutes} min</span></div>
+          <h2>${h(l.title_pt)}</h2>
+          <div style="color:#59636e">${h(l.module_pt)}</div>
+        </div>
+        <label class="lab-complete-box">
+          <input class="lab-check" type="checkbox" ${st==='completed'?'checked':''}
+            onchange="toggleLabCompleted('${ha(l.id)}',this.checked,event)">
+          <span>${st==='completed' ? 'Concluído' : 'Marcar como concluído'}</span>
+        </label>
+      </div>
+      <article class="lab-guide">
+        ${completeDate ? `<div class="lab-status completed" style="display:inline-block;margin-bottom:12px">✓ Concluído em ${h(completeDate)}</div>` : ''}
+        <div class="lab-fidelity-note"><strong>Versão em português:</strong> traduzida do arquivo <code>${h(l.source_path)}</code> do ZIP enviado. A sequência das instruções, comandos, caminhos e nomes técnicos foi preservada.</div>
+        ${content}
+
+        <div class="lab-source-box">
+          <strong>Fonte</strong><br>
+          ${h(l.repo)} · licença ${h(l.license || 'MIT')}<br>
+          <span style="font-size:12px;color:#64748b">Arquivo-fonte: ${h(l.source_path)}</span>
+          <div class="lab-source-actions">
+            <a href="${ha(l.source_url)}" target="_blank" rel="noopener noreferrer">Ver versão original</a>
+            <a href="${ha(l.translation_markdown_url)}" target="_blank" rel="noopener noreferrer">Ver Markdown em português</a>
+          </div>
+        </div>
+
+        <div style="margin-top:18px">
+          <label class="lab-complete-box" style="display:inline-flex">
+            <input class="lab-check" type="checkbox" ${st==='completed'?'checked':''}
+              onchange="toggleLabCompleted('${ha(l.id)}',this.checked,event)">
+            <span>${st==='completed' ? 'Laboratório concluído' : 'Concluí este laboratório'}</span>
+          </label>
+        </div>
+      </article>`;
+  }
+
+  function closeLab() {
+    document.getElementById('labDetail').classList.remove('open');
+    document.getElementById('labsIndex').classList.remove('hidden');
+    renderLabs();
+  }
+
+  function continueLastLab() {
+    const candidates = labsCatalog
+      .filter(l => labStatus(l.id) === 'in_progress')
+      .sort((a,b) => {
+        const da = new Date(labsProgress[a.id]?.last_opened_at || labsProgress[a.id]?.updated_at || 0).getTime();
+        const db = new Date(labsProgress[b.id]?.last_opened_at || labsProgress[b.id]?.updated_at || 0).getTime();
+        return db-da;
+      });
+    if (candidates.length) return openLab(candidates[0].id);
+    const firstPending = labsCatalog.find(l => labStatus(l.id) !== 'completed');
+    if (firstPending) return openLab(firstPending.id);
+    alert('Todos os laboratórios estão concluídos.');
+  }
+
 
   // ── helpers ──────────────────────────────────────────────
   function h(s) {

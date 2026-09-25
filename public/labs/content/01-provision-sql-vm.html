@@ -1,0 +1,127 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 30 minutos</strong></p>
+<p>Os alunos explorarão o Azure portal e o usarão para criar uma VM do Azure com SQL Server 2022 instalado. Em seguida, conectarão à máquina virtual por Remote Desktop Protocol (RDP).</p>
+<p>Você é o administrador de banco de dados da AdventureWorks. Precisa criar um ambiente de teste para uma prova de conceito. A prova de conceito usará SQL Server em uma Máquina Virtual do Azure e um backup do banco AdventureWorksDW. Você precisa configurar a máquina virtual, restaurar o banco de dados e consultá-lo para confirmar que está disponível.</p>
+<h2>Implantar um SQL Server em uma Máquina Virtual do Azure</h2>
+<ol>
+<li><p>Abra uma sessão do navegador, acesse <a href="https://portal.azure.com/" rel="noopener noreferrer" target="_blank">https://portal.azure.com</a> e entre usando a conta Microsoft associada à sua assinatura do Azure.</p>
+</li>
+<li><p>Localize a barra de pesquisa na parte superior da página. Pesquise <strong>Azure SQL</strong>. Selecione o resultado <strong>Azure SQL</strong> exibido em <strong>Services</strong>.</p>
+</li>
+<li><p>Na barra lateral, expanda <strong>SQL server</strong> e selecione <strong>SQL server on Azure VMs</strong>. Em seguida, selecione <strong>Create</strong>.</p>
+</li>
+<li><p>No painel <strong>Select SQL deployment option</strong>, selecione a caixa suspensa em <strong>SQL virtual machines</strong>. Escolha <strong>Free SQL Server License: SQL Server 2022 Developer on Windows Server 2022</strong>. Em seguida, selecione <strong>Create</strong>.</p>
+</li>
+<li><p>Na página <strong>Create a virtual machine</strong>, informe os dados abaixo e <em>mantenha todas as demais opções com os valores padrão</em>:</p>
+<ul>
+<li><strong>Subscription:</strong> &lt;Sua assinatura&gt;</li>
+<li><strong>Resource group:</strong> &lt;Seu grupo de recursos&gt;</li>
+<li><strong>Virtual machine name:</strong> AzureSQLServerVM</li>
+<li><strong>Region:</strong> &lt;Escolha sua região local, a mesma região selecionada para o grupo de recursos.&gt;</li>
+<li><strong>Availability Options:</strong> No infrastructure redundancy required</li>
+<li><strong>Image:</strong> Free SQL Server License: SQL Server 2022 Developer on Windows Server 2022 - Gen2</li>
+<li><strong>Run with Azure spot discount:</strong> No (desmarcado)</li>
+<li><strong>Size:</strong> Standard <em>D2s_v5</em> (2 vCPUs, 8 GiB de memória). <em>Talvez seja necessário selecionar o link “See all sizes” para encontrar essa opção.</em></li>
+<li><strong>Administrator account username:</strong> &lt;Escolha um nome para a conta de administrador.&gt;</li>
+<li><strong>Administrator account password:</strong> &lt;Escolha uma senha forte.&gt;</li>
+<li><strong>Select inbound ports:</strong> RDP (3389)</li>
+<li><strong>Would you like to use an existing Windows Server license?:</strong> No (desmarcado)</li>
+</ul>
+<blockquote>
+<p>📝 Anote o nome de usuário e a senha para usá-los mais tarde.</p>
+</blockquote>
+</li>
+<li><p>Acesse a guia <strong>Disks</strong> e revise a configuração.</p>
+</li>
+<li><p>Acesse a guia <strong>Networking</strong> e revise a configuração.</p>
+</li>
+<li><p>Acesse a guia <strong>Management</strong> e revise a configuração.</p>
+<p>Confirme que <strong>Enable auto_shutdown</strong> está desmarcado.</p>
+</li>
+<li><p>Acesse a guia <strong>Advanced</strong> e revise a configuração.</p>
+</li>
+<li><p>Acesse a guia <strong>SQL Server settings</strong> e revise a configuração.</p>
+<blockquote>
+<p>📝 Observe que você também pode configurar o armazenamento da VM SQL Server nesta tela. Por padrão, os templates de SQL Server em Azure VM criam um disco Premium com cache de leitura para os dados, um disco Premium sem cache para o transaction log e usam o SSD local (D:\ no Windows) para o tempdb.</p>
+</blockquote>
+</li>
+<li><p>Selecione <strong>Review + create</strong>. Em seguida, selecione <strong>Create</strong>.</p>
+</li>
+<li><p>No painel de implantação, aguarde até que o deployment seja concluído. A VM levará aproximadamente 5 a 10 minutos para ser implantada. Quando a implantação terminar, selecione <strong>Go to resource</strong>.</p>
+<blockquote>
+<p>📝 Sua implantação pode levar vários minutos para ser concluída.</p>
+</blockquote>
+</li>
+<li><p>Na página <strong>Overview</strong> da máquina virtual, explore as opções de menu do recurso para revisar o que está disponível.</p>
+</li>
+</ol>
+<hr/>
+<h2>Conectar ao SQL Server em uma Máquina Virtual do Azure</h2>
+<ol>
+<li><p>Na página <strong>Overview</strong> da máquina virtual, selecione o menu <strong>Connect</strong> e, em seguida, selecione <strong>Connect</strong>.</p>
+</li>
+<li><p>No painel Connect, selecione <strong>Download RDP File</strong>.</p>
+<blockquote>
+<p>📝 Se aparecer o erro <strong>Port prerequisite not met</strong>, selecione o link para adicionar uma regra de entrada no network security group usando a porta indicada no campo <em>Port number</em>.</p>
+</blockquote>
+</li>
+<li><p>Abra o arquivo RDP que acabou de ser baixado. Quando aparecer uma caixa de diálogo perguntando se deseja conectar, selecione <strong>Connect</strong>.</p>
+</li>
+<li><p>Informe o nome de usuário e a senha escolhidos durante o provisionamento da máquina virtual. Em seguida, selecione <strong>OK</strong>.</p>
+</li>
+<li><p>Quando a caixa de diálogo <strong>Remote Desktop Connection</strong> perguntar se deseja conectar, selecione <strong>Yes</strong>.</p>
+</li>
+<li><p>Selecione a barra de pesquisa ao lado do botão Iniciar do Windows e digite SSMS. Na lista, selecione <strong>Microsoft SQL Server Management Studio</strong>.</p>
+</li>
+<li><p>Quando o SSMS abrir, observe que a caixa de diálogo <strong>Connect to Server</strong> estará previamente preenchida com o nome da instância padrão. Marque <strong>Trust server certificate</strong> e selecione <strong>Connect</strong>.</p>
+</li>
+<li><p>Feche o SSMS selecionando o <strong>X</strong> no canto superior direito.</p>
+</li>
+<li><p>Agora você pode desconectar da máquina virtual e encerrar a sessão RDP.</p>
+</li>
+</ol>
+<p>O Azure portal oferece ferramentas poderosas para administrar um SQL Server hospedado em uma máquina virtual. Essas ferramentas incluem controle sobre patching automatizado, backups automatizados e uma forma simplificada de configurar alta disponibilidade.</p>
+<hr/>
+<h2>Limpar os recursos</h2>
+<p>Se você não for usar a máquina virtual para nenhuma outra finalidade, poderá remover os recursos criados neste laboratório.</p>
+<h3>Excluir o grupo de recursos</h3>
+<p>Se você criou um novo grupo de recursos para este laboratório, pode excluí-lo para remover todos os recursos criados nele.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos que você criou para este laboratório. Ele conterá a máquina virtual e outros recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione <strong>Delete resource group</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resource group</strong>, digite o nome do grupo de recursos para confirmar e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Aguarde a exclusão do grupo de recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir somente os recursos do laboratório</h3>
+<p>Se você não criou um novo grupo de recursos para este lab e deseja manter o grupo e os recursos que já existiam, ainda poderá excluir somente os recursos criados neste laboratório.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos usado neste laboratório. Ele conterá a máquina virtual e os demais recursos criados no lab.</p>
+</li>
+<li><p>Selecione todos os recursos cujo nome começa com o nome da máquina virtual que você informou anteriormente no laboratório.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resources</strong>, digite <strong>delete</strong> e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> novamente para confirmar a exclusão dos recursos.</p>
+</li>
+<li><p>Aguarde a exclusão dos recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+
+</div>

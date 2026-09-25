@@ -1,0 +1,84 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 30 minutos</strong></p>
+<p>Neste exercício, você executará uma conversão de schema de ponta a ponta do Oracle para o Azure Database for PostgreSQL flexible server: criará um projeto de migração, executará o pipeline de conversão, interpretará o relatório de conversão, resolverá uma tarefa de revisão <strong>Mandatory</strong> usando o modo agente do GitHub Copilot e localizará o <code>deploy.sql</code> gerado.</p>
+<p>Você executará este exercício no seu próprio ambiente, em vez de usar um sandbox pré-configurado, porque a ferramenta lê os metadados do schema diretamente de um data dictionary Oracle ativo e valida os objetos convertidos em um Azure Database for PostgreSQL flexible server real.</p>
+<blockquote class="lab-callout note"><div class="lab-callout-label">Observação</div>
+<p>Este exercício é executado em um ambiente ativo. Antes de começar, confirme que você possui:</p>
+<ul>
+<li>A extensão <strong>PostgreSQL</strong> para Visual Studio Code instalada e com login realizado.</li>
+<li>Um banco de dados Oracle de origem acessível, com um usuário de migração que possua <code>SELECT_CATALOG_ROLE</code> e acesso de leitura a <code>SYS.ARGUMENT$</code>.</li>
+<li>Um Azure Database for PostgreSQL flexible server para ser usado como scratch database, com as extensões necessárias ao seu schema incluídas na allowlist e instaladas.</li>
+<li>Um deployment no Microsoft Foundry de um chat model atualmente suportado, com capacidade suficiente de tokens por minuto (TPM) para o seu schema.</li>
+<li>A role <strong>Cognitive Services OpenAI User</strong> no recurso do Foundry para a identidade usada no login, para que a autenticação do Microsoft Entra ID seja bem-sucedida.</li>
+</ul>
+<p>Se algum desses componentes estiver ausente, configure-o antes de começar.</p>
+</blockquote>
+<h2>Provisionar o ambiente do laboratório</h2>
+<p>Esta seção <strong>não é obrigatória</strong>, mas é recomendada se você precisar de uma maneira rápida de provisionar o ambiente do laboratório.</p>
+<p>Se você ainda não tiver a origem Oracle, o PostgreSQL flexible server e o deployment do Microsoft Foundry, um template comunitário <strong>Deploy to Azure</strong> poderá provisionar todo o ambiente para você. Se você estiver usando seu próprio ambiente, pule esta seção — apenas confirme que ele atende aos pré-requisitos acima.</p>
+<p><a href="https://github.com/MicrosoftLearning/mslearn-postgresql/tree/main/Allfiles/Deploy" rel="noopener noreferrer" style="display:inline-block; padding:10px 16px; background-color:#0063B1; color:#FFFFFF; text-decoration:none; border-radius:4px; font-weight:600;" target="_blank">Provisionar o ambiente aqui</a></p>
+<h2>Criar o projeto de migração</h2>
+<p>O Migration Wizard coleta tudo de que a conversão precisa em quatro etapas: um nome de projeto, a origem Oracle, o scratch database e o modelo do Microsoft Foundry.</p>
+<ol>
+<li>Na extensão PostgreSQL, abra a exibição <strong>Migrations (preview)</strong> e selecione <strong>Create Migration Project</strong>.</li>
+<li>Em <strong>Project Setup</strong>, informe um nome para o projeto e selecione <strong>Next</strong>.</li>
+<li>Em <strong>Connect to Oracle</strong>, informe o host, a porta e o service name do Oracle, juntamente com as credenciais do usuário de migração. Selecione <strong>Load Schemas</strong>, escolha o schema que deseja converter e selecione <strong>Next</strong>.</li>
+<li>Na etapa do scratch database, selecione sua conexão do Azure Database for PostgreSQL e o banco de dados de destino, selecione <strong>Verify Extensions</strong> e depois <strong>Next</strong>.</li>
+<li>Na etapa do Microsoft Foundry, informe seu endpoint e o nome do deployment do chat model e selecione <strong>Microsoft Entra ID</strong> para autenticação.</li>
+<li>Selecione <strong>Test Connection</strong>. Depois que a verificação for bem-sucedida, selecione <strong>Create Migration Project</strong>.</li>
+</ol>
+<blockquote class="lab-callout note"><div class="lab-callout-label">Observação</div>
+<p>Se <strong>Verify Extensions</strong> informar que há extensões ausentes, inclua-as na allowlist por meio do parâmetro de servidor <code>azure.extensions</code> no flexible server e tente novamente.</p>
+</blockquote>
+<p>A ferramenta seleciona automaticamente o modo de cliente thin ou thick com base na configuração de rede do Oracle. Assim, a conexão é estabelecida sem etapas adicionais, a menos que a criptografia de rede nativa exija o Oracle Instant Client.</p>
+<h2>Executar a conversão do schema</h2>
+<p>O assistente abre o painel principal de conversão com um card <strong>Schema Migration</strong> que acompanha a execução.</p>
+<ol>
+<li>No card <strong>Schema Migration</strong>, selecione <strong>Migrate</strong> para iniciar a conversão.</li>
+<li>Observe o pipeline avançar pelas etapas: <em>Extracting</em> lê o data dictionary Oracle, e <em>Converting</em> transforma o DDL em lotes com o modelo do Microsoft Foundry e o valida em scratch schemas.</li>
+<li>Aguarde a mensagem <strong>Migration Complete</strong>. A ferramenta cria e remove automaticamente scratch schemas cujo nome utiliza o prefixo <code>_mig_scratch_</code> durante a validação.</li>
+<li>Selecione <strong>View Migration Report</strong> para abrir os relatórios gerados.</li>
+</ol>
+<p>A execução pode levar de alguns minutos a mais de uma hora, dependendo do tamanho do schema, da complexidade do PL/SQL e da capacidade de TPM do Microsoft Foundry. A ferramenta processa os objetos em lotes cientes das dependências, portanto os tipos são convertidos antes das tabelas que os utilizam, e as funções são convertidas antes dos triggers que as chamam.</p>
+<h2>Interpretar o relatório de conversão</h2>
+<p>Abra primeiro <code>reports/customer_summary.md</code>. Ele apresenta a decisão geral de prontidão antes que você examine cada objeto individualmente.</p>
+<p>O resumo informa o status geral da conversão, a porcentagem de sucesso e a quantidade de objetos sinalizados para revisão por criticidade: <strong>Mandatory</strong>, <strong>Recommended</strong> e <strong>Optional</strong>. Anote sua porcentagem de sucesso e a quantidade de tarefas <strong>Mandatory</strong>. A seção <strong>Next actions</strong> orienta a resolver as tarefas Mandatory antes do deployment.</p>
+<blockquote class="lab-callout note"><div class="lab-callout-label">Observação</div>
+<p>A porcentagem de sucesso representa a cobertura da conversão automatizada, e não a prontidão para deployment. Os objetos convertidos automaticamente ainda precisam ser validados por você, e as tarefas de revisão representam o trabalho restante antes de o schema estar pronto para produção.</p>
+</blockquote>
+<p>Para obter uma análise por objeto com trechos de DDL, abra <code>reports/technical_conversion_report.md</code>. Trate <code>reports/review_tasks.md</code> apenas como referência offline e resolva as tarefas pelo painel <strong>Schema Review</strong>.</p>
+<h2>Fazer a triagem das tarefas de revisão</h2>
+<p>Abra o painel <strong>Schema Review</strong> para trabalhar com os objetos sinalizados. Comece na exibição <strong>Grouped</strong> para ver as tarefas organizadas por categoria de comportamento, como <strong>Numeric Semantics</strong> e <strong>Empty String / NULL</strong>; depois mude para a exibição <strong>Tasks</strong> para filtrá-las e resolvê-las uma a uma.</p>
+<ol>
+<li>Na exibição <strong>Tasks</strong>, defina o filtro <strong>Status</strong> como <strong>Pending</strong> e o filtro <strong>Priority</strong> como <strong>Mandatory</strong>.</li>
+<li>Selecione uma tarefa Mandatory para abrir os detalhes, incluindo o DDL de origem, o DDL PostgreSQL gerado e as evidências da tarefa.</li>
+</ol>
+<p>Uma tarefa é <strong>Mandatory</strong> quando o objeto não está pronto para produção até que você trate o problema. Um exemplo comum é uma função Oracle que retorna <code>NUMBER</code> sem qualificação, o que pode ser mapeado de forma ambígua para <code>numeric</code>, <code>integer</code> ou <code>bigint</code> no PostgreSQL. Quando o valor participa de um cálculo, um mapeamento para inteiro truncaria resultados fracionários; por isso, você deve escolher o tipo correto antes do deployment.</p>
+<h2>Resolver uma tarefa Mandatory com o modo agente do GitHub Copilot</h2>
+<p>Resolva a tarefa com assistência guiada e, em seguida, valide o resultado por conta própria.</p>
+<ol>
+<li>Com a tarefa aberta, selecione <strong>Run Task</strong> para abrir o modo agente do GitHub Copilot com o DDL de origem, o DDL PostgreSQL gerado e as evidências da tarefa carregados como contexto.</li>
+<li>Revise a correção proposta. O Copilot sugere uma alteração baseada nas evidências, como mapear um <code>NUMBER</code> ambíguo para <code>numeric</code> com precisão e escala explícitas.</li>
+<li>Aplique a correção ao arquivo <code>.sql</code> gerado em <code>postgres_ddl/&lt;schema&gt;/&lt;object_type&gt;/</code>.</li>
+<li>Conecte-se ao scratch database e execute o arquivo <code>.sql</code> atualizado para confirmar que ele compila.</li>
+<li>Selecione <strong>Resolve</strong> para marcar a tarefa como concluída e avance para a próxima tarefa Mandatory.</li>
+</ol>
+<blockquote class="lab-callout important"><div class="lab-callout-label">Importante</div>
+<p>A mesma IA que converte um objeto de schema também pode ajudar a revisá-lo, e sistemas de IA podem ocasionalmente confirmar os próprios erros. Valide de forma independente cada resolução assistida por IA antes do deployment. Execute o objeto convertido com dados de teste representativos e confirme que o resultado corresponde à origem Oracle.</p>
+</blockquote>
+<p>Resolver uma tarefa atualiza o arquivo <code>.sql</code> em <code>postgres_ddl/</code>, mas a alteração não é aplicada automaticamente ao scratch database. Execute você mesmo o arquivo atualizado para validar a correção antes de marcar a tarefa como resolvida.</p>
+<h2>Localizar a saída de deployment</h2>
+<p>Cada execução grava sua saída em uma pasta de sessão em <code>artifacts/oracle/_migration/convert/sessions/&lt;session-id&gt;/</code>. Dois locais são especialmente importantes para o deployment:</p>
+<ul>
+<li><code>postgres_ddl/&lt;schema&gt;/&lt;object_type&gt;/</code> contém um arquivo <code>.sql</code> para cada objeto convertido, agrupado por tipo. Esses são os arquivos que você edita e revalida ao resolver as tarefas.</li>
+<li><code>deploy.sql</code> é o script consolidado que cria o schema de destino e aplica todos os objetos na ordem de dependência. Esse é o arquivo que você executa no destino de produção depois da validação independente.</li>
+</ul>
+<blockquote class="lab-callout important"><div class="lab-callout-label">Importante</div>
+<p>Uma correção executada diretamente no scratch database não é propagada para <code>deploy.sql</code>. Depois de tratar a causa raiz de uma tarefa, execute a conversão novamente para que a ferramenta regenere <code>deploy.sql</code> com a saída melhorada. Depois compare o novo relatório com o anterior para confirmar que a alteração produziu o efeito esperado.</p>
+</blockquote>
+<p>Com <code>deploy.sql</code> gerado e as tarefas Mandatory resolvidas, o schema convertido está pronto para a validação independente e para o deployment de produção que acontecem após a conversão.</p>
+<h2>O que você realizou</h2>
+<p>Você executou uma conversão de schema de ponta a ponta — criou o projeto de migração, executou o pipeline, interpretou o customer summary, resolveu uma tarefa de revisão Mandatory com o modo agente do GitHub Copilot e localizou <code>deploy.sql</code>. Você também confirmou os dois hábitos que mantêm confiável uma migração assistida por IA: validar cada resolução de forma independente e executar novamente a conversão, em vez de fazer correções manuais apenas no scratch database.</p>
+
+</div>

@@ -1,0 +1,281 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 30 minutos</strong></p>
+<p>Você foi contratado como Administrador Sênior de Banco de Dados para ajudar a resolver problemas de desempenho que estão ocorrendo quando os usuários consultam o banco <em>AdventureWorks2017</em>. Seu trabalho é identificar problemas de performance nas consultas e corrigi-los usando as técnicas aprendidas neste módulo.</p>
+<p>Você executará consultas com desempenho subótimo, examinará os planos de execução e tentará fazer melhorias no banco de dados.</p>
+<blockquote>
+<p>📝 Estes exercícios pedem que você copie e cole código T-SQL. Antes de executar o código, confirme que ele foi copiado corretamente.</p>
+</blockquote>
+<h2>Configurar o ambiente</h2>
+<p>Se a máquina virtual do laboratório tiver sido fornecida e pré-configurada, os arquivos do laboratório deverão estar disponíveis na pasta <strong>C:\LabFiles</strong>. <em>Reserve um momento para conferir. Se os arquivos já estiverem lá, pule esta seção.</em> Porém, se você estiver usando sua própria máquina ou os arquivos do laboratório estiverem ausentes, será necessário cloná-los do <em>GitHub</em> para continuar.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code.</p>
+</li>
+<li><p>Abra a command palette (Ctrl+Shift+P), digite <strong>Git: Clone</strong> e selecione <strong>Git: Clone</strong>.</p>
+</li>
+<li><p>Cole a URL abaixo no campo <strong>Repository URL</strong> e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-url">https://github.com/MicrosoftLearning/dp-300-database-administrator.git
+</code></pre>
+</li>
+<li><p>Salve o repositório na pasta <strong>C:\LabFiles</strong> da máquina virtual do laboratório ou da sua máquina local, criando a pasta se necessário.</p>
+</li>
+</ol>
+<hr/>
+<h2>Restaurar um banco de dados</h2>
+<p>Se você já tiver o banco <strong>AdventureWorks2017</strong> restaurado, poderá pular esta seção.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do SQL Server Management Studio (SSMS).</p>
+</li>
+<li><p>Quando o SSMS abrir, a caixa de diálogo <strong>Connect to Server</strong> aparecerá por padrão. Escolha a instância Default e selecione <strong>Connect</strong>. Talvez seja necessário marcar <strong>Trust server certificate</strong>.</p>
+<blockquote>
+<p>📝 Se você estiver usando sua própria instância do SQL Server, deverá conectar usando o nome de instância e as credenciais apropriadas.</p>
+</blockquote>
+</li>
+<li><p>Selecione a pasta <strong>Databases</strong> e depois <strong>New Query</strong>.</p>
+</li>
+<li><p>Na nova janela de consulta, copie e cole o T-SQL abaixo. Execute a consulta para restaurar o banco.</p>
+<pre class="lab-code"><code class="language-sql">RESTORE DATABASE AdventureWorks2017
+FROM DISK = 'C:\LabFiles\dp-300-database-administrator\Allfiles\Labs\Shared\AdventureWorks2017.bak'
+WITH RECOVERY,
+      MOVE 'AdventureWorks2017' 
+        TO 'C:\LabFiles\AdventureWorks2017.mdf',
+      MOVE 'AdventureWorks2017_log'
+        TO 'C:\LabFiles\AdventureWorks2017_log.ldf';
+</code></pre>
+<blockquote>
+<p>📝 É necessário existir uma pasta chamada <strong>C:\LabFiles</strong>. Se ela não existir, crie a pasta ou informe outro local para os arquivos do banco e do backup.</p>
+</blockquote>
+</li>
+<li><p>Na guia <strong>Messages</strong>, você deverá ver uma mensagem informando que o banco foi restaurado com sucesso.</p>
+</li>
+</ol>
+<h2>Gerar o plano de execução real</h2>
+<p>Existem várias formas de gerar um plano de execução no SQL Server Management Studio.</p>
+<ol>
+<li><p>Selecione <strong>New Query</strong>. Copie e cole o T-SQL abaixo na janela de consulta. Selecione <strong>Execute</strong> para executar a consulta.</p>
+<p><strong>Observação:</strong> use <strong>SHOWPLAN_ALL</strong> para ver uma versão textual do plano de execução de uma consulta no painel de resultados, em vez da representação gráfica em uma guia separada.</p>
+<pre class="lab-code"><code class="language-sql">USE AdventureWorks2017;
+
+GO
+
+SET SHOWPLAN_ALL ON;
+
+GO
+
+SELECT BusinessEntityID
+FROM HumanResources.Employee
+WHERE NationalIDNumber = '14417807';
+
+GO
+
+SET SHOWPLAN_ALL OFF;
+
+GO
+</code></pre>
+<p>No painel de resultados, você verá uma versão textual do plano de execução em vez dos resultados reais da instrução <strong>SELECT</strong>.</p>
+</li>
+<li><p>Reserve um momento para examinar o texto da segunda linha da coluna <strong>StmtText</strong>:</p>
+<pre class="lab-code"><code class="language-console">|--Index Seek(OBJECT:([AdventureWorks2017].[HumanResources].[Employee].[AK_Employee_NationalIDNumber]), SEEK:([AdventureWorks2017].[HumanResources].[Employee].[NationalIDNumber]=CONVERT_IMPLICIT(nvarchar(4000),[@1],0)) ORDERED FORWARD)
+</code></pre>
+<p>O texto acima explica que o plano usa um <strong>Index Seek</strong> na chave <strong>AK_Employee_NationalIDNumber</strong>. Também mostra que o plano precisou executar uma etapa <strong>CONVERT_IMPLICIT</strong>.</p>
+<p>O otimizador de consultas conseguiu localizar um índice adequado para buscar os registros necessários.</p>
+</li>
+</ol>
+<h2>Resolver um plano de consulta subótimo</h2>
+<ol>
+<li><p>Copie e cole o código abaixo em uma nova janela de consulta.</p>
+<p>Selecione o ícone <strong>Include Actual Execution Plan</strong> à direita do botão Execute ou pressione <kbd>CTRL</kbd>+<kbd>M</kbd>. Execute a consulta selecionando <strong>Execute</strong> ou pressionando <kbd>F5</kbd>. Anote o plano de execução e os logical reads na guia Messages.</p>
+<pre class="lab-code"><code class="language-sql">SET STATISTICS IO, TIME ON;
+
+SELECT [SalesOrderID] ,[CarrierTrackingNumber] ,[OrderQty] ,[ProductID], [UnitPrice] ,[ModifiedDate]
+FROM [AdventureWorks2017].[Sales].[SalesOrderDetail]
+WHERE [ModifiedDate] &gt; '2012/01/01' AND [ProductID] = 772;
+</code></pre>
+<p>Ao revisar o plano de execução, observe que existe um <strong>Key Lookup</strong>. Passe o mouse sobre o ícone e veja que as propriedades indicam que ele é executado para cada linha recuperada pela consulta. O plano está executando uma operação <strong>Key Lookup</strong>.</p>
+<p>Anote as colunas da seção <strong>Output List</strong>. Como você melhoraria essa consulta?</p>
+<p>Para identificar qual índice precisa ser alterado para remover o Key Lookup, examine o index seek acima dele. Passe o mouse sobre o operador index seek para ver suas propriedades.</p>
+</li>
+<li><p><strong>Key Lookups</strong> podem ser removidos adicionando um índice de cobertura que inclua todos os campos retornados ou pesquisados pela consulta. Neste exemplo, o índice usa apenas a coluna <strong>ProductID</strong>. A definição atual é mostrada abaixo. Observe que <strong>ProductID</strong> é a única coluna-chave, forçando um <strong>Key Lookup</strong> para recuperar as outras colunas necessárias.</p>
+<pre class="lab-code"><code class="language-sql">CREATE NONCLUSTERED INDEX [IX_SalesOrderDetail_ProductID] ON [Sales].[SalesOrderDetail]
+([ProductID] ASC)
+</code></pre>
+<p>Se adicionarmos os campos da <strong>Output List</strong> como included columns, o <strong>Key Lookup</strong> será removido. Como o índice já existe, é necessário removê-lo e recriá-lo ou usar <strong>DROP_EXISTING=ON</strong> para adicionar as colunas. Observe que <strong>ProductID</strong> já faz parte do índice e não precisa ser adicionada como included column. Também podemos melhorar o índice adicionando <strong>ModifiedDate</strong>. Abra uma janela <strong>New Query</strong> e execute o script abaixo para recriar o índice.</p>
+<pre class="lab-code"><code class="language-sql">CREATE NONCLUSTERED INDEX [IX_SalesOrderDetail_ProductID]
+ON [Sales].[SalesOrderDetail] ([ProductID],[ModifiedDate])
+INCLUDE ([CarrierTrackingNumber],[OrderQty],[UnitPrice])
+WITH (DROP_EXISTING = on);
+GO
+</code></pre>
+</li>
+<li><p>Execute novamente a consulta da etapa 1. Anote as mudanças nos logical reads e no plano de execução. Agora o plano precisa usar apenas o índice nonclustered que você criou.</p>
+</li>
+</ol>
+<blockquote>
+<p>📝 Ao revisar o plano de execução, observe que o <strong>Key Lookup</strong> desapareceu e agora somente o índice nonclustered é usado.</p>
+</blockquote>
+<h2>Usar Query Store para detectar e tratar regressão</h2>
+<p>Em seguida, você executará um workload para gerar estatísticas de consultas no Query Store, examinará o relatório <strong>Top Resource Consuming Queries</strong> para identificar baixo desempenho e verá como forçar um plano de execução melhor.</p>
+<ol>
+<li><p>Selecione <strong>New Query</strong>. Copie e cole o T-SQL abaixo na janela de consulta e selecione <strong>Execute</strong>.</p>
+<p>Esse script habilita o Query Store no banco AdventureWorks2017 e define o Compatibility Level como 100.</p>
+<pre class="lab-code"><code class="language-sql">USE [master];
+
+GO
+
+ALTER DATABASE [AdventureWorks2017] SET QUERY_STORE = ON;
+
+GO
+
+ALTER DATABASE [AdventureWorks2017] SET QUERY_STORE (OPERATION_MODE = READ_WRITE);
+
+GO
+
+ALTER DATABASE [AdventureWorks2017] SET COMPATIBILITY_LEVEL = 100;
+
+GO
+</code></pre>
+<p>Alterar o nível de compatibilidade é como mover o banco de dados de volta no tempo. Isso restringe os recursos que o SQL Server pode usar àqueles disponíveis no SQL Server 2008.</p>
+</li>
+<li><p>No SQL Server Management Studio, selecione <strong>File</strong> &gt; <strong>Open</strong> &gt; <strong>File</strong>.</p>
+</li>
+<li><p>Navegue até o arquivo <strong>C:\LabFiles\dp-300-database-administrator\Allfiles\Labs\10\CreateRandomWorkloadGenerator.sql</strong>.</p>
+</li>
+<li><p>Depois que o arquivo for aberto no SQL Server Management Studio, selecione <strong>Execute</strong>.</p>
+</li>
+<li><p>Em um novo editor de consulta, abra o arquivo <strong>C:\LabFiles\dp-300-database-administrator\Allfiles\Labs\10\ExecuteRandomWorkload.sql</strong> e selecione <strong>Execute</strong>.</p>
+</li>
+<li><p>Quando a execução terminar, execute o script uma segunda vez para criar carga adicional no servidor. Mantenha essa guia de consulta aberta.</p>
+</li>
+<li><p>Copie e cole o código abaixo em uma nova janela e execute-o selecionando <strong>Execute</strong>.</p>
+<p>Esse script altera o compatibility mode do banco para SQL Server 2022 (<strong>160</strong>). Todos os recursos e melhorias disponibilizados desde o SQL Server 2008 passarão a estar disponíveis para o banco.</p>
+<pre class="lab-code"><code class="language-sql">USE [master];
+
+GO
+
+ALTER DATABASE [AdventureWorks2017] SET COMPATIBILITY_LEVEL = 160;
+
+GO
+</code></pre>
+</li>
+<li><p>Volte à guia de consulta aberta a partir do arquivo <strong>ExecuteRandomWorkload.sql</strong> e execute-a novamente.</p>
+</li>
+</ol>
+<h2>Examinar o relatório Top Resource Consuming Queries</h2>
+<ol>
+<li><p>Para visualizar o nó Query Store, atualize o banco AdventureWorks2017 no SQL Server Management Studio. Clique com o botão direito no nome do banco e selecione <strong>Refresh</strong>. Em seguida, o nó Query Store aparecerá abaixo do banco.</p>
+</li>
+<li><p>Expanda o nó <strong>Query Store</strong> para visualizar todos os relatórios disponíveis. Selecione <strong>Top Resource Consuming Queries</strong>.</p>
+</li>
+<li><p>Quando o relatório abrir, selecione o menu suspenso e depois <strong>Configure</strong> no canto superior direito do relatório.</p>
+</li>
+<li><p>Na tela de configuração, altere o filtro de número mínimo de query plans para 2. Depois selecione <strong>OK</strong>.</p>
+</li>
+<li><p>Escolha a consulta com maior duração selecionando a barra mais à esquerda no gráfico de barras localizado no canto superior esquerdo do relatório.</p>
+<p>Isso exibirá a consulta e o resumo de planos da consulta de maior duração no Query Store. Observe o gráfico <em>Plan summary</em> no canto superior direito e o <em>query plan</em> na parte inferior do relatório.</p>
+</li>
+</ol>
+<h2>Forçar um plano de execução melhor</h2>
+<ol>
+<li><p>Navegue até a área de resumo de planos do relatório. Observe que existem dois planos de execução com durações bastante diferentes.</p>
+</li>
+<li><p>Selecione o Plan ID com menor duração — indicado por uma posição mais baixa no eixo Y do gráfico — na janela superior direita. Selecione o plan ID ao lado do gráfico Plan Summary.</p>
+</li>
+<li><p>Selecione <strong>Force Plan</strong> abaixo do gráfico de resumo. Uma janela de confirmação será exibida; selecione <strong>Yes</strong>.</p>
+<p>Depois que o plano for forçado, você verá que <strong>Force Plan</strong> ficará desabilitado e o plano na janela de resumo apresentará uma marca de seleção indicando que está forçado.</p>
+<p>Em alguns momentos, o otimizador de consultas pode escolher um plano de execução ruim. Quando isso acontece, é possível forçar o SQL Server a usar o plano que você sabe que apresenta melhor desempenho.</p>
+</li>
+</ol>
+<h2>Usar query hints para influenciar o desempenho</h2>
+<p>Em seguida, você executará um workload, alterará a consulta para usar um parâmetro, aplicará um query hint e executará a consulta novamente.</p>
+<p>Antes de continuar, feche todas as janelas de consulta abertas selecionando o menu <strong>Window</strong> e depois <strong>Close All Documents</strong>. Na janela pop-up, selecione <strong>No</strong>.</p>
+<ol>
+<li><p>Selecione <strong>New Query</strong> e depois o ícone <strong>Include Actual Execution Plan</strong> antes de executar a consulta, ou use <kbd>CTRL</kbd>+<kbd>M</kbd>.</p>
+</li>
+<li><p>Execute a consulta abaixo. Observe que o plano de execução mostra um operador index seek.</p>
+<pre class="lab-code"><code class="language-sql">USE AdventureWorks2017;
+
+GO
+
+SELECT SalesOrderId, OrderDate
+FROM Sales.SalesOrderHeader
+WHERE SalesPersonID=288;
+</code></pre>
+</li>
+<li><p>Em uma nova janela de consulta, execute a consulta abaixo. Compare os dois planos de execução.</p>
+<pre class="lab-code"><code class="language-sql">USE AdventureWorks2017;
+GO
+
+SELECT SalesOrderId, OrderDate
+FROM Sales.SalesOrderHeader
+WHERE SalesPersonID=277;
+</code></pre>
+<p>Desta vez, a única alteração é que o valor de SalesPersonID foi definido como 277. Observe a operação Clustered Index Scan no plano de execução.</p>
+</li>
+</ol>
+<p>Como podemos ver, com base nas estatísticas do índice, o otimizador escolheu um plano diferente por causa dos diferentes valores usados na cláusula <strong>WHERE</strong>.</p>
+<p>Por que temos planos diferentes se apenas alteramos o valor de <em>SalesPersonID</em>?</p>
+<p>Essa consulta usa uma constante na cláusula <strong>WHERE</strong>. O otimizador considera cada uma dessas consultas única e gera um plano de execução diferente para cada uma.</p>
+<h2>Alterar a consulta para usar uma variável e um Query Hint</h2>
+<ol>
+<li><p>Altere a consulta para usar um valor de variável para SalesPersonID.</p>
+</li>
+<li><p>Use a instrução T-SQL <strong>DECLARE</strong> para declarar <strong>@SalesPersonID</strong>, permitindo passar um valor em vez de deixá-lo fixo na cláusula <strong>WHERE</strong>. Confirme que o tipo de dados da variável corresponde ao tipo da coluna da tabela de destino para evitar conversão implícita. Execute a consulta com o plano de execução real habilitado.</p>
+<pre class="lab-code"><code class="language-sql">USE AdventureWorks2017;
+
+GO
+
+SET STATISTICS IO, TIME ON;
+
+DECLARE @SalesPersonID INT;
+
+SELECT @SalesPersonID = 288;
+
+SELECT SalesOrderId, OrderDate
+FROM Sales.SalesOrderHeader
+WHERE SalesPersonID= @SalesPersonID;
+</code></pre>
+<p>Ao examinar o plano, observe que ele usa um index scan para obter os resultados. O otimizador não conseguiu fazer otimizações melhores porque não conhece o valor da variável local até o tempo de execução.</p>
+</li>
+<li><p>Você pode ajudar o otimizador a fazer uma escolha melhor fornecendo um query hint. Execute novamente a consulta anterior com <strong>OPTION (RECOMPILE)</strong>:</p>
+<pre class="lab-code"><code class="language-sql">USE AdventureWorks2017
+
+GO
+
+SET STATISTICS IO, TIME ON;
+
+DECLARE @SalesPersonID INT;
+
+SELECT @SalesPersonID = 288;
+
+SELECT SalesOrderId, OrderDate
+FROM Sales.SalesOrderHeader
+WHERE SalesPersonID= @SalesPersonID
+OPTION (RECOMPILE);
+</code></pre>
+<p>Observe que o otimizador conseguiu escolher um plano de execução mais eficiente. A opção <strong>RECOMPILE</strong> faz com que o compilador da consulta substitua a variável pelo seu valor.</p>
+<p>Comparando as estatísticas, na guia Messages você verá que a diferença nos logical reads é de <strong>68%</strong> a mais (689 contra 409) para a consulta sem o query hint.</p>
+</li>
+</ol>
+<hr/>
+<h2>Limpeza</h2>
+<p>Se você não for usar o banco de dados nem os arquivos do laboratório para nenhuma outra finalidade, poderá remover os objetos criados neste lab.</p>
+<h3>Excluir a pasta C:\LabFiles</h3>
+<ol>
+<li>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra o <strong>File Explorer</strong>.</li>
+<li>Navegue até <strong>C:\</strong>.</li>
+<li>Exclua a pasta <strong>C:\LabFiles</strong>.</li>
+</ol>
+<h3>Excluir o banco AdventureWorks2017</h3>
+<ol>
+<li>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do SQL Server Management Studio (SSMS).</li>
+<li>Quando o SSMS abrir, a caixa de diálogo <strong>Connect to Server</strong> aparecerá por padrão. Escolha a instância Default e selecione <strong>Connect</strong>. Talvez seja necessário marcar <strong>Trust server certificate</strong>.</li>
+<li>No <strong>Object Explorer</strong>, expanda a pasta <strong>Databases</strong>.</li>
+<li>Clique com o botão direito no banco <strong>AdventureWorks2017</strong> e selecione <strong>Delete</strong>.</li>
+<li>Na caixa de diálogo <strong>Delete Object</strong>, marque <strong>Close existing connections</strong>.</li>
+<li>Selecione <strong>OK</strong>.</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+<p>Neste exercício, você aprendeu a identificar problemas de consulta e corrigi-los para melhorar o plano de execução.</p>
+
+</div>

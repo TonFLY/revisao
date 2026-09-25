@@ -1,0 +1,215 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 40 minutos</strong></p>
+<p>Os alunos configurarão os recursos básicos necessários para implantar um Azure SQL Database com um Virtual Network Endpoint. A conectividade com o SQL Database será validada usando o SQL Server Management Studio a partir da VM do laboratório, se disponível, ou a partir da sua máquina local configurada.</p>
+<p>Como administrador de banco de dados da AdventureWorks, você configurará um novo SQL Database, incluindo um Virtual Network Endpoint para aumentar e simplificar a segurança da implantação. O SQL Server Management Studio será usado para avaliar o uso de um SQL Notebook para consulta de dados e retenção dos resultados.</p>
+<h2>Navegar pelo Azure portal</h2>
+<ol>
+<li><p>Na máquina virtual do laboratório, se ela tiver sido fornecida, ou na sua máquina local, abra uma janela do navegador.</p>
+</li>
+<li><p>Acesse o Azure portal em <a href="https://portal.azure.com/" rel="noopener noreferrer" target="_blank">https://portal.azure.com</a>. Entre no Azure portal usando sua conta do Azure ou as credenciais fornecidas, se houver.</p>
+</li>
+<li><p>No Azure portal, pesquise <em>resource groups</em> na caixa de pesquisa na parte superior e selecione <strong>Resource groups</strong> na lista de opções.</p>
+</li>
+<li><p>Na página <strong>Resource group</strong>, se ele tiver sido fornecido, selecione o grupo de recursos cujo nome começa com <em>contoso-rg</em>. Se esse grupo de recursos não existir, crie um novo grupo de recursos com nome começando por <em>contoso-rg</em> na sua região local ou use um grupo de recursos existente e anote a região em que ele está.</p>
+</li>
+</ol>
+<h2>Criar uma Virtual Network</h2>
+<ol>
+<li><p>Na página inicial do Azure portal, selecione o menu do lado esquerdo.</p>
+</li>
+<li><p>No painel de navegação esquerdo, selecione <strong>Virtual Networks</strong>.</p>
+</li>
+<li><p>Selecione <strong>+ Create</strong> para abrir a página <strong>Create Virtual Network</strong>. Na guia <strong>Basics</strong>, preencha as seguintes informações:</p>
+<ul>
+<li><strong>Subscription:</strong> &lt;Sua assinatura&gt;</li>
+<li><strong>Resource group:</strong> um nome começando com <em>DP300</em> ou o grupo de recursos selecionado anteriormente</li>
+<li><strong>Name:</strong> lab02-vnet</li>
+<li><strong>Region:</strong> selecione a mesma região em que seu grupo de recursos foi criado</li>
+</ul>
+</li>
+<li><p>Selecione <strong>Review + Create</strong>, revise as configurações da nova rede virtual e selecione <strong>Create</strong>.</p>
+</li>
+</ol>
+<h2>Provisionar um Azure SQL Database no Azure portal</h2>
+<ol>
+<li><p>No Azure portal, pesquise <em>SQL databases</em> na caixa de pesquisa na parte superior e selecione <strong>Azure SQL databases</strong> na lista de serviços.</p>
+</li>
+<li><p>Na página <strong>Azure SQL databases</strong>, selecione <strong>+ Create</strong>.</p>
+</li>
+<li><p>Na página <strong>Create SQL Database</strong>, na guia <strong>Basics</strong>, selecione as opções abaixo e depois selecione <strong>Next: Networking</strong>.</p>
+<ul>
+<li><strong>Subscription:</strong> &lt;Sua assinatura&gt;</li>
+<li><strong>Resource group:</strong> um nome começando com <em>DP300</em> ou o grupo de recursos selecionado anteriormente</li>
+<li><strong>Database Name:</strong> AdventureWorksLT</li>
+<li><strong>Server:</strong> selecione o link <strong>Create new</strong>. A página <strong>Create SQL Database Server</strong> será aberta. Informe os detalhes do servidor da seguinte forma:<ul>
+<li><strong>Server name:</strong> dp300-lab-&lt;suas iniciais em minúsculas&gt; e, se necessário, um número aleatório de 5 dígitos (o nome do servidor deve ser globalmente exclusivo)</li>
+<li><strong>Location:</strong> &lt;sua região local, a mesma região selecionada para o grupo de recursos; caso contrário, a operação poderá falhar&gt;</li>
+<li><strong>Authentication method:</strong> Use SQL authentication</li>
+<li><strong>Server admin login:</strong> dp300admin</li>
+<li><strong>Password:</strong> escolha uma senha complexa e anote-a</li>
+<li><strong>Confirm password:</strong> informe a mesma senha escolhida anteriormente</li>
+</ul>
+</li>
+<li>Selecione <strong>OK</strong> para voltar à página <strong>Create SQL Database</strong>.</li>
+<li><strong>Want to use Elastic Pool?</strong> defina como <strong>No</strong>.</li>
+<li><strong>Workload environment:</strong> Development</li>
+<li>Em <strong>Compute + Storage</strong>, selecione o link <strong>Configure database</strong>. Na página <strong>Configure</strong>, em <strong>Service tier</strong>, selecione <strong>Basic</strong> e depois <strong>Apply</strong>.</li>
+</ul>
+</li>
+<li><p>Em <strong>Backup storage redundancy</strong>, mantenha o valor padrão: <strong>Locally-redundant backup storage</strong>.</p>
+</li>
+<li><p>Em seguida, selecione <strong>Next: Networking</strong>.</p>
+</li>
+<li><p>Na guia <strong>Networking</strong>, em <strong>Network Connectivity</strong>, selecione a opção <strong>Private endpoint</strong>.</p>
+</li>
+<li><p>Em seguida, selecione o link <strong>+ Add private endpoint</strong> em <strong>Private endpoints</strong>.</p>
+</li>
+<li><p>Preencha o painel <strong>Create private endpoint</strong> à direita da seguinte forma:</p>
+<ul>
+<li><strong>Subscription:</strong> &lt;Sua assinatura&gt;</li>
+<li><strong>Resource group:</strong> um nome começando com <em>DP300</em> ou o grupo de recursos selecionado anteriormente</li>
+<li><strong>Location:</strong> &lt;sua região local, a mesma região selecionada para o grupo de recursos; caso contrário, a operação poderá falhar&gt;</li>
+<li><strong>Name:</strong> DP-300-SQL-Endpoint</li>
+<li><strong>Target sub-resource:</strong> SqlServer</li>
+<li><strong>Virtual network:</strong> lab02-vnet</li>
+<li><strong>Subnet:</strong> lab02-vnet/default (10.x.0.0/24)</li>
+<li><strong>Integrate with private DNS zone:</strong> Yes</li>
+<li><strong>Private DNS zone:</strong> mantenha o valor padrão</li>
+<li>Revise as configurações e selecione <strong>OK</strong></li>
+</ul>
+</li>
+<li><p>O novo endpoint aparecerá na lista <strong>Private endpoints</strong>.</p>
+</li>
+<li><p>Selecione <strong>Next: Security</strong> e depois <strong>Next: Additional settings</strong>.</p>
+</li>
+<li><p>Na página <strong>Additional settings</strong>, selecione <strong>Sample</strong> em <strong>Use existing data</strong>. Se aparecer uma mensagem pop-up para o banco de exemplo, selecione <strong>OK</strong>.</p>
+</li>
+<li><p>Selecione <strong>Review + Create</strong>.</p>
+</li>
+<li><p>Revise as configurações antes de selecionar <strong>Create</strong>.</p>
+</li>
+<li><p>Quando o deployment for concluído, selecione <strong>Go to resource</strong>.</p>
+</li>
+</ol>
+<h2>Habilitar acesso a um Azure SQL Database</h2>
+<ol>
+<li><p>Na página <strong>SQL database</strong>, selecione a seção <strong>Overview</strong> e depois selecione o link com o nome do servidor na parte superior.</p>
+</li>
+<li><p>No painel de navegação de SQL servers, selecione <strong>Networking</strong> na seção <strong>Security</strong>.</p>
+</li>
+<li><p>Na guia <strong>Public access</strong>, selecione <strong>Selected networks</strong>.</p>
+</li>
+<li><p>Selecione <strong>+ Add your client IPv4 address</strong>. Isso adicionará uma regra de firewall permitindo que seu endereço IP atual acesse o SQL server.</p>
+</li>
+<li><p>Marque a propriedade <strong>Allow Azure services and resources to access this server</strong>.</p>
+</li>
+<li><p>Selecione <strong>Save</strong>.</p>
+</li>
+</ol>
+<hr/>
+<h2>Conectar a um Azure SQL Database no SQL Server Management Studio</h2>
+<ol>
+<li><p>No Azure portal, selecione o recurso <strong>SQL database</strong> e depois selecione o banco <strong>AdventureWorksLT</strong>.</p>
+</li>
+<li><p>Copie o valor <strong>Server name</strong> na página <strong>Overview</strong>.</p>
+</li>
+<li><p>Inicie o SQL Server Management Studio na máquina virtual do laboratório, se ela tiver sido fornecida, ou na sua máquina local.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Connect to Server</strong>, cole o valor de <strong>Server name</strong> copiado do Azure portal.</p>
+</li>
+<li><p>Na lista <strong>Authentication</strong>, selecione <strong>SQL Server Authentication</strong>.</p>
+</li>
+<li><p>No campo <strong>Login</strong>, informe <strong>dp300admin</strong>.</p>
+</li>
+<li><p>No campo <strong>Password</strong>, informe a senha escolhida durante a criação do SQL server.</p>
+</li>
+<li><p>Selecione <strong>Connect</strong>.</p>
+</li>
+<li><p>O SQL Server Management Studio se conectará ao seu servidor do Azure SQL Database. Expanda o servidor e depois o nó <strong>Databases</strong> para ver o banco <em>AdventureWorksLT</em>.</p>
+</li>
+</ol>
+<h2>Consultar um Azure SQL Database com o SQL Server Management Studio</h2>
+<ol>
+<li><p>No SQL Server Management Studio, clique com o botão direito no banco <em>AdventureWorksLT</em> e selecione <strong>New Query</strong>.</p>
+</li>
+<li><p>Cole a instrução SQL abaixo na janela de consulta:</p>
+<pre class="lab-code"><code class="language-sql">SELECT TOP 10 cust.[CustomerID], 
+    cust.[CompanyName], 
+    SUM(sohead.[SubTotal]) as OverallOrderSubTotal
+FROM [SalesLT].[Customer] cust
+    INNER JOIN [SalesLT].[SalesOrderHeader] sohead
+         ON sohead.[CustomerID] = cust.[CustomerID]
+GROUP BY cust.[CustomerID], cust.[CompanyName]
+ORDER BY [OverallOrderSubTotal] DESC
+</code></pre>
+</li>
+<li><p>Selecione o botão <strong>Execute</strong> na barra de ferramentas para executar a consulta.</p>
+</li>
+<li><p>No painel <strong>Results</strong>, revise os resultados da consulta.</p>
+</li>
+<li><p>Clique com o botão direito no banco <em>AdventureWorksLT</em> e selecione <strong>New Query</strong>.</p>
+</li>
+<li><p>Cole a instrução SQL abaixo na janela de consulta:</p>
+<pre class="lab-code"><code class="language-sql">SELECT TOP 10 cat.[Name] AS ProductCategory, 
+    SUM(detail.[OrderQty]) AS OrderedQuantity
+FROM salesLT.[ProductCategory] cat
+    INNER JOIN [SalesLT].[Product] prod
+        ON prod.[ProductCategoryID] = cat.[ProductCategoryID]
+    INNER JOIN [SalesLT].[SalesOrderDetail] detail
+        ON detail.[ProductID] = prod.[ProductID]
+GROUP BY cat.[name]
+ORDER BY [OrderedQuantity] DESC
+</code></pre>
+</li>
+<li><p>Selecione o botão <strong>Execute</strong> na barra de ferramentas para executar a consulta.</p>
+</li>
+<li><p>No painel <strong>Results</strong>, revise os resultados da consulta.</p>
+</li>
+<li><p>Feche o SQL Server Management Studio. Se for perguntado se deseja salvar alterações, selecione <strong>No</strong>.</p>
+</li>
+</ol>
+<hr/>
+<h2>Limpar os recursos</h2>
+<p>Se você não for usar os recursos para nenhuma outra finalidade, poderá remover os recursos criados neste laboratório.</p>
+<h3>Excluir o grupo de recursos</h3>
+<p>Se você criou um novo grupo de recursos para este laboratório, pode excluí-lo para remover todos os recursos criados nele.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos que você criou para este laboratório. Ele conterá os recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione <strong>Delete resource group</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resource group</strong>, digite o nome do grupo de recursos para confirmar e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Aguarde a exclusão do grupo de recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir somente os recursos do laboratório</h3>
+<p>Se você não criou um novo grupo de recursos para este lab e deseja manter o grupo e os recursos que já existiam, ainda poderá excluir somente os recursos criados neste laboratório.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos usado neste laboratório.</p>
+</li>
+<li><p>Selecione todos os recursos cujo nome começa com o nome do SQL Server informado anteriormente no laboratório. Além disso, selecione a virtual network e a private DNS zone que você criou.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resources</strong>, digite <strong>delete</strong> e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> novamente para confirmar a exclusão dos recursos.</p>
+</li>
+<li><p>Aguarde a exclusão dos recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+<p>Neste exercício, você viu como implantar um Azure SQL Database com um Virtual Network Endpoint. Também conseguiu se conectar ao SQL Database criado usando o SQL Server Management Studio.</p>
+
+</div>

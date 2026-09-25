@@ -1,0 +1,296 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 30 minutos</strong></p>
+<p>Os alunos usarão as informações aprendidas nas aulas para configurar e, em seguida, implementar segurança no Azure portal e no banco AdventureWorks.</p>
+<p>Você foi contratado como Administrador Sênior de Banco de Dados para ajudar a garantir a segurança do ambiente de banco de dados. Estas tarefas terão foco no Azure SQL Database.</p>
+<blockquote>
+<p>📝 Estes exercícios pedem que você copie e cole código T-SQL e usam recursos SQL já existentes. Antes de executar o código, confirme que ele foi copiado corretamente.</p>
+</blockquote>
+<h2>Configurar o ambiente</h2>
+<p>Se a máquina virtual do laboratório tiver sido fornecida e pré-configurada, os arquivos do laboratório deverão estar disponíveis na pasta <strong>C:\LabFiles</strong>. <em>Reserve um momento para conferir. Se os arquivos já estiverem lá, pule esta seção.</em> Porém, se você estiver usando sua própria máquina ou os arquivos do laboratório estiverem ausentes, será necessário cloná-los do <em>GitHub</em> para continuar.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code.</p>
+</li>
+<li><p>Abra a command palette (Ctrl+Shift+P), digite <strong>Git: Clone</strong> e selecione a opção <strong>Git: Clone</strong>.</p>
+</li>
+<li><p>Cole a URL abaixo no campo <strong>Repository URL</strong> e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-url">https://github.com/MicrosoftLearning/dp-300-database-administrator.git
+</code></pre>
+</li>
+<li><p>Salve o repositório na pasta <strong>C:\LabFiles</strong> da máquina virtual do laboratório ou da sua máquina local, se nenhuma VM tiver sido fornecida. Crie a pasta se ela não existir.</p>
+</li>
+</ol>
+<h2>Configurar seu SQL Server no Azure</h2>
+<p>Entre no Azure e verifique se já existe uma instância de Azure SQL Server em execução. <em>Pule esta seção se você já tiver uma instância de SQL Server em execução no Azure.</em></p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code e navegue até o repositório clonado na seção anterior.</p>
+</li>
+<li><p>Clique com o botão direito na pasta <strong>/Allfiles/Labs</strong> e selecione <strong>Open in Integrated Terminal</strong>.</p>
+</li>
+<li><p>Conecte ao Azure usando o Azure CLI. Digite o comando abaixo e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-bash">az login
+</code></pre>
+<blockquote>
+<p>📝 Uma janela do navegador será aberta. Use suas credenciais do Azure para entrar.</p>
+</blockquote>
+</li>
+<li><p>Depois de entrar no Azure, crie um resource group caso ele ainda não exista e crie um SQL server e um database nesse grupo de recursos. Digite o comando abaixo e pressione <strong>Enter</strong>. <em>O script levará alguns minutos para ser concluído.</em></p>
+<pre class="lab-code"><code class="language-bash">cd ./Setup
+./deploy-sql-database.ps1
+</code></pre>
+<blockquote>
+<p>📝 Por padrão, esse script criará um resource group chamado <strong>contoso-rg</strong> ou usará um recurso cujo nome comece com <em>contoso-rg</em>, se já existir. Por padrão, os recursos também serão criados na região <strong>West US 2</strong> (westus2). Por fim, o script gerará uma senha aleatória de 12 caracteres para o <strong>SQL admin password</strong>. Você pode alterar esses valores usando os parâmetros <strong>-rgName</strong>, <strong>-location</strong> e <strong>-sqlAdminPw</strong>. A senha deve atender aos requisitos de complexidade de senha do Azure SQL: pelo menos 12 caracteres, contendo pelo menos 1 letra maiúscula, 1 letra minúscula, 1 número e 1 caractere especial.</p>
+</blockquote>
+<blockquote>
+<p>📝 O script adicionará seu endereço IP público atual às regras de firewall do SQL server.</p>
+</blockquote>
+</li>
+<li><p>Quando o script terminar, ele retornará o nome do resource group, o nome do SQL server, o nome do database e o nome de usuário e a senha do administrador. <em>Anote esses valores, pois eles serão necessários mais tarde no laboratório.</em></p>
+</li>
+</ol>
+<hr/>
+<h2>Habilitar Microsoft Defender for SQL</h2>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra uma sessão do navegador e acesse <a href="https://portal.azure.com/" rel="noopener noreferrer" target="_blank">https://portal.azure.com</a>. Entre no portal usando suas credenciais do Azure.</p>
+</li>
+<li><p>No Azure portal, pesquise <em>SQL servers</em> na caixa de pesquisa na parte superior e selecione <strong>SQL servers</strong> na lista de opções.</p>
+</li>
+<li><p>Selecione o SQL server <strong>dp300-lab-xxxxxxxx</strong>, em que <em>xxxxxxxx</em> é uma sequência numérica aleatória.</p>
+<blockquote>
+<p>📝 Se você estiver usando seu próprio Azure SQL server e ele não tiver sido criado por este laboratório, selecione o nome desse SQL server.</p>
+</blockquote>
+</li>
+<li><p>No painel <em>Overview</em>, selecione <strong>Not configured</strong> ao lado de <em>Microsoft Defender for SQL</em>.</p>
+</li>
+<li><p>Selecione o <strong>X</strong> no canto superior direito para fechar o painel Overview do <em>Microsoft Defender for Cloud</em>.</p>
+</li>
+<li><p>Selecione <strong>Enable</strong> em <em>Microsoft Defender for SQL</em>.</p>
+</li>
+<li><p>Em um ambiente de produção, várias recomendações deverão ser exibidas. Você deverá selecionar <strong>View all recommendations in Defender for Cloud</strong>, revisar todas as recomendações do <em>Microsoft Defender</em> listadas para seu Azure SQL Server e implementá-las conforme apropriado.</p>
+</li>
+</ol>
+<h2>Vulnerability Assessment</h2>
+<ol>
+<li><p>No painel principal do Azure SQL server, navegue até a seção <strong>Settings</strong>, selecione <strong>SQL databases</strong> e depois o banco chamado <strong>AdventureWorksLT</strong>.</p>
+</li>
+<li><p>Selecione <strong>Microsoft Defender for Cloud</strong> na seção <strong>Security</strong>.</p>
+</li>
+<li><p>Selecione o <strong>X</strong> no canto superior direito para fechar o painel Overview do <em>Microsoft Defender for Cloud</em> e visualizar o dashboard do <strong>Microsoft Defender for Cloud</strong> para o banco <code>AdventureWorksLT</code>.</p>
+</li>
+<li><p>Para começar a revisar os recursos de Vulnerability Assessment, em <strong>Vulnerability assessment findings</strong>, selecione <strong>View additional findings in Vulnerability Assessment</strong>.</p>
+</li>
+<li><p>Selecione <strong>Scan</strong> para obter os resultados mais atuais do Vulnerability Assessment. O processo levará alguns instantes enquanto o banco de dados é verificado.</p>
+</li>
+<li><p>Cada risco de segurança tem um nível de risco (high, medium ou low) e informações adicionais. As regras existentes são baseadas em benchmarks fornecidos pelo <a href="https://www.cisecurity.org/benchmark/microsoft_sql_server/?azure-portal=true" rel="noopener noreferrer" target="_blank">Center for Internet Security</a>. Na guia <strong>Findings</strong>, selecione uma vulnerabilidade. Anote o <strong>ID</strong> da vulnerabilidade, por exemplo <strong>VA1143</strong>, se ela estiver listada.</p>
+</li>
+<li><p>Dependendo da verificação de segurança, haverá visualizações e recomendações alternativas. Revise as informações fornecidas. Para essa verificação, você pode selecionar <strong>Add all results as baseline</strong> e depois <strong>Yes</strong> para definir o baseline. Agora que existe um baseline, essa verificação falhará em scans futuros se os resultados forem diferentes do baseline. Selecione o <strong>X</strong> no canto superior direito para fechar o painel da regra específica.</p>
+</li>
+<li><p>Execute <strong>Scan</strong> novamente e confirme que a vulnerabilidade selecionada agora aparece como uma verificação de segurança <em>Passed</em>.</p>
+<p>Se você selecionar a verificação de segurança aprovada, deverá conseguir ver o baseline configurado. Se algo mudar no futuro, os scans do Vulnerability Assessment detectarão a alteração e a verificação de segurança falhará.</p>
+</li>
+</ol>
+<h2>Advanced Threat Protection</h2>
+<ol>
+<li><p>Selecione o <strong>X</strong> no canto superior direito para fechar o painel do Vulnerability Assessment e voltar ao dashboard do <strong>Microsoft Defender for Cloud</strong> do banco. Em <strong>Security incidents and alerts</strong>, não deverá haver itens. Isso significa que o <strong>Advanced Threat Protection</strong> não detectou problemas. O Advanced Threat Protection detecta atividades anômalas que podem indicar tentativas incomuns e potencialmente mal-intencionadas de acessar ou explorar bancos de dados.</p>
+<blockquote>
+<p>📝 Neste momento, não é esperado que você veja alertas de segurança. Na próxima etapa, você executará um teste que disparará um alerta para poder revisar os resultados no Advanced Threat Protection.</p>
+</blockquote>
+<p>Você pode usar o Advanced Threat Protection para identificar ameaças e receber alertas quando houver suspeita de qualquer um dos eventos abaixo:</p>
+<ul>
+<li>SQL injection</li>
+<li>Vulnerabilidade de SQL injection</li>
+<li>Exfiltração de dados</li>
+<li>Ação insegura</li>
+<li>Brute force</li>
+<li>Login anômalo de cliente</li>
+</ul>
+<p>Nesta seção, você aprenderá como um alerta de SQL Injection pode ser disparado pelo SSMS. Alertas de SQL Injection foram criados para aplicações personalizadas, e não para ferramentas padrão como o SSMS. Portanto, para disparar pelo SSMS um alerta usado como teste de SQL Injection, é necessário definir o <strong>Application Name</strong>, uma propriedade de conexão dos clientes que se conectam ao SQL Server ou Azure SQL.</p>
+</li>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra o SQL Server Management Studio (SSMS). Na caixa de diálogo Connect to Server, cole o nome do servidor do Azure SQL Database e entre usando as credenciais abaixo:</p>
+<ul>
+<li><strong>Server name:</strong> &lt;<em>cole aqui o nome do servidor do Azure SQL Database</em>&gt;</li>
+<li><strong>Authentication:</strong> SQL Server Authentication</li>
+<li><strong>Server admin login:</strong> seu login de administrador do Azure SQL Database server</li>
+<li><strong>Password:</strong> sua senha de administrador do Azure SQL Database server</li>
+</ul>
+</li>
+<li><p>Selecione <strong>Connect</strong>.</p>
+</li>
+<li><p>No SSMS, selecione <strong>File</strong> &gt; <strong>New</strong> &gt; <strong>Database Engine Query</strong> para criar uma consulta usando uma nova conexão.</p>
+</li>
+<li><p>Na janela principal de login, entre no banco <strong>AdventureWorksLT</strong> como faria normalmente, usando SQL authentication, o nome do Azure SQL Server e as credenciais de administrador. Antes de conectar, selecione <strong>Options &gt;&gt;</strong> &gt; <strong>Connection Properties</strong>. Em <strong>Connect to database</strong>, informe <strong>AdventureWorksLT</strong>.</p>
+</li>
+<li><p>Selecione a guia <strong>Additional Connection Parameters</strong> e insira a seguinte string de conexão na caixa de texto:</p>
+<pre class="lab-code"><code class="language-sql">Application Name=webappname
+</code></pre>
+</li>
+<li><p>Selecione <strong>Connect</strong>.</p>
+</li>
+<li><p>Na nova janela de consulta, cole a consulta abaixo e selecione <strong>Execute</strong>:</p>
+<pre class="lab-code"><code class="language-sql">SELECT * FROM sys.databases WHERE database_id like '' or 1 = 1 --' and family = 'test1';
+</code></pre>
+</li>
+<li><p>No Azure portal, abra o banco <strong>AdventureWorksLT</strong>. No painel esquerdo, em <strong>Security</strong>, selecione <strong>Microsoft Defender for Cloud</strong>.</p>
+</li>
+<li><p>Em <strong>Security incidents and alerts</strong>, selecione <strong>Check for alerts on this resources in Microsoft Defender for Cloud</strong>.</p>
+</li>
+<li><p>Agora você poderá ver os alertas gerais de segurança.</p>
+</li>
+<li><p>Selecione <strong>Potential SQL injection</strong> para exibir alertas mais específicos e receber etapas de investigação.</p>
+</li>
+<li><p>Selecione <strong>View full details</strong> para exibir os detalhes do alerta.</p>
+</li>
+<li><p>Na guia <strong>Alert details</strong>, observe que o <em>Vulnerable statement</em> é exibido. Essa é a instrução SQL que foi executada para disparar o alerta e é a mesma instrução executada no SSMS. Observe também que <strong>Client application</strong> aparece como <strong>webappname</strong>. Esse é o nome informado na string de conexão no SSMS.</p>
+</li>
+<li><p>Como etapa de limpeza, considere fechar todos os editores de consulta no SSMS e remover todas as conexões para não disparar alertas adicionais acidentalmente nos próximos exercícios.</p>
+</li>
+</ol>
+<h2>Habilitar classificação de dados</h2>
+<ol>
+<li><p>No painel principal do Azure SQL server, navegue até a seção <strong>Settings</strong>, selecione <strong>SQL databases</strong> e depois o banco chamado <strong>AdventureWorksLT</strong>.</p>
+</li>
+<li><p>No painel principal do banco <strong>AdventureWorksLT</strong>, navegue até a seção <strong>Security</strong> e selecione <strong>Data Discovery &amp; Classification</strong>.</p>
+</li>
+<li><p>Na página <strong>Data Discovery &amp; Classification</strong>, você verá uma mensagem informativa: <strong>Currently using SQL Information Protection policy. We have found 15 columns with classification recommendations</strong>. Selecione esse link.</p>
+</li>
+<li><p>Na tela seguinte de <strong>Data Discovery &amp; Classification</strong>, marque a caixa ao lado de <strong>Select all</strong>, selecione <strong>Accepted selected recommendations</strong> e depois <strong>Save</strong> para salvar as classificações no banco de dados.</p>
+</li>
+<li><p>De volta à tela <strong>Data Discovery &amp; Classification</strong>, observe que quinze colunas foram classificadas com sucesso em cinco tabelas diferentes. Revise o <em>Information type</em> e o <em>Sensitivity label</em> de cada coluna.</p>
+</li>
+</ol>
+<h2>Configurar classificação e mascaramento de dados</h2>
+<ol>
+<li><p>No Azure portal, acesse sua instância do Azure SQL Database <strong>AdventureWorksLT</strong> — não o logical server.</p>
+</li>
+<li><p>No painel esquerdo, em <strong>Security</strong>, selecione <strong>Data Discovery &amp; Classification</strong>.</p>
+</li>
+<li><p>Na tabela SalesLT Customer, o <em>Data Discovery &amp; Classification</em> identificou <code>FirstName</code> e <code>LastName</code> para classificação, mas não <code>MiddleName</code>. Use as listas suspensas para adicioná-la agora. Selecione <strong>Name</strong> em <em>Information type</em> e <strong>Confidential - GDPR</strong> em <em>Sensitivity label</em>. Depois selecione <strong>Add classification</strong>.</p>
+</li>
+<li><p>Selecione <strong>Save</strong>.</p>
+</li>
+<li><p>Confirme que a classificação foi adicionada com sucesso abrindo a guia <strong>Overview</strong> e verificando se <code>MiddleName</code> aparece na lista de colunas classificadas do schema SalesLT.</p>
+</li>
+<li><p>No painel esquerdo, selecione <strong>Overview</strong> para voltar à visão geral do banco de dados.</p>
+<p>O Dynamic Data Masking (DDM) está disponível no Azure SQL e no SQL Server. O DDM limita a exposição de dados ao mascarar dados sensíveis para usuários não privilegiados no nível do SQL Server, em vez de implementar essas regras no nível da aplicação. O Azure SQL recomenda itens que podem ser mascarados, e você também pode adicionar máscaras manualmente.</p>
+<p>Nas próximas etapas, você mascarará as colunas <code>FirstName</code>, <code>MiddleName</code> e <code>LastName</code>, revisadas na etapa anterior.</p>
+</li>
+<li><p>No Azure portal, acesse seu Azure SQL Database. No painel esquerdo, em <strong>Security</strong>, selecione <strong>Dynamic Data Masking</strong> e depois <strong>Add mask</strong>.</p>
+</li>
+<li><p>Nas listas suspensas, selecione o schema <strong>SalesLT</strong>, a tabela <strong>Customer</strong> e a coluna <strong>FirstName</strong>. Você pode revisar as opções de mascaramento, mas a opção padrão é adequada para este cenário. Selecione <strong>Add</strong> para adicionar a regra de mascaramento.</p>
+</li>
+<li><p>Repita as etapas anteriores para <strong>MiddleName</strong> e <strong>LastName</strong> na mesma tabela.</p>
+<p>Agora você terá três regras de mascaramento.</p>
+</li>
+<li><p>Selecione <strong>Save</strong>.</p>
+<blockquote>
+<p>📝 Se o nome do seu Azure SQL Server não for composto somente por letras minúsculas, números e hífens, esta etapa falhará e você não conseguirá continuar com as seções de data masking.</p>
+</blockquote>
+</li>
+<li><p>No painel esquerdo, selecione <strong>Overview</strong> para voltar à visão geral do banco de dados.</p>
+</li>
+</ol>
+<h2>Recuperar dados classificados e mascarados</h2>
+<p>Em seguida, você simulará alguém consultando as colunas classificadas e explorará o Dynamic Data Masking em funcionamento.</p>
+<ol>
+<li><p>Abra o SQL Server Management Studio (SSMS), conecte ao Azure SQL server e abra uma nova janela de consulta.</p>
+</li>
+<li><p>Clique com o botão direito no banco <strong>AdventureWorksLT</strong> e selecione <strong>New Query</strong>.</p>
+</li>
+<li><p>Execute a consulta abaixo para retornar os dados classificados e, em alguns casos, as colunas marcadas para mascaramento. Selecione <strong>Execute</strong> para executar a consulta.</p>
+<pre class="lab-code"><code class="language-sql">SELECT TOP 10 FirstName, MiddleName, LastName
+FROM SalesLT.Customer;
+</code></pre>
+<p>O resultado deverá exibir os 10 primeiros nomes sem mascaramento. Por quê? Porque você é o administrador desse logical server do Azure SQL Database.</p>
+</li>
+<li><p>Na consulta a seguir, você criará um novo usuário e executará a consulta anterior como esse usuário. Você também usará <code>EXECUTE AS</code> para representar <code>Bob</code>. Quando uma instrução <code>EXECUTE AS</code> é executada, o contexto de execução da sessão é alterado para o login ou usuário especificado. Isso significa que as permissões passam a ser verificadas para esse login ou usuário, e não para a pessoa que executou o comando <code>EXECUTE AS</code> — neste caso, você. Depois, <code>REVERT</code> é usado para encerrar a representação do login ou usuário.</p>
+<p>As primeiras partes dos comandos a seguir podem parecer familiares porque repetem etapas de um exercício anterior. Crie uma nova consulta com os comandos abaixo, selecione <strong>Execute</strong> e observe os resultados.</p>
+<pre class="lab-code"><code class="language-sql">-- Create a new SQL user and give them a password
+CREATE USER Bob WITH PASSWORD = 'c0mpl3xPassword!';
+
+-- Until you run the following two lines, Bob has no access to read or write data
+ALTER ROLE db_datareader ADD MEMBER Bob;
+ALTER ROLE db_datawriter ADD MEMBER Bob;
+
+-- Execute as our new, low-privilege user, Bob
+EXECUTE AS USER = 'Bob';
+SELECT TOP 10 FirstName, MiddleName, LastName
+FROM SalesLT.Customer;
+REVERT;
+</code></pre>
+<p>Agora o resultado deverá exibir os 10 primeiros nomes com mascaramento aplicado. Bob não recebeu acesso à forma não mascarada desses dados.</p>
+<p>E se Bob precisar acessar os nomes completos e receber permissão para isso?</p>
+<p>Você pode atualizar os usuários excluídos do mascaramento no Azure portal, acessando o painel <strong>Dynamic Data Masking</strong> em <strong>Security</strong>, ou pode fazer isso usando T-SQL.</p>
+</li>
+<li><p>Clique com o botão direito no banco <strong>AdventureWorksLT</strong>, selecione <strong>New Query</strong> e execute a consulta abaixo para permitir que Bob consulte os nomes sem mascaramento. Selecione <strong>Execute</strong>.</p>
+<pre class="lab-code"><code class="language-sql">GRANT UNMASK TO Bob;  
+EXECUTE AS USER = 'Bob';
+SELECT TOP 10 FirstName, MiddleName, LastName
+FROM SalesLT.Customer;
+REVERT;  
+</code></pre>
+<p>Os resultados deverão exibir os nomes completos.</p>
+</li>
+<li><p>Você também pode remover o privilégio de unmask de um usuário e confirmar a alteração executando os comandos T-SQL abaixo em uma nova consulta:</p>
+<pre class="lab-code"><code class="language-sql">-- Remove unmasking privilege
+REVOKE UNMASK TO Bob;  
+
+-- Execute as Bob
+EXECUTE AS USER = 'Bob';
+SELECT TOP 10 FirstName, MiddleName, LastName
+FROM SalesLT.Customer;
+REVERT;  
+</code></pre>
+<p>Os resultados deverão voltar a exibir os nomes mascarados.</p>
+</li>
+</ol>
+<hr/>
+<h2>Limpar os recursos</h2>
+<p>Se você não for usar o Azure SQL Server para nenhuma outra finalidade, poderá remover os recursos criados neste laboratório.</p>
+<h3>Excluir o grupo de recursos</h3>
+<p>Se você criou um novo grupo de recursos para este laboratório, pode excluí-lo para remover todos os recursos criados nele.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos criado para este laboratório. Ele conterá o Azure SQL Server e os outros recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione <strong>Delete resource group</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resource group</strong>, digite o nome do grupo de recursos para confirmar e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Aguarde a exclusão do grupo de recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir somente os recursos do laboratório</h3>
+<p>Se você não criou um novo grupo de recursos para este laboratório e deseja manter o grupo e seus recursos anteriores, ainda poderá excluir somente os recursos criados neste lab.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos usado neste laboratório. Ele conterá o Azure SQL Server e os demais recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione todos os recursos cujo nome começa com o nome do SQL Server informado anteriormente no laboratório.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resources</strong>, digite <strong>delete</strong> e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> novamente para confirmar a exclusão dos recursos.</p>
+</li>
+<li><p>Aguarde a exclusão dos recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir a pasta LabFiles</h3>
+<p>Se você criou uma nova pasta LabFiles para este laboratório e não precisa mais dela, poderá excluí-la para remover todos os arquivos criados durante o lab.</p>
+<ol>
+<li>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra o File Explorer e navegue até a unidade <strong>C:\</strong>.</li>
+<li>Clique com o botão direito na pasta <strong>LabFiles</strong> e selecione <strong>Delete</strong>.</li>
+<li>Selecione <strong>Yes</strong> para confirmar a exclusão da pasta.</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+<p>Neste exercício, você reforçou a segurança de um Azure SQL Database habilitando o Microsoft Defender for SQL. Também criou colunas classificadas com base nas recomendações do Azure portal.</p>
+
+</div>

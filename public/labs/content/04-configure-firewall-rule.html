@@ -1,0 +1,188 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 30 minutos</strong></p>
+<p>Os alunos usarão as informações aprendidas nas aulas para configurar e, em seguida, implementar segurança no Azure portal e dentro do banco <em>AdventureWorksLT</em>.</p>
+<p>Você foi contratado como Administrador Sênior de Banco de Dados para ajudar a garantir a segurança do ambiente de banco de dados. Estas tarefas terão foco no Azure SQL Database.</p>
+<blockquote>
+<p>📝 Estes exercícios pedem que você copie e cole código T-SQL e usam recursos SQL já existentes. Antes de executar o código, confirme que ele foi copiado corretamente.</p>
+</blockquote>
+<h2>Configurar o ambiente</h2>
+<p>Se a máquina virtual do laboratório tiver sido fornecida e pré-configurada, os arquivos do laboratório deverão estar disponíveis na pasta <strong>C:\LabFiles</strong>. <em>Reserve um momento para conferir. Se os arquivos já estiverem lá, pule esta seção.</em> Porém, se você estiver usando sua própria máquina ou os arquivos do laboratório estiverem ausentes, será necessário cloná-los do <em>GitHub</em> para continuar.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code.</p>
+</li>
+<li><p>Abra a command palette (Ctrl+Shift+P) e digite <strong>Git: Clone</strong>. Selecione a opção <strong>Git: Clone</strong>.</p>
+</li>
+<li><p>Cole a URL abaixo no campo <strong>Repository URL</strong> e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-url">https://github.com/MicrosoftLearning/dp-300-database-administrator.git
+</code></pre>
+</li>
+<li><p>Salve o repositório na pasta <strong>C:\LabFiles</strong> da máquina virtual do laboratório ou da sua máquina local, se nenhuma VM tiver sido fornecida. Crie a pasta se ela não existir.</p>
+</li>
+</ol>
+<h2>Configurar seu SQL Server no Azure</h2>
+<p>Entre no Azure e verifique se já existe uma instância de Azure SQL Server em execução. <em>Pule esta seção se você já tiver uma instância de SQL Server em execução no Azure.</em></p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code e navegue até o repositório clonado na seção anterior.</p>
+</li>
+<li><p>Clique com o botão direito na pasta <strong>/Allfiles/Labs</strong> e selecione <strong>Open in Integrated Terminal</strong>.</p>
+</li>
+<li><p>Vamos conectar ao Azure usando o Azure CLI. Digite o comando abaixo e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-bash">az login
+</code></pre>
+<blockquote>
+<p>📝 Uma janela do navegador será aberta. Use suas credenciais do Azure para entrar.</p>
+</blockquote>
+</li>
+<li><p>Depois de entrar no Azure, crie um resource group caso ele ainda não exista e crie um SQL server e um database nesse grupo de recursos. Digite o comando abaixo e pressione <strong>Enter</strong>. <em>O script levará alguns minutos para ser concluído.</em></p>
+<pre class="lab-code"><code class="language-bash">cd ./Setup
+./deploy-sql-database.ps1
+</code></pre>
+<blockquote>
+<p>📝 Por padrão, esse script criará um resource group chamado <strong>contoso-rg</strong> ou usará um recurso cujo nome comece com <em>contoso-rg</em>, se já existir. Por padrão, todos os recursos também serão criados na região <strong>West US 2</strong> (westus2). Por fim, o script gerará uma senha aleatória de 12 caracteres para o <strong>SQL admin password</strong>. Você pode alterar esses valores usando um ou mais parâmetros <strong>-rgName</strong>, <strong>-location</strong> e <strong>-sqlAdminPw</strong>. A senha deve atender aos requisitos de complexidade de senha do Azure SQL: pelo menos 12 caracteres, contendo pelo menos 1 letra maiúscula, 1 letra minúscula, 1 número e 1 caractere especial.</p>
+</blockquote>
+<blockquote>
+<p>📝 O script adicionará seu endereço IP público atual às regras de firewall do SQL server.</p>
+</blockquote>
+</li>
+<li><p>Quando o script terminar, ele retornará o nome do resource group, o nome do SQL server, o nome do database e o nome de usuário e a senha do administrador. <em>Anote esses valores, pois eles serão necessários mais tarde no laboratório.</em></p>
+</li>
+</ol>
+<hr/>
+<h2>Configurar regras de firewall do Azure SQL Database</h2>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra uma sessão do navegador e acesse <a href="https://portal.azure.com/" rel="noopener noreferrer" target="_blank">https://portal.azure.com</a>. Entre no portal usando suas credenciais do Azure.</p>
+</li>
+<li><p>No Azure portal, pesquise <em>SQL servers</em> na caixa de pesquisa na parte superior e selecione <strong>SQL servers</strong> na lista de opções.</p>
+</li>
+<li><p>Selecione o SQL server <strong>dp300-lab-xxxxxxxx</strong>, em que <em>xxxxxxxx</em> é uma sequência numérica aleatória.</p>
+<blockquote>
+<p>📝 Se você estiver usando seu próprio Azure SQL server e ele não tiver sido criado por este laboratório, selecione o nome desse SQL server.</p>
+</blockquote>
+</li>
+<li><p>Na tela <em>Overview</em> do SQL server, à direita do nome do servidor, selecione o botão <strong>Copy to clipboard</strong>.</p>
+</li>
+<li><p>Selecione <strong>Show networking settings</strong>.</p>
+</li>
+<li><p>Na página <strong>Networking</strong>, em <strong>Firewall rules</strong>, revise a lista e confirme que o endereço IP do seu cliente está presente. Se não estiver, selecione <strong>+ Add your client IPv4 address (your IP address)</strong> e depois <strong>Save</strong>.</p>
+<blockquote>
+<p>📝 Seu endereço IP de cliente é preenchido automaticamente. Adicioná-lo à lista permitirá conectar ao Azure SQL Database usando SQL Server Management Studio (SSMS) ou outras ferramentas cliente. <strong>Anote seu endereço IP de cliente; ele será usado mais tarde.</strong></p>
+</blockquote>
+</li>
+<li><p>Abra o SQL Server Management Studio. Na caixa de diálogo Connect to Server, cole o nome do servidor do Azure SQL Database e entre usando as credenciais abaixo:</p>
+<ul>
+<li><strong>Server name:</strong> &lt;<em>cole aqui o nome do servidor do Azure SQL Database</em>&gt;</li>
+<li><strong>Authentication:</strong> SQL Server Authentication</li>
+<li><strong>Server admin login:</strong> seu login de administrador do Azure SQL Database server</li>
+<li><strong>Password:</strong> sua senha de administrador do Azure SQL Database server</li>
+</ul>
+</li>
+<li><p>Selecione <strong>Connect</strong>.</p>
+</li>
+<li><p>No Object Explorer, expanda o nó do servidor e clique com o botão direito em <strong>Databases</strong>. Selecione <strong>Import a Data-tier Application</strong>.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Import Data Tier Application</strong>, selecione <strong>Next</strong> na primeira tela.</p>
+</li>
+<li><p>Na tela <strong>Import Settings</strong>, selecione <strong>Browse</strong> e navegue até a pasta <strong>C:\LabFiles\dp-300-database-administrator\Allfiles\Labs\04</strong>. Selecione o arquivo <strong>AdventureWorksLT.bacpac</strong> e depois <strong>Open</strong>. De volta à tela <strong>Import Data-tier Application</strong>, selecione <strong>Next</strong>.</p>
+</li>
+<li><p>Na tela <strong>Database Settings</strong>, faça as alterações abaixo:</p>
+<ul>
+<li><strong>Database name:</strong> AdventureWorksFromBacpac</li>
+<li><strong>Edition of Microsoft Azure SQL Database:</strong> Basic</li>
+</ul>
+</li>
+<li><p>Selecione <strong>Next</strong>.</p>
+</li>
+<li><p>Na tela <strong>Summary</strong>, selecione <strong>Finish</strong>. Isso pode levar alguns minutos. Quando a importação for concluída, os resultados serão exibidos. Em seguida, selecione <strong>Close</strong>.</p>
+</li>
+<li><p>De volta ao SQL Server Management Studio, no <strong>Object Explorer</strong>, expanda a pasta <strong>Databases</strong>. Clique com o botão direito no banco <strong>AdventureWorksFromBacpac</strong> e selecione <strong>New Query</strong>.</p>
+</li>
+<li><p>Execute a consulta T-SQL abaixo colando o texto na janela de consulta.</p>
+<ol>
+<li><strong>Importante:</strong> substitua <strong>000.000.000.000</strong> pelo endereço IP do seu cliente. Selecione <strong>Execute</strong>.</li>
+</ol>
+<pre class="lab-code"><code class="language-sql">EXECUTE sp_set_database_firewall_rule 
+        @name = N'AWFirewallRule',
+        @start_ip_address = '000.000.000.000', 
+        @end_ip_address = '000.000.000.000'
+</code></pre>
+</li>
+<li><p>Em seguida, crie um usuário contido no banco <strong>AdventureWorksFromBacpac</strong>. Selecione <strong>New Query</strong> e execute o T-SQL abaixo.</p>
+<pre class="lab-code"><code class="language-sql">USE [AdventureWorksFromBacpac]
+GO
+CREATE USER ContainedDemo WITH PASSWORD = 'P@ssw0rd01'
+</code></pre>
+<blockquote>
+<p>📝 Esse comando cria um usuário contido dentro do banco <strong>AdventureWorksFromBacpac</strong>. Você testará essa credencial na próxima etapa.</p>
+</blockquote>
+</li>
+<li><p>Navegue até o <strong>Object Explorer</strong>. Selecione <strong>Connect</strong> e depois <strong>Database Engine</strong>.</p>
+</li>
+<li><p>Tente conectar usando as credenciais criadas na etapa anterior. Use as informações abaixo:</p>
+<ul>
+<li><strong>Login:</strong> ContainedDemo</li>
+<li><strong>Password:</strong> P@ssw0rd01</li>
+</ul>
+<p>Selecione <strong>Connect</strong>.</p>
+<p>Você receberá o erro abaixo.</p>
+<p><span style="color:red">Login failed for user 'ContainedDemo'. (Microsoft SQL Server, Error: 18456)</span></p>
+<blockquote>
+<p>📝 Esse erro ocorre porque a conexão tentou entrar no banco <em>master</em>, e não em <strong>AdventureWorksFromBacpac</strong>, onde o usuário foi criado. Altere o contexto da conexão selecionando <strong>OK</strong> para fechar a mensagem de erro e depois selecione <strong>Options &gt;&gt;</strong> em <strong>Connect to Server</strong>.</p>
+</blockquote>
+</li>
+<li><p>Na guia <strong>Connection Properties</strong>, digite o nome do banco <strong>AdventureWorksFromBacpac</strong> e selecione <strong>Connect</strong>.</p>
+</li>
+<li><p>Observe que agora foi possível autenticar com sucesso usando o usuário <strong>ContainedDemo</strong>. Desta vez, você entrou diretamente em <strong>AdventureWorksFromBacpac</strong>, que é o único banco ao qual o usuário recém-criado tem acesso.</p>
+</li>
+</ol>
+<hr/>
+<h2>Limpar os recursos</h2>
+<p>Se você não for usar o Azure SQL Server para nenhuma outra finalidade, poderá remover os recursos criados neste laboratório.</p>
+<h3>Excluir o grupo de recursos</h3>
+<p>Se você criou um novo grupo de recursos para este laboratório, pode excluí-lo para remover todos os recursos criados nele.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos criado para este laboratório. Ele conterá o Azure SQL Server e outros recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione <strong>Delete resource group</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resource group</strong>, digite o nome do grupo de recursos para confirmar e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Aguarde a exclusão do grupo de recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir somente os recursos do laboratório</h3>
+<p>Se você não criou um novo grupo de recursos para este laboratório e deseja manter o grupo e seus recursos anteriores, ainda poderá excluir somente os recursos criados neste lab.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos usado neste laboratório. Ele conterá o Azure SQL Server e os demais recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione todos os recursos cujo nome começa com o nome do SQL Server informado anteriormente no laboratório.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resources</strong>, digite <strong>delete</strong> e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> novamente para confirmar a exclusão dos recursos.</p>
+</li>
+<li><p>Aguarde a exclusão dos recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir a pasta LabFiles</h3>
+<p>Se você criou uma nova pasta LabFiles para este laboratório e não precisa mais dela, poderá excluí-la para remover todos os arquivos criados durante o lab.</p>
+<ol>
+<li>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra o File Explorer e navegue até a unidade <strong>C:\</strong>.</li>
+<li>Clique com o botão direito na pasta <strong>LabFiles</strong> e selecione <strong>Delete</strong>.</li>
+<li>Selecione <strong>Yes</strong> para confirmar a exclusão da pasta.</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+<p>Neste exercício, você configurou regras de firewall no nível de servidor e no nível de banco para acessar um banco hospedado no Azure SQL Database. Também usou instruções T-SQL para criar um usuário contido e o SQL Server Management Studio para validar o acesso.</p>
+
+</div>

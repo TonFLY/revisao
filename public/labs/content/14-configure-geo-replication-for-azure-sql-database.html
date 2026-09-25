@@ -1,0 +1,176 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 30 minutos</strong></p>
+<p>Como DBA da AdventureWorks, você precisa habilitar geo-replicação para Azure SQL Database e confirmar que ela está funcionando corretamente. Além disso, fará um failover manual para outra região usando o portal.</p>
+<blockquote>
+<p>📝 Estes exercícios podem pedir que você copie e cole código T-SQL e usam recursos SQL já existentes. Antes de executar o código, confirme que ele foi copiado corretamente.</p>
+</blockquote>
+<h2>Configurar o ambiente</h2>
+<p>Se a máquina virtual do laboratório tiver sido fornecida e pré-configurada, os arquivos do laboratório deverão estar disponíveis na pasta <strong>C:\LabFiles</strong>. <em>Reserve um momento para conferir. Se os arquivos já estiverem lá, pule esta seção.</em> Porém, se você estiver usando sua própria máquina ou os arquivos do laboratório estiverem ausentes, será necessário cloná-los do <em>GitHub</em> para continuar.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code.</p>
+</li>
+<li><p>Abra a command palette (Ctrl+Shift+P), digite <strong>Git: Clone</strong> e selecione <strong>Git: Clone</strong>.</p>
+</li>
+<li><p>Cole a URL abaixo no campo <strong>Repository URL</strong> e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-url">https://github.com/MicrosoftLearning/dp-300-database-administrator.git
+</code></pre>
+</li>
+<li><p>Salve o repositório na pasta <strong>C:\LabFiles</strong> da máquina virtual do laboratório ou da sua máquina local, criando a pasta se necessário.</p>
+</li>
+</ol>
+<h2>Configurar seu SQL Server no Azure</h2>
+<p>Entre no Azure e verifique se já existe uma instância de Azure SQL Server em execução. <em>Pule esta seção se você já tiver uma instância de SQL Server em execução no Azure.</em></p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie o Visual Studio Code e navegue até o repositório clonado na seção anterior.</p>
+</li>
+<li><p>Clique com o botão direito na pasta <strong>/Allfiles/Labs</strong> e selecione <strong>Open in Integrated Terminal</strong>.</p>
+</li>
+<li><p>Conecte ao Azure usando o Azure CLI. Digite o comando abaixo e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-bash">az login
+</code></pre>
+<blockquote>
+<p>📝 Uma janela do navegador será aberta. Use suas credenciais do Azure para entrar.</p>
+</blockquote>
+</li>
+<li><p>Depois de entrar no Azure, crie um resource group caso ele ainda não exista e crie um SQL server e um database nesse grupo. Digite o comando abaixo e pressione <strong>Enter</strong>. <em>O script levará alguns minutos para ser concluído.</em></p>
+<pre class="lab-code"><code class="language-bash">cd ./Setup
+./deploy-sql-database.ps1
+</code></pre>
+<blockquote>
+<p>📝 Por padrão, esse script criará um resource group chamado <strong>contoso-rg</strong> ou usará um recurso cujo nome comece com <em>contoso-rg</em>, se já existir. Por padrão, os recursos também serão criados na região <strong>West US 2</strong> (westus2). O script gerará uma senha aleatória de 12 caracteres para o <strong>SQL admin password</strong>. Você pode alterar esses valores usando os parâmetros <strong>-rgName</strong>, <strong>-location</strong> e <strong>-sqlAdminPw</strong>. A senha deve atender aos requisitos de complexidade do Azure SQL: pelo menos 12 caracteres, incluindo ao menos 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial.</p>
+</blockquote>
+<blockquote>
+<p>📝 O script adicionará seu endereço IP público atual às regras de firewall do SQL server.</p>
+</blockquote>
+</li>
+<li><p>Quando o script terminar, ele retornará o nome do resource group, o nome do SQL server, o nome do database e o nome de usuário e a senha do administrador. <em>Anote esses valores, pois eles serão necessários mais tarde no laboratório.</em></p>
+</li>
+</ol>
+<hr/>
+<h2>Habilitar geo-replicação</h2>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra uma sessão do navegador e acesse <a href="https://portal.azure.com/" rel="noopener noreferrer" target="_blank">https://portal.azure.com</a>. Entre no portal usando suas credenciais do Azure.</p>
+</li>
+<li><p>No Azure portal, navegue até seu banco pesquisando <strong>sql databases</strong>.</p>
+</li>
+<li><p>Selecione o SQL database <strong>AdventureWorksLT</strong>.</p>
+</li>
+<li><p>No painel do banco, na seção <strong>Data management</strong>, selecione <strong>Replicas</strong>.</p>
+</li>
+<li><p>Selecione <strong>+ Create replica</strong>.</p>
+</li>
+<li><p>Na página <strong>Create SQL Database - Geo Replica</strong>, observe que as seções <strong>Project details</strong> e <strong>Primary database</strong> já estão preenchidas com a assinatura, o resource group e o nome do banco.</p>
+</li>
+<li><p>Na seção <strong>Replica Configuration</strong>, selecione <strong>Geo replica</strong> em <em>Replica type</em>.</p>
+</li>
+<li><p>Em <strong>Geo-secondary database details</strong>, preencha os seguintes valores:</p>
+<ul>
+<li><p><strong>Subscription:</strong> &lt;Nome da sua assinatura&gt; — a mesma do banco primário.</p>
+</li>
+<li><p><strong>Resource group:</strong> &lt;Selecione o mesmo resource group do banco primário.&gt;</p>
+</li>
+<li><p><strong>Database name:</strong> o nome do banco estará desabilitado e será o mesmo do banco primário.</p>
+</li>
+<li><p><strong>Server:</strong> selecione <strong>Create new</strong>.</p>
+</li>
+<li><p>Na página <strong>Create SQL Database Server</strong>, preencha os seguintes valores:</p>
+<ul>
+<li><strong>Server name:</strong> informe um nome exclusivo para o servidor secundário. O nome deve ser exclusivo entre todos os Azure SQL Database servers.</li>
+<li><strong>Location:</strong> selecione uma região diferente da região do banco primário. Sua assinatura pode não disponibilizar todas as regiões.</li>
+<li>Marque <strong>Allow Azure services to access server</strong>. Em produção, você poderá querer restringir o acesso ao servidor.</li>
+<li>Em authentication, selecione <strong>SQL authentication</strong>. Em produção, você poderá preferir <strong>Use Microsoft Entra-only</strong> authentication. Informe <strong>sqladmin</strong> como nome de login do administrador e uma senha segura. A senha deve atender aos requisitos de complexidade do Azure SQL: pelo menos 12 caracteres, contendo ao menos 1 letra maiúscula, 1 minúscula, 1 número e 1 caractere especial.</li>
+<li>Selecione <strong>OK</strong> para criar o servidor.</li>
+</ul>
+</li>
+<li><p><strong>Want to use elastic pool?:</strong> No.</p>
+</li>
+<li><p><strong>Compute + storage:</strong> General Purpose, Gen 5, 2 vCores, 32 GB de armazenamento.</p>
+</li>
+<li><p><strong>Backup storage redundancy:</strong> Locally redundant storage (LRS). Em produção, você poderá preferir <strong>Geo-redundant storage (GRS)</strong>.</p>
+</li>
+</ul>
+</li>
+<li><p>Selecione <strong>Review + Create</strong>.</p>
+</li>
+<li><p>Selecione <strong>Create</strong>. A criação do servidor secundário e do banco levará alguns minutos. Quando terminar, o progresso mudará de <strong>Deployment in progress</strong> para <strong>Your deployment is complete</strong>.</p>
+</li>
+<li><p>Selecione <strong>Go to resource</strong> para navegar até o banco do servidor secundário e continuar a próxima etapa.</p>
+</li>
+</ol>
+<h2>Fazer failover do SQL Database para uma região secundária</h2>
+<p>Agora que a réplica do Azure SQL Database foi criada, você realizará um failover.</p>
+<ol>
+<li><p>Se você ainda não estiver no banco do servidor secundário, pesquise <strong>sql databases</strong> no Azure portal e selecione o SQL database <strong>AdventureWorksLT</strong> do servidor secundário.</p>
+</li>
+<li><p>No painel principal do SQL database, na seção <strong>Data management</strong>, selecione <strong>Replicas</strong>.</p>
+</li>
+<li><p>Observe que o link de geo-replicação está estabelecido. O valor <em>Replica state</em> do banco primário é <strong>Online</strong> e o <em>Replica state</em> das geo-replicas é <strong>Readable</strong>.</p>
+</li>
+<li><p>Selecione o menu <strong>...</strong> do servidor da geo-replica secundária e selecione <strong>Forced Failover</strong>.</p>
+<blockquote>
+<p>📝 O forced failover alternará o banco secundário para a função de primário. Todas as sessões serão desconectadas durante a operação.</p>
+</blockquote>
+</li>
+<li><p>Quando a mensagem de aviso for exibida, selecione <strong>Yes</strong>.</p>
+</li>
+<li><p>O status da réplica primária mudará para <strong>Pending</strong> e o da secundária para <strong>Failover</strong>.</p>
+<blockquote>
+<p>📝 Como o banco é pequeno, o failover será rápido. Em um ambiente de produção, esse processo pode levar alguns minutos.</p>
+</blockquote>
+</li>
+<li><p>Quando o processo terminar, as funções serão invertidas: a secundária se tornará a nova primária e a antiga primária se tornará secundária. Talvez seja necessário atualizar a página para ver o novo status.</p>
+</li>
+</ol>
+<p>Vimos que um banco secundário legível pode estar na mesma região do Azure que o primário ou, mais frequentemente, em outra região. Esse tipo de banco secundário legível também é chamado de geo-secondary ou geo-replica.</p>
+<hr/>
+<h2>Limpar os recursos</h2>
+<p>Se você não for usar o Azure SQL Server para nenhuma outra finalidade, poderá remover os recursos criados neste laboratório.</p>
+<h3>Excluir o grupo de recursos</h3>
+<p>Se você criou um novo grupo de recursos para este laboratório, pode excluí-lo para remover todos os recursos criados nele.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos criado para este laboratório. Ele conterá o Azure SQL Server e outros recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione <strong>Delete resource group</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resource group</strong>, digite o nome do grupo de recursos para confirmar e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Aguarde a exclusão do grupo de recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir somente os recursos do laboratório</h3>
+<p>Se você não criou um novo grupo de recursos para este laboratório e deseja manter o grupo e seus recursos anteriores, ainda poderá excluir somente os recursos criados neste lab.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos usado neste laboratório. Ele conterá o Azure SQL Server e os outros recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione todos os recursos cujo nome começa com o nome do SQL Server informado anteriormente no laboratório.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resources</strong>, digite <strong>delete</strong> e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> novamente para confirmar a exclusão dos recursos.</p>
+</li>
+<li><p>Aguarde a exclusão dos recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir a pasta LabFiles</h3>
+<p>Se você criou uma nova pasta LabFiles para este laboratório e não precisa mais dela, poderá excluí-la para remover todos os arquivos criados durante o lab.</p>
+<ol>
+<li>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra o File Explorer e navegue até a unidade <strong>C:\</strong>.</li>
+<li>Clique com o botão direito na pasta <strong>LabFiles</strong> e selecione <strong>Delete</strong>.</li>
+<li>Selecione <strong>Yes</strong> para confirmar a exclusão da pasta.</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+<p>Agora você viu como habilitar geo-replicas para Azure SQL Database e fazer um failover manual para outra região usando o portal.</p>
+
+</div>

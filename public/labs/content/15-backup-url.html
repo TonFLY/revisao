@@ -1,0 +1,260 @@
+<div class="lab-full-content">
+
+<p><strong>Tempo estimado: 30 minutos</strong></p>
+<p>Como DBA da AdventureWorks, você precisa fazer backup de um banco de dados para uma URL no Azure e restaurá-lo a partir do Azure Blob Storage depois que ocorrer um erro humano.</p>
+<h2>Configurar o ambiente</h2>
+<p>Se a máquina virtual do laboratório tiver sido fornecida e pré-configurada, os arquivos do laboratório deverão estar disponíveis na pasta <strong>C:\LabFiles</strong>. <em>Reserve um momento para conferir. Se os arquivos já estiverem lá, pule esta seção.</em> Porém, se você estiver usando sua própria máquina ou os arquivos do laboratório estiverem ausentes, será necessário cloná-los do <em>GitHub</em> para continuar.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code.</p>
+</li>
+<li><p>Abra a command palette (Ctrl+Shift+P), digite <strong>Git: Clone</strong> e selecione <strong>Git: Clone</strong>.</p>
+</li>
+<li><p>Cole a URL abaixo no campo <strong>Repository URL</strong> e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-url">https://github.com/MicrosoftLearning/dp-300-database-administrator.git
+</code></pre>
+</li>
+<li><p>Salve o repositório na pasta <strong>C:\LabFiles</strong> da máquina virtual do laboratório ou da sua máquina local, criando a pasta se necessário.</p>
+</li>
+</ol>
+<h2>Restaurar o banco de dados</h2>
+<p>Se você já tiver o banco <strong>AdventureWorks2017</strong> restaurado, poderá pular esta seção.</p>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do SQL Server Management Studio (SSMS).</p>
+</li>
+<li><p>Quando o SSMS abrir, a caixa de diálogo <strong>Connect to Server</strong> aparecerá por padrão. Escolha a instância Default e selecione <strong>Connect</strong>. Talvez seja necessário marcar <strong>Trust server certificate</strong>.</p>
+<blockquote>
+<p>📝 Se você estiver usando sua própria instância do SQL Server, deverá conectar usando o nome de instância e as credenciais apropriadas.</p>
+</blockquote>
+</li>
+<li><p>Selecione a pasta <strong>Databases</strong> e depois <strong>New Query</strong>.</p>
+</li>
+<li><p>Na nova janela de consulta, copie e cole o T-SQL abaixo. Execute a consulta para restaurar o banco.</p>
+<pre class="lab-code"><code class="language-sql">RESTORE DATABASE AdventureWorks2017
+FROM DISK = 'C:\LabFiles\dp-300-database-administrator\Allfiles\Labs\Shared\AdventureWorks2017.bak'
+WITH RECOVERY,
+      MOVE 'AdventureWorks2017' 
+        TO 'C:\LabFiles\AdventureWorks2017.mdf',
+      MOVE 'AdventureWorks2017_log'
+        TO 'C:\LabFiles\AdventureWorks2017_log.ldf';
+</code></pre>
+<blockquote>
+<p>📝 É necessário existir uma pasta chamada <strong>C:\LabFiles</strong>. Se ela não existir, crie a pasta ou informe outro local para os arquivos do banco e do backup.</p>
+</blockquote>
+</li>
+<li><p>Na guia <strong>Messages</strong>, você deverá ver uma mensagem informando que o banco foi restaurado com sucesso.</p>
+</li>
+</ol>
+<h2>Configurar Backup to URL</h2>
+<ol>
+<li><p>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do Visual Studio Code.</p>
+</li>
+<li><p>Abra o repositório clonado em <strong>C:\LabFiles\dp-300-database-administrator</strong>.</p>
+</li>
+<li><p>Clique com o botão direito na pasta <strong>Allfiles</strong> e selecione <strong>Open in Integrated Terminal</strong>. Isso abrirá uma janela de terminal no local correto.</p>
+</li>
+<li><p>No terminal, digite o comando abaixo e pressione <strong>Enter</strong>.</p>
+<pre class="lab-code"><code class="language-bash">az login
+</code></pre>
+</li>
+<li><p>Você será solicitado a abrir um navegador e inserir um código. Siga as instruções para entrar na sua conta do Azure.</p>
+</li>
+<li><p><em>Pule esta etapa se você já tiver um resource group.</em> Caso contrário, crie um executando o comando abaixo no terminal. Substitua <em>contoso-rgXXX######</em> por um nome exclusivo para seu resource group. O nome deve ser exclusivo no Azure. Substitua também a localização (-l) pela região do seu resource group.</p>
+<pre class="lab-code"><code class="language-bash">az group create -n "contoso-rglod#######" -l eastus2
+</code></pre>
+<p>Substitua <strong>######</strong> por alguns caracteres aleatórios.</p>
+</li>
+<li><p>No terminal, digite o comando abaixo e pressione <strong>Enter</strong> para criar uma storage account. Use um nome exclusivo. <em>O nome deve ter entre 3 e 24 caracteres e pode conter apenas números e letras minúsculas.</em> Substitua <em>########</em> por 8 caracteres numéricos aleatórios. O nome deve ser exclusivo no Azure. Substitua contoso-rgXXX###### pelo nome do seu resource group e altere a localização (-l) para a região do resource group.</p>
+<pre class="lab-code"><code class="language-bash">az storage account create -n "dp300bckupstrg########" -g "contoso-rgXXX########" --kind StorageV2 -l eastus2
+</code></pre>
+</li>
+<li><p>Em seguida, obtenha as chaves da storage account, que serão usadas nas etapas posteriores. Execute o código abaixo no terminal usando o nome exclusivo da storage account e do resource group.</p>
+<pre class="lab-code"><code class="language-bash">az storage account keys list -g contoso-rgXXX######## -n dp300bckupstrg########
+</code></pre>
+<p>A chave da conta aparecerá nos resultados. Confirme que você está usando o mesmo nome — após <strong>-n</strong> — e o mesmo resource group — após <strong>-g</strong> — usados no comando anterior. Copie o valor retornado para <strong>key1</strong>, sem as aspas duplas.</p>
+</li>
+<li><p>Fazer backup de um banco SQL Server para uma URL usa um container dentro de uma storage account. Nesta etapa, você criará um container específico para armazenar backups. Execute o comando abaixo.</p>
+<pre class="lab-code"><code class="language-bash">az storage container create --name "backups" --account-name "dp300bckupstrg########" --account-key "storage_key" --fail-on-exist
+</code></pre>
+<p>Onde <strong>dp300bckupstrg########</strong> é o nome exclusivo usado na criação da storage account e <strong>storage_key</strong> é a chave gerada anteriormente. A saída deverá retornar <strong>true</strong>.</p>
+</li>
+<li><p>Para confirmar se o container backups foi criado corretamente, execute:</p>
+<pre class="lab-code"><code class="language-bash">az storage container list --account-name "dp300bckupstrg########" --account-key "storage_key"
+</code></pre>
+<p>Onde <strong>dp300bckupstrg########</strong> é o nome exclusivo da storage account e <strong>storage_key</strong> é a chave gerada.</p>
+</li>
+<li><p>Por segurança, é necessária uma shared access signature (SAS) no nível do container. Execute o comando abaixo no terminal:</p>
+<pre class="lab-code"><code class="language-bash">az storage container generate-sas -n "backups" --account-name "dp300bckupstrg########" --account-key "storage_key" --permissions "rwdl" --expiry "date_in_the_future" -o tsv
+</code></pre>
+<p>Onde <strong>dp300bckupstrg########</strong> é o nome exclusivo da storage account, <strong>storage_key</strong> é a chave gerada e <strong>date_in_the_future</strong> é uma data/hora futura. <strong>date_in_the_future</strong> deve estar em UTC. Um exemplo é <strong>2025-12-31T00:00Z</strong>, que corresponde a expiração em 31 de dezembro de 2025 à meia-noite.</p>
+<p>A saída deverá ser semelhante à seguinte. Copie toda a shared access signature e cole-a no <strong>Notepad</strong>. Ela será usada na próxima tarefa.</p>
+<p><em>se=2020-12-31T00%3A00Z&amp;sp=rwdl&amp;sv=2018-11-09&amp;sr=c&amp;sig=rnoGlveGql7ILhziyKYUPBq5ltGc/pzqOCNX5rrLdRQ%3D</em></p>
+</li>
+</ol>
+<h2>Criar a credential</h2>
+<p>Agora que a funcionalidade está configurada, você pode gerar um arquivo de backup como blob na Azure Storage Account.</p>
+<ol>
+<li><p>Inicie o <strong>SQL Server Management Studio (SSMS)</strong>.</p>
+</li>
+<li><p>Você será solicitado a conectar ao SQL Server. Confirme que <strong>Windows Authentication</strong> está selecionado e selecione <strong>Connect</strong>.</p>
+</li>
+<li><p>Selecione <strong>New Query</strong>.</p>
+</li>
+<li><p>Crie a credential que será usada para acessar o armazenamento na nuvem com o Transact-SQL abaixo. Preencha os valores apropriados e selecione <strong>Execute</strong>.</p>
+<pre class="lab-code"><code class="language-sql">IF NOT EXISTS  
+(SELECT * 
+    FROM sys.credentials  
+    WHERE name = 'https://&lt;storage_account_name&gt;.blob.core.windows.net/backups')  
+BEGIN
+    CREATE CREDENTIAL [https://&lt;storage_account_name&gt;.blob.core.windows.net/backups]
+    WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
+    SECRET = '&lt;key_value&gt;'
+END;
+GO  
+</code></pre>
+<p>Nas duas ocorrências, <strong>&lt;storage_account_name&gt;</strong> representa o nome exclusivo da storage account criada, e <strong>&lt;key_value&gt;</strong> é o valor gerado ao final da tarefa anterior, semelhante ao seguinte:</p>
+<p><em>se=2020-12-31T00%3A00Z&amp;sp=rwdl&amp;sv=2018-11-09&amp;sr=c&amp;sig=rnoGlveGql7ILhziyKYUPBq5ltGc/pzqOCNX5rrLdRQ%3D</em></p>
+</li>
+<li><p>Você pode verificar se a credential foi criada com sucesso navegando até <strong>Security -&gt; Credentials</strong> no Object Explorer do SSMS.</p>
+</li>
+<li><p>Se você digitou algo incorretamente e precisa recriar a credential, poderá removê-la com o comando abaixo. Altere o nome da storage account conforme necessário:</p>
+<pre class="lab-code"><code class="language-sql">-- Only run this command if you need to go back and recreate the credential! 
+DROP CREDENTIAL [https://&lt;storage_account_name&gt;.blob.core.windows.net/backups]  
+</code></pre>
+</li>
+</ol>
+<h2>Fazer backup do banco para URL</h2>
+<ol>
+<li><p>Usando o SSMS, faça backup do banco <strong>AdventureWorks2017</strong> no Azure usando o seguinte comando Transact-SQL:</p>
+<pre class="lab-code"><code class="language-sql">BACKUP DATABASE AdventureWorks2017   
+TO URL = 'https://&lt;storage_account_name&gt;.blob.core.windows.net/backups/AdventureWorks2017.bak';
+GO 
+</code></pre>
+<p>Onde <strong>&lt;storage_account_name&gt;</strong> é o nome exclusivo da storage account criada.</p>
+<p>Se ocorrer um erro, confirme que nada foi digitado incorretamente durante a criação da credential e que todos os recursos foram criados com sucesso.</p>
+</li>
+</ol>
+<h2>Validar o backup pelo Azure CLI</h2>
+<p>Para confirmar que o arquivo realmente está no Azure, você pode usar o Storage Explorer (preview) ou o Azure Cloud Shell.</p>
+<ol>
+<li><p>De volta ao terminal do Visual Studio Code, execute este comando do Azure CLI:</p>
+<pre class="lab-code"><code class="language-bash">az storage blob list -c "backups" --account-name "dp300bckupstrg########" --account-key "storage_key" --output table
+</code></pre>
+<p>Confirme que está usando o mesmo nome exclusivo da storage account — após <strong>--account-name</strong> — e a mesma account key — após <strong>--account-key</strong> — usados nos comandos anteriores.</p>
+<p>Assim, podemos confirmar que o arquivo de backup foi gerado com sucesso.</p>
+</li>
+</ol>
+<h2>Validar o backup pelo Storage Browser</h2>
+<ol>
+<li><p>Em uma janela do navegador, acesse o Azure portal, pesquise e selecione <strong>Storage accounts</strong>.</p>
+</li>
+<li><p>Selecione o nome exclusivo da storage account criada para os backups.</p>
+</li>
+<li><p>No painel de navegação esquerdo, selecione <strong>Storage browser</strong>. Expanda <strong>Blob containers</strong>.</p>
+</li>
+<li><p>Selecione <strong>backups</strong>.</p>
+</li>
+<li><p>Observe que o arquivo de backup está armazenado no container.</p>
+</li>
+</ol>
+<h2>Restaurar a partir de URL</h2>
+<p>Nesta tarefa, você verá como restaurar um banco de dados a partir do Azure Blob Storage.</p>
+<ol>
+<li><p>No <strong>SQL Server Management Studio (SSMS)</strong>, selecione <strong>New Query</strong>, cole a consulta abaixo e execute-a.</p>
+<pre class="lab-code"><code class="language-sql">USE AdventureWorks2017;
+GO
+SELECT * FROM Person.Address WHERE AddressId = 1;
+GO
+</code></pre>
+</li>
+<li><p>Execute o comando abaixo para alterar o endereço desse cliente.</p>
+<pre class="lab-code"><code class="language-sql">UPDATE Person.Address
+SET AddressLine1 = 'This is a human error'
+WHERE AddressId = 1;
+GO
+</code></pre>
+</li>
+<li><p>Execute novamente a <strong>Etapa 1</strong> para confirmar que o endereço foi alterado. Agora imagine que alguém tivesse alterado milhares ou milhões de linhas sem cláusula WHERE — ou usando uma cláusula WHERE incorreta. Uma das soluções é restaurar o banco a partir do último backup disponível.</p>
+</li>
+<li><p>Para restaurar o banco ao estado anterior à alteração incorreta do endereço do cliente, execute o seguinte.</p>
+<blockquote>
+<p>📝 Com a sintaxe <strong>SET SINGLE_USER WITH ROLLBACK IMMEDIATE</strong>, todas as transações abertas serão revertidas. Isso pode impedir que o restore falhe por causa de conexões ativas.</p>
+</blockquote>
+<pre class="lab-code"><code class="language-sql">USE [master]
+GO
+
+ALTER DATABASE AdventureWorks2017 SET SINGLE_USER WITH ROLLBACK IMMEDIATE
+GO
+
+RESTORE DATABASE AdventureWorks2017 
+FROM URL = 'https://&lt;storage_account_name&gt;.blob.core.windows.net/backups/AdventureWorks2017.bak'
+GO
+
+ALTER DATABASE AdventureWorks2017 SET MULTI_USER
+GO
+</code></pre>
+<p>Onde <strong>&lt;storage_account_name&gt;</strong> é o nome exclusivo da storage account criada.</p>
+</li>
+<li><p>Execute novamente a <strong>Etapa 1</strong> para confirmar que o endereço do cliente foi restaurado.</p>
+</li>
+</ol>
+<p>É importante entender os componentes e como eles interagem para fazer backup para ou restore a partir do serviço Azure Blob Storage.</p>
+<hr/>
+<h2>Limpar os recursos</h2>
+<p>Se você não for usar os recursos do Azure para nenhuma outra finalidade, poderá remover os recursos criados neste laboratório.</p>
+<h3>Excluir o grupo de recursos</h3>
+<p>Se você criou um novo grupo de recursos para este laboratório, pode excluí-lo para remover todos os recursos criados nele.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos criado para este laboratório. Ele conterá os recursos criados durante o lab.</p>
+</li>
+<li><p>Selecione <strong>Delete resource group</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resource group</strong>, digite o nome do grupo de recursos para confirmar e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Aguarde a exclusão do grupo de recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<h3>Excluir somente os recursos do laboratório</h3>
+<p>Se você não criou um novo grupo de recursos para este laboratório e deseja manter o grupo e seus recursos anteriores, ainda poderá excluir somente os recursos criados neste lab.</p>
+<ol>
+<li><p>No Azure portal, selecione <strong>Resource groups</strong> no painel de navegação esquerdo ou pesquise <strong>Resource groups</strong> na barra de pesquisa e selecione o resultado.</p>
+</li>
+<li><p>Abra o grupo de recursos usado neste laboratório.</p>
+</li>
+<li><p>Selecione os recursos criados para este laboratório.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> no menu superior.</p>
+</li>
+<li><p>Na caixa de diálogo <strong>Delete resources</strong>, digite <strong>delete</strong> e selecione <strong>Delete</strong>.</p>
+</li>
+<li><p>Selecione <strong>Delete</strong> novamente para confirmar a exclusão dos recursos.</p>
+</li>
+<li><p>Aguarde a exclusão dos recursos.</p>
+</li>
+<li><p>Feche o Azure portal.</p>
+</li>
+</ol>
+<p>Se você não for usar o banco de dados nem os arquivos do laboratório para nenhuma outra finalidade, poderá remover os objetos criados neste lab.</p>
+<h3>Excluir a pasta C:\LabFiles</h3>
+<ol>
+<li>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, abra o <strong>File Explorer</strong>.</li>
+<li>Navegue até <strong>C:\</strong>.</li>
+<li>Exclua a pasta <strong>C:\LabFiles</strong>.</li>
+</ol>
+<h2>Excluir o banco AdventureWorks2017</h2>
+<ol>
+<li>Na máquina virtual do laboratório, ou na sua máquina local se nenhuma VM tiver sido fornecida, inicie uma sessão do SQL Server Management Studio (SSMS).</li>
+<li>Quando o SSMS abrir, a caixa de diálogo <strong>Connect to Server</strong> aparecerá por padrão. Escolha a instância Default e selecione <strong>Connect</strong>. Talvez seja necessário marcar <strong>Trust server certificate</strong>.</li>
+<li>No <strong>Object Explorer</strong>, expanda a pasta <strong>Databases</strong>.</li>
+<li>Clique com o botão direito no banco <strong>AdventureWorks2017</strong> e selecione <strong>Delete</strong>.</li>
+<li>Na caixa de diálogo <strong>Delete Object</strong>, marque <strong>Close existing connections</strong>.</li>
+<li>Selecione <strong>OK</strong>.</li>
+</ol>
+<hr/>
+<p>Você concluiu este laboratório com sucesso.</p>
+<p>Agora você viu que é possível fazer backup de um banco para uma URL no Azure e, se necessário, restaurá-lo.</p>
+
+</div>
