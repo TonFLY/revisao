@@ -207,6 +207,10 @@
     .drag-bank { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
     .drag-item { border:2px solid #dfe4ea; border-radius:8px; padding:8px 10px; background:#fff; cursor:grab; font-size:13px; }
     .drag-item.active { border-color:#1a237e; background:#eef1ff; }
+    .drag-item.assigned { border-style:dashed; opacity:.62; }
+    .drag-item.assigned::after { content:' ✓'; font-weight:900; color:#2e7d32; }
+    .drop-value { display:flex; align-items:center; gap:8px; }
+    .drop-value .move-hint { font-size:11px; color:#59636e; font-weight:700; }
     .dropzone { border:2px dashed #aeb8c3; border-radius:9px; padding:11px; margin:8px 0; min-height:54px; }
     .dropzone.filled { border-style:solid; border-color:#1a237e; background:#f4f5ff; }
     .drop-label { font-size:12px; font-weight:800; color:#57606a; margin-bottom:4px; }
@@ -1422,22 +1426,55 @@ No final da resposta, fora do arquivo, informe um resumo com:
 
   function studyDropClick(z) { if (studyDragSelected) assignStudyDrag(z); }
 
+  function refreshStudyDragBank() {
+    const assigned = new Set(
+      [...document.querySelectorAll('#studyInteraction .dropzone')]
+        .map(x => x.dataset.assigned)
+        .filter(Boolean)
+    );
+    document.querySelectorAll('#studyInteraction .drag-item').forEach(el => {
+      el.classList.toggle('assigned', assigned.has(el.dataset.studyDragId));
+      el.title = assigned.has(el.dataset.studyDragId)
+        ? 'Já usado. Clique ou arraste novamente para mover/trocar.'
+        : 'Clique ou arraste para um destino.';
+    });
+  }
+
+  function setStudyDropValue(z, id, items) {
+    const el = z.querySelector('.drop-value');
+    if (!id) {
+      el.innerHTML = 'Solte ou selecione um item aqui';
+      return;
+    }
+    const text = items.find(i => String(i.id) === String(id))?.text || id;
+    el.innerHTML = `<span>${h(text)}</span><span class="move-hint">pode mover novamente</span>`;
+  }
+
   function assignStudyDrag(z) {
     const q = sQueue[sIdx], items = q.interaction?.items || [];
     const id = studyDragSelected;
     if (!id) return;
+
+    // Um mesmo item só pode ocupar um destino.
+    // Se ele já estava em outro destino, remove de lá antes de mover.
     document.querySelectorAll('#studyInteraction .dropzone').forEach(x => {
       if (x !== z && x.dataset.assigned === id) {
         x.dataset.assigned = '';
         x.classList.remove('filled');
-        x.querySelector('.drop-value').textContent = 'Solte ou selecione um item aqui';
+        setStudyDropValue(x, '', items);
       }
     });
+
+    // Se o destino já tinha outro item, ele simplesmente volta a ficar "livre"
+    // no banco superior, que permanece sempre visível.
     z.dataset.assigned = id;
     z.classList.add('filled');
-    z.querySelector('.drop-value').textContent = items.find(i => String(i.id) === String(id))?.text || id;
-    document.querySelector(`#studyInteraction .drag-item[data-study-drag-id="${CSS.escape(id)}"]`)?.remove();
+    setStudyDropValue(z, id, items);
+
+    document.querySelectorAll('#studyInteraction .drag-item')
+      .forEach(x => x.classList.remove('active'));
     studyDragSelected = null;
+    refreshStudyDragBank();
   }
 
   function toggleStudyHotspot(el, multi) {
@@ -1486,7 +1523,8 @@ No final da resposta, fora do arquivo, informe um resumo com:
     else if (type === 'drag_drop') {
       const items = i.items || [], targets = i.targets || [];
       body = `<div class="drag-bank">${items.map(x=>`<div class="drag-item" draggable="true" data-study-drag-id="${ha(x.id)}" onclick="chooseStudyDrag(this)" ondragstart="studyDragStart(event)">${h(x.text)}</div>`).join('')}</div>${targets.map(t=>`<div class="dropzone" data-study-target="${ha(t.id)}" data-assigned="" onclick="studyDropClick(this)" ondragover="event.preventDefault()" ondrop="studyDropEvent(event,this)"><div class="drop-label">${h(t.label)}</div><div class="drop-value">Solte ou selecione um item aqui</div></div>`).join('')}<button class="study-submit" onclick="submitStudyRich()">Responder</button>`;
-      help = 'Arraste cada item para o destino correto (ou clique no item e depois no destino).';
+      help = 'Arraste ou clique. Para trocar uma resposta, selecione o mesmo item novamente no topo e coloque em outro destino.';
+      setTimeout(refreshStudyDragBank, 0);
     }
 
     else if (type === 'image_hotspot') {
