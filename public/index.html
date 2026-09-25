@@ -269,7 +269,7 @@
     .pdf-chip.bad { background:#ffebee; color:#c62828; }
     .pdf-warning { background:#fff8e8; border:1px solid #ffe0b2; border-radius:8px; padding:9px 11px; font-size:12px; color:#7a4d00; margin-top:10px; }
 
-    .pdf-export-host { position:fixed; left:-100000px; top:0; width:190mm; background:#fff; color:#1f2937; font-family:Arial,Helvetica,sans-serif; z-index:-1; }
+    .pdf-export-host { position:absolute; left:0; top:0; width:190mm; background:#fff; color:#1f2937; font-family:Arial,Helvetica,sans-serif; z-index:2147483000; pointer-events:none; box-sizing:border-box; }
     .pdf-doc { width:100%; background:#fff; font-size:11.5px; line-height:1.48; }
     .pdf-cover { padding:14mm 8mm 10mm; border-bottom:2px solid #1a237e; margin-bottom:7mm; }
     .pdf-cover h1 { margin:0 0 4mm; color:#1a237e; font-size:24px; }
@@ -1052,6 +1052,9 @@ No final da resposta, fora do arquivo, informe um resumo com:
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
   const API = '/api/questions';
   let qs = [], sQueue = [], sIdx = 0, answered = false;
@@ -2251,31 +2254,193 @@ No final da resposta, fora do arquivo, informe um resumo com:
     $('pdfPreview').innerHTML = arr.slice(0,20).map((q,i)=>`<div class="pdf-preview-row"><div class="m"><span class="pdf-chip">${i+1}</span><span class="pdf-chip">${h(q.topic||'')}</span><span class="pdf-chip">${h(q.status||'')}</span><span class="pdf-chip">${h(pdfTypeLabel(q.question_type||'single_choice'))}</span></div><strong>${h(q.question)}</strong></div>`).join('') + (arr.length>20?`<div class="pdf-preview-row" style="text-align:center">... mais ${arr.length-20} questão(ões)</div>`:'');
   }
 
-  async function pdfExport() {
-    pdfApplyFilters();
-    if (!pdfState.selected.length) { alert('Nenhuma questão atende aos filtros.'); return; }
-    if (!window.html2pdf) { alert('Não foi possível carregar o gerador de PDF. Verifique a conexão e recarregue a página.'); return; }
-    const file = (pdfText($('pdfFileName').value) || `${currentExam.toLowerCase()}-questoes.pdf`).replace(/[\\/:*?"<>|]+/g,'-');
-    const filename = /\.pdf$/i.test(file) ? file : file + '.pdf';
+
+  function pdfSleep(ms){ return new Promise(resolve=>setTimeout(resolve,ms)); }
+
+  async function pdfWaitForAssets(root) {
+    try {
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    } catch (_) {}
+    const imgs = [...root.querySelectorAll('img')];
+    await Promise.all(imgs.map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise(resolve => {
+        const done = () => resolve();
+        img.addEventListener('load', done, {once:true});
+        img.addEventListener('error', done, {once:true});
+        setTimeout(done, 5000);
+      });
+    }));
+    await pdfSleep(40);
+  }
+
+  async function pdfCanvasForHTML(innerHTML) {
     const host = document.createElement('div');
     host.className = 'pdf-export-host';
-    host.innerHTML = pdfDocumentHTML(pdfState.selected);
+    host.innerHTML = `<div class="pdf-doc">${innerHTML}</div>`;
     document.body.appendChild(host);
-    $('pdfStatus').textContent = 'Gerando PDF...';
+
     try {
-      await html2pdf().set({
-        margin:[10,10,12,10], filename,
-        image:{type:'jpeg',quality:0.96},
-        html2canvas:{scale:1.6,useCORS:true,letterRendering:true,backgroundColor:'#ffffff'},
-        jsPDF:{unit:'mm',format:'a4',orientation:'portrait'},
-        pagebreak:{mode:['css','legacy'],before:'.pdf-page-break'}
-      }).from(host).save();
-      $('pdfStatus').innerHTML = `<strong style="color:#2e7d32;">PDF gerado:</strong> ${h(filename)} · ${pdfState.selected.length} questão(ões).`;
-    } catch (e) {
-      console.error(e);
-      $('pdfStatus').innerHTML = `<strong style="color:#c62828;">Falha ao gerar PDF:</strong> ${h(e.message || e)}`;
+      await pdfWaitForAssets(host);
+      const canvas = await html2canvas(host, {
+        scale: 1.35,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        logging: false,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: Math.max(document.documentElement.clientWidth, host.scrollWidth + 40)
+      });
+      return canvas;
     } finally {
       host.remove();
+    }
+  }
+
+  function pdfAddCanvas(doc, canvas, state, forceNewPage=false) {
+    const marginX = 10;
+    const marginTop = 10;
+    const marginBottom = 12;
+    const pageW = 210;
+    const pageH = 297;
+    const contentW = pageW - marginX * 2;
+    const contentH = pageH - marginTop - marginBottom;
+    const pxPerMm = canvas.width / contentW;
+    const fullHmm = canvas.height / pxPerMm;
+
+    function ensurePage() {
+      if (!state.hasPage) {
+        state.hasPage = true;
+        state.y = marginTop;
+      }
+    }
+
+    if (forceNewPage && state.hasPage) {
+      doc.addPage();
+      state.y = marginTop;
+    }
+    ensurePage();
+
+    // Se o bloco cabe inteiro em uma página, tenta encaixar no espaço restante.
+    if (fullHmm <= contentH) {
+      if (state.y + fullHmm > pageH - marginBottom) {
+        doc.addPage();
+        state.y = marginTop;
+      }
+      const data = canvas.toDataURL('image/jpeg', 0.90);
+      doc.addImage(data, 'JPEG', marginX, state.y, contentW, fullHmm, undefined, 'FAST');
+      state.y += fullHmm + 3;
+      return;
+    }
+
+    // Bloco maior que uma página: fatia o canvas em páginas.
+    let srcY = 0;
+    const maxSlicePx = Math.floor(contentH * pxPerMm);
+
+    if (state.y > marginTop + 1) {
+      doc.addPage();
+      state.y = marginTop;
+    }
+
+    while (srcY < canvas.height) {
+      const sliceH = Math.min(maxSlicePx, canvas.height - srcY);
+      const slice = document.createElement('canvas');
+      slice.width = canvas.width;
+      slice.height = sliceH;
+      const ctx = slice.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0,0,slice.width,slice.height);
+      ctx.drawImage(canvas, 0, srcY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+
+      const sliceHmm = sliceH / pxPerMm;
+      const data = slice.toDataURL('image/jpeg', 0.90);
+      doc.addImage(data, 'JPEG', marginX, marginTop, contentW, sliceHmm, undefined, 'FAST');
+
+      srcY += sliceH;
+      if (srcY < canvas.height) doc.addPage();
+    }
+    state.y = marginTop;
+    doc.addPage();
+    state.y = marginTop;
+    state.trailingBlankPage = true;
+  }
+
+  async function pdfExport() {
+    pdfApplyFilters();
+    if (!pdfState.selected.length) {
+      alert('Nenhuma questão atende aos filtros.');
+      return;
+    }
+    if (!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) {
+      alert('Não foi possível carregar o gerador de PDF. Verifique a conexão e recarregue a página.');
+      return;
+    }
+
+    const file = (pdfText($('pdfFileName').value) || `${currentExam.toLowerCase()}-questoes.pdf`)
+      .replace(/[\\/:*?"<>|]+/g,'-');
+    const filename = /\.pdf$/i.test(file) ? file : file + '.pdf';
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({unit:'mm', format:'a4', orientation:'portrait', compress:true});
+    const state = {hasPage:true, y:10, trailingBlankPage:false};
+    const total = pdfState.selected.length;
+    const mode = $('pdfAnswerMode').value;
+    const seenCases = new Set();
+
+    $('pdfStatus').innerHTML = '<strong>Gerando PDF...</strong> preparando capa.';
+    try {
+      // Capa
+      const title = pdfText($('pdfTitle').value) || `${currentExam} - Caderno de questões`;
+      const cover = `<div class="pdf-cover">
+        <h1>${h(title)}</h1>
+        <div>${h(currentExam)} · ${total} questão(ões) · gerado em ${h(new Date().toLocaleString('pt-BR'))}</div>
+      </div>`;
+      const coverCanvas = await pdfCanvasForHTML(cover);
+      pdfAddCanvas(doc, coverCanvas, state, false);
+
+      // Questões: renderiza uma por vez, evitando o canvas gigante que gerava PDF em branco.
+      for (let i=0; i<total; i++) {
+        $('pdfStatus').innerHTML = `<strong>Gerando PDF...</strong> questão ${i+1} de ${total}.`;
+        const qhtml = pdfQuestionHTML(pdfState.selected[i], i, mode, seenCases);
+        const canvas = await pdfCanvasForHTML(qhtml);
+        const onePerPage = $('pdfLayout').value === 'page';
+        pdfAddCanvas(doc, canvas, state, onePerPage);
+        if ((i+1) % 5 === 0) await pdfSleep(10);
+      }
+
+      // Gabarito no final: renderiza em blocos pequenos.
+      if (mode === 'end') {
+        if (state.y > 12) {
+          doc.addPage();
+          state.y = 10;
+        }
+        const headCanvas = await pdfCanvasForHTML('<section class="pdf-key"><h2>Gabarito</h2></section>');
+        pdfAddCanvas(doc, headCanvas, state, false);
+
+        for (let i=0; i<total; i++) {
+          $('pdfStatus').innerHTML = `<strong>Gerando PDF...</strong> gabarito ${i+1} de ${total}.`;
+          const q = pdfState.selected[i];
+          const row = `<div class="pdf-key-row"><b>${i+1}.</b> ${h(pdfCorrectSummary(q))}${pdfLearningHTML(q)}</div>`;
+          const canvas = await pdfCanvasForHTML(row);
+          pdfAddCanvas(doc, canvas, state, false);
+          if ((i+1) % 5 === 0) await pdfSleep(10);
+        }
+      }
+
+      // Remove página vazia criada apenas para continuar o fatiamento.
+      const pages = doc.getNumberOfPages();
+      if (state.trailingBlankPage && pages > 1) {
+        doc.deletePage(pages);
+      }
+
+      doc.save(filename);
+      $('pdfStatus').innerHTML =
+        `<strong style="color:#2e7d32;">PDF gerado:</strong> ${h(filename)} · ${total} questão(ões).`;
+    } catch (e) {
+      console.error(e);
+      $('pdfStatus').innerHTML =
+        `<strong style="color:#c62828;">Falha ao gerar PDF:</strong> ${h(e.message || e)}`;
     }
   }
 
