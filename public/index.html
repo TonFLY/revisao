@@ -780,7 +780,7 @@ REALISMO
 - Misture dificuldades "facil", "medio" e "dificil", com predominância de médio/difícil.
 - Crie variações conceituais: não repita a mesma pergunta apenas trocando nomes.
 - Estudos de caso devem compartilhar contexto através de case_id + case_data e ter várias perguntas independentes quando fizer sentido.
-- PADRÃO MÍNIMO DE REALISMO: a questão deve exigir conhecimento específico de DP-300. Se puder ser respondida por bom senso, sem conhecer Azure SQL/SQL Server, REJEITE E REESCREVA.
+- PADRÃO MÍNIMO DE REALISMO: a questão deve exigir conhecimento específico de [CÓDIGO DP-XXX]. Se puder ser respondida por bom senso, sem conhecer os produtos, recursos e conceitos cobrados nesse exame, REJEITE E REESCREVA.
 - Não crie perguntas "didáticas demais" em que a própria redação entrega a resposta. O objetivo é simular uma prova profissional, não um quiz introdutório.
 - Em formatos interativos, a dificuldade deve estar na distinção entre opções tecnicamente próximas, não em escolher entre uma opção correta e outra semanticamente absurda.
 
@@ -809,11 +809,20 @@ QUALIDADE DAS ALTERNATIVAS E DISTRATORES — REGRA OBRIGATÓRIA
   - Cada opção incorreta deve representar uma escolha que um profissional poderia fazer por confundir um recurso semelhante, um limite, uma condição, um parâmetro ou uma arquitetura.
   - A resposta deve depender de conhecer o produto/recurso, não de reconhecer qual texto 'combina' gramaticalmente com a frase.
   - Se apenas UMA opção forma uma frase natural/completa com o código ou texto, a questão é inválida.
-  - Se uma opção correta puder ser identificada sem conhecer DP-300 apenas por coerência semântica, a questão é inválida.
+  - Se uma opção correta puder ser identificada sem conhecer [CÓDIGO DP-XXX] apenas por coerência semântica, a questão é inválida.
   - TESTE DE SLOT: esconda o enunciado e leia somente as opções do dropdown. Todas devem parecer alternativas técnicas reais para o mesmo campo.
   - TESTE DE TROCA: imagine trocar a correta por cada distrator. O resultado deve continuar sendo sintaticamente válido e tecnicamente crível, embora incorreto por um requisito específico.
 - Em build_list, inclua somente etapas que poderiam realmente fazer parte do procedimento. A dificuldade deve estar na ordem e na necessidade de cada etapa, não em itens absurdos.
+- Em build_list, interaction.items NUNCA pode ser apresentado já na ordem correta do correct_payload.order.
+- Em build_list, embaralhe a ordem visual de forma não trivial. Evite apenas inverter a lista, trocar dois itens ou aplicar rotação simples.
+- Em build_list com 4 ou mais itens, pelo menos 3 itens devem aparecer em posições diferentes da posição correta, sempre que matematicamente possível.
+- Em build_list, NÃO use IDs que revelem ordem, como s1/s2/s3/s4, step1/step2, etapa1/etapa2. Use IDs opacos e neutros, sem significado ordinal.
 - Em drag_drop, todos os itens e destinos devem pertencer ao mesmo domínio técnico e permitir confusões realistas.
+- Em drag_drop, interaction.items e interaction.targets devem ser embaralhados INDEPENDENTEMENTE.
+- Em drag_drop, é PROIBIDO estruturar o banco como item 1 -> destino 1, item 2 -> destino 2 etc.
+- Em drag_drop, NÃO use IDs correlacionados como i1/t1, i2/t2, recurso1/requisito1. Use IDs opacos e não correlacionados.
+- Em drag_drop com 4 pares, no máximo 1 par correto pode ocupar a mesma posição ordinal nas duas listas; preferencialmente ZERO.
+- Em build_list e drag_drop, a posição visual e o ID jamais podem fornecer pista sobre o gabarito.
 - Se duas alternativas puderem ser descartadas imediatamente por bom senso, linguagem ou por não terem relação com o produto/recurso discutido, REESCREVA A QUESTÃO.
 - Evite pistas involuntárias: alternativa correta muito mais longa, precisa ou bem escrita que as demais; respostas com palavras copiadas literalmente do enunciado; absolutos como "sempre", "nunca" e "obrigatoriamente" usados apenas para tornar um distrator obviamente falso.
 - REGRA DE SIMETRIA DAS ALTERNATIVAS: a resposta correta NÃO pode se destacar visual ou linguisticamente. As alternativas devem ter comprimento, nível de detalhe, tom, estrutura gramatical e precisão técnica semelhantes.
@@ -843,6 +852,67 @@ Use uma mistura tecnicamente apropriada. Não force distribuição igual, mas N�
 6. drag_drop — associar itens a requisitos/destinos.
 7. image_hotspot — clicar em uma ou mais áreas de uma imagem/diagrama. Use somente se houver image_url estável (HTTPS ou caminho relativo disponível para o app).
 8. case study — NÃO é question_type; use case_id e case_data junto a qualquer um dos tipos acima.
+
+
+DISTRIBUIÇÃO DO GABARITO — REGRA CRÍTICA E OBRIGATÓRIA
+- A posição das respostas corretas deve ser deliberadamente distribuída e auditada. É PROIBIDO concentrar respostas corretas nas alternativas A e B.
+- A distribuição posicional deve ser planejada ANTES da redação final das alternativas.
+- O conteúdo técnico determina QUAL solução é correta; a distribuição determina apenas EM QUAL POSIÇÃO essa solução aparecerá.
+- NUNCA altere a solução tecnicamente correta para equilibrar letras. Quando necessário, REORDENE as alternativas e atualize todos os campos dependentes.
+
+SINGLE_CHOICE — DISTRIBUIÇÃO OBRIGATÓRIA
+- Distribua as respostas corretas de forma aproximadamente uniforme entre A, B, C e D dentro do lote.
+- Meta ideal: aproximadamente 25% para cada letra.
+- Em lotes com pelo menos 12 single_choice, nenhuma letra pode ultrapassar 30% das respostas corretas, salvo impossibilidade matemática.
+- Não permita mais de 2 respostas consecutivas na mesma letra.
+- Evite padrões previsíveis como A,B,C,D,A,B,C,D; A,B,A,B; ou qualquer rotação mecânica.
+- A posição correta deve ser independente do comprimento, precisão, terminologia e nível de detalhe da alternativa.
+- Se for necessário reposicionar a correta, embaralhe as quatro alternativas e atualize correct, correct_payload e todos os campos why_*_wrong.
+- O campo why_*_wrong correspondente à alternativa correta deve permanecer null depois de qualquer reordenação.
+
+MULTI_SELECT — COMBINAÇÕES OBRIGATORIAMENTE VARIADAS
+- É PROIBIDO usar ["A","B"] como combinação padrão ou dominante.
+- Quando houver exatamente 2 respostas corretas entre 4 opções, varie deliberadamente entre A+B, A+C, A+D, B+C, B+D e C+D.
+- Nenhuma combinação deve dominar claramente o banco quando houver quantidade suficiente para variar.
+- A+B não deve aparecer com frequência desproporcional.
+- Quando houver exatamente 3 respostas corretas entre 4 opções, alterne de forma aproximadamente equilibrada qual alternativa fica de fora.
+- Se reordenar opções, atualize correct_payload para refletir as novas letras.
+
+HOTSPOT_DROPDOWN — POSIÇÃO DAS OPÇÕES
+- A opção correta não deve aparecer sistematicamente na primeira ou segunda posição.
+- Varie deliberadamente a posição correta entre todas as opções disponíveis.
+- Em uma questão com vários slots, evite que todos os corretos ocupem a mesma posição.
+- A ordem visual das opções não pode oferecer pista sobre a resposta.
+
+YES_NO_MATRIX — EVITAR PADRÕES
+- Não concentre respostas sistematicamente em Sim ou em Não.
+- Evite repetir a mesma sequência de Sim/Não em várias questões consecutivas.
+- Varie as sequências preservando sempre a verdade técnica de cada afirmação.
+
+BUILD_LIST — EMBARALHAMENTO OBRIGATÓRIO
+- interaction.items deve estar em ordem visual diferente de correct_payload.order em 100% das questões.
+- Não use IDs ordinais ou sequenciais que revelem a ordem correta.
+- O embaralhamento deve ser não trivial: evite lista apenas invertida, rotação simples ou troca de um único par.
+- Em questões com 4 ou mais itens, procure um embaralhamento com no máximo 1 item na mesma posição de sua posição correta; preferencialmente zero.
+- TESTE DE POSIÇÃO: esconda os textos e compare apenas ordem exibida e ordem correta. Não deve existir padrão fácil de inferir.
+
+DRAG_DROP — EMBARALHAMENTO OBRIGATÓRIO
+- Embaralhe interaction.items e interaction.targets de forma independente.
+- Não use IDs correlacionados, sequenciais ou semanticamente pareados entre item e destino.
+- Em questões com 4 ou mais pares, no máximo 1 correspondência correta pode ocupar a mesma posição ordinal nas duas listas; preferencialmente zero.
+- TESTE DE POSIÇÃO: esconda os textos. A posição de um item não pode indicar seu destino.
+- TESTE DE ID: esconda os textos. Os IDs não podem indicar qual item pertence a qual destino.
+
+AUDITORIA GLOBAL DE PADRÕES
+- Antes de entregar, audite A/B/C/D, combinações de multi_select, posições corretas de dropdowns, padrões Sim/Não, ordem visual de build_list e alinhamento de drag_drop.
+- Se houver concentração, sequência, alinhamento ou padrão visual anormal, REORGANIZE AS OPÇÕES/ITENS antes da entrega sem alterar a lógica técnica.
+- Faça uma SEGUNDA PASSAGEM de auditoria depois de qualquer correção.
+- O banco é INVÁLIDO se o usuário puder aumentar significativamente a chance de acerto explorando posição, sequência, ID ou padrão do gabarito.
+
+TESTE FINAL DE ALEATORIEDADE CONTROLADA
+- Observe somente os gabaritos/posições, sem ler os enunciados.
+- Não deve ser possível inferir a próxima resposta ou associação a partir das anteriores.
+- Combine IMPREVISIBILIDADE LOCAL com EQUILÍBRIO GLOBAL.
 
 REGRAS GERAIS
 - origin: sempre "real" para este banco.
@@ -1009,13 +1079,13 @@ EXEMPLO 5 — BUILD LIST / ORDENAR ETAPAS
   "points": 4,
   "interaction": {
     "items": [
-      {"id":"s1","text":"Etapa 1"},
-      {"id":"s2","text":"Etapa 2"},
-      {"id":"s3","text":"Etapa 3"},
-      {"id":"s4","text":"Etapa 4"}
+      {"id":"quartz","text":"Executar a etapa de validação"},
+      {"id":"kappa","text":"Preparar o pré-requisito"},
+      {"id":"ember","text":"Executar a operação principal"},
+      {"id":"nova","text":"Aplicar a configuração necessária"}
     ]
   },
-  "correct_payload": {"order":["s2","s1","s4","s3"]},
+  "correct_payload": {"order":["kappa","nova","ember","quartz"]},
   "explanation": "Explique a ordem.",
   "source_name": "Microsoft Learn",
   "source_url": "https://learn.microsoft.com/...",
@@ -1033,20 +1103,27 @@ EXEMPLO 6 — DRAG & DROP / ASSOCIAÇÃO
   "topic": "HA/DR",
   "difficulty": "dificil",
   "realism_level": 4,
-  "points": 3,
+  "points": 4,
   "interaction": {
     "items": [
-      {"id":"i1","text":"Recurso 1"},
-      {"id":"i2","text":"Recurso 2"},
-      {"id":"i3","text":"Recurso 3"}
+      {"id":"cobalt","text":"Recurso C"},
+      {"id":"atlas","text":"Recurso A"},
+      {"id":"delta","text":"Recurso D"},
+      {"id":"birch","text":"Recurso B"}
     ],
     "targets": [
-      {"id":"t1","label":"Requisito 1"},
-      {"id":"t2","label":"Requisito 2"},
-      {"id":"t3","label":"Requisito 3"}
+      {"id":"south","label":"Requisito 2"},
+      {"id":"west","label":"Requisito 4"},
+      {"id":"north","label":"Requisito 1"},
+      {"id":"east","label":"Requisito 3"}
     ]
   },
-  "correct_payload": {"t1":"i2","t2":"i1","t3":"i3"},
+  "correct_payload": {
+    "south":"atlas",
+    "west":"delta",
+    "north":"birch",
+    "east":"cobalt"
+  },
   "explanation": "Explique cada associação.",
   "source_name": "Microsoft Learn",
   "source_url": "https://learn.microsoft.com/...",
@@ -1102,7 +1179,7 @@ Use o MESMO case_id e case_data em várias perguntas relacionadas:
   "realism_level": 5,
   "points": 2,
   "interaction": {"min":2,"max":2,"options":[...]},
-  "correct_payload": {"selected":["A","B"]},
+  "correct_payload": {"selected":["B","D"]},
   "explanation": "Explicação.",
   "status": "pendente",
   "exam": "[CÓDIGO DP-XXX]"
@@ -1131,10 +1208,17 @@ ANTES DE ENTREGAR
     - se o usuário puder acertar sem conhecimento técnico, REESCREVA o slot.
 15. Faça o TESTE DE PROVA REAL: para cada questão, pergunte "um candidato que NÃO estudou este tópico conseguiria acertar apenas por linguagem, bom senso ou exclusão?" Se sim, a questão é inválida.
 16. Remova duplicatas e variações triviais.
-17. Evite padrões previsíveis de letras nas questões single_choice.
-18. Confirme que interaction e correct_payload seguem EXATAMENTE os formatos acima.
-19. Valide o JSON final.
-20. Entregue um arquivo .json pronto para download, sem comentários fora do JSON que quebrem a importação.
+17. AUDITE a distribuição A/B/C/D das questões single_choice e corrija qualquer concentração ou padrão previsível.
+18. AUDITE as combinações das questões multi_select; A+B não pode ser combinação padrão/dominante.
+19. AUDITE cada build_list: interaction.items deve estar embaralhado e diferente de correct_payload.order; IDs não podem revelar sequência.
+20. AUDITE cada drag_drop: itens e destinos devem estar embaralhados independentemente; IDs e posições não podem revelar pares.
+21. AUDITE os hotspot_dropdown para que a resposta correta varie de posição entre os slots e entre as questões.
+22. AUDITE yes_no_matrix para evitar sequências Sim/Não repetitivas ou concentração artificial.
+23. Depois de qualquer reordenação, valide novamente correct, correct_payload e todas as justificativas dependentes.
+24. Faça uma segunda passagem somente olhando posições, IDs e sequência de gabaritos, sem ler os enunciados.
+25. Confirme que interaction e correct_payload seguem EXATAMENTE os formatos acima.
+26. Valide o JSON final.
+27. Entregue um arquivo .json pronto para download, sem comentários fora do JSON que quebrem a importação.
 
 No final da resposta, fora do arquivo, informe um resumo com:
 - quantidade por question_type;
@@ -1143,7 +1227,10 @@ No final da resposta, fora do arquivo, informe um resumo com:
 - quantidade com realism_level 4-5;
 - quantidade de case studies;
 - distribuição A/B/C/D somente das single_choice;
-- maior sequência consecutiva da mesma letra nas single_choice.</div>
+- maior sequência consecutiva da mesma letra nas single_choice;
+- frequência das combinações usadas em multi_select;
+- quantidade de build_list cuja ordem exibida coincide com a ordem correta (deve ser 0);
+- para drag_drop, maior quantidade de pares corretos alinhados pela mesma posição visual em uma questão (ideal 0; máximo 1 quando houver 4+ pares).</div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
       <button class="btn bs" onclick="copyTutorialPrompt()">Copiar prompt completo</button>
