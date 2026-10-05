@@ -745,8 +745,8 @@
 
 <div class="modal-bg" id="tutorialModal">
   <div class="modal tutorial-modal">
-    <h3>📚 Criar banco REAL / treino interativo com o ChatGPT</h3>
-    <p>O mesmo JSON pode alimentar <strong>Estudar</strong> e <strong>Simulado REAL</strong>. O Certification Review aceita escolha única, múltipla seleção, matriz Sim/Não, completar código, ordenar etapas, associação/drag & drop, hotspot em imagem e estudos de caso.</p>
+    <h3>📚 Criar bancos REAL e Decoreba com o ChatGPT</h3>
+    <p>Use o <strong>Banco REAL</strong> para simulação e o <strong>Banco Decoreba</strong> para memorização ativa / estudo reverso. No modo Decoreba você também pode anexar um <strong>score report ou relatório de desempenho</strong> para concentrar as questões nos pontos fracos.</p>
 
     <ol class="tutorial-steps">
       <li><strong>Anexe seus materiais</strong>, se tiver: PDFs, apostilas, slides, anotações, prints ou outros conteúdos.</li>
@@ -755,7 +755,7 @@
       <li>Importe o JSON. Questões com <code>origin: "real"</code> ficam disponíveis tanto para treino quanto para o simulador.</li>
     </ol>
 
-    <p><strong>Prompt sugerido — versão 2.1:</strong></p>
+    <p><strong>Prompt Banco REAL — versão 2.1:</strong></p>
 
     <div class="tutorial-prompt" id="tutorialPrompt">
 Estou estudando para a certificação Microsoft [CÓDIGO DP-XXX].
@@ -1325,8 +1325,295 @@ Informe:
 </div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
-      <button class="btn bs" onclick="copyTutorialPrompt()">Copiar prompt completo</button>
+      <button class="btn bs" onclick="copyTutorialPrompt()">Copiar prompt REAL</button>
     </div>
+
+
+    <details style="margin-top:16px;border:1px solid #d8dee4;border-radius:10px;background:#f8fafc;padding:10px 12px;">
+      <summary style="cursor:pointer;font-weight:800;color:#1a237e;">🧠 Prompt Decoreba — estudo reverso / pontos fracos</summary>
+      <p style="font-size:13px;color:#57606a;margin:10px 0;">
+        Se você tiver um <strong>score report</strong>, PDF ou print de desempenho, anexe junto com este prompt. O gerador deve usar as habilidades explicitamente mais fracas apenas para priorizar o conteúdo — sem tentar reconstruir perguntas da prova.
+      </p>
+      <div class="tutorial-prompt" id="decorebaPrompt">
+Estou estudando para a certificação Microsoft [CÓDIGO DP-XXX].
+
+Quero que você crie EXATAMENTE [QUANTIDADE] questões de DECOREBA TÉCNICA para estudo reverso, focadas em recuperar rapidamente fatos, diferenças, nomes de recursos, DMVs, comandos, limites, defaults, capacidades e conceitos que costumam ser confundidos na prova.
+
+OBJETIVO PRINCIPAL
+Este banco NÃO é um simulado realista. Ele é um banco de memorização ativa e estudo reverso.
+
+Cada questão deve funcionar como um flashcard de múltipla escolha:
+- pergunta curta e direta;
+- 4 alternativas tecnicamente próximas;
+- uma única resposta correta;
+- explicação detalhada da correta;
+- explicação detalhada de CADA alternativa incorreta;
+- regra curta para memorizar;
+- pegadinha/confusão principal.
+
+Se eu errar uma questão, quero aprender também o que significam as outras três alternativas.
+
+DOCUMENTO DE DESEMPENHO / SCORE REPORT — PRIORIDADE MÁXIMA
+Se eu anexei um score report, relatório de desempenho, PDF da prova, print de resultados ou documento equivalente:
+1. leia o documento ANTES de planejar as questões;
+2. identifique as habilidades explicitamente apontadas como pontos fracos ou prioridades;
+3. use essas habilidades como foco principal do banco;
+4. não tente inferir quais questões específicas da prova eu errei;
+5. não invente percentuais que o relatório não forneça;
+6. use o relatório apenas para PRIORIZAÇÃO DE CONTEÚDO;
+7. mantenha alguma cobertura de conceitos próximos necessários para diferenciar os pontos fracos.
+
+Como referência, quando o relatório indicar 3 áreas prioritárias, concentre aproximadamente 70% a 85% das questões nessas áreas e use o restante para conceitos adjacentes que ajudam a diferenciá-las.
+
+Se NÃO houver score report anexado:
+- use os pontos fracos que eu mencionar no pedido, se houver;
+- caso contrário, use o guia oficial atual da certificação para selecionar conteúdos de alta memorização dentro de todos os domínios.
+
+ESCOPO OFICIAL E ATUALIZAÇÃO
+- Pesquise o guia oficial MAIS ATUAL da certificação na data da geração.
+- Respeite a versão do exame vigente na data atual; não aplique antecipadamente uma atualização futura do blueprint.
+- Para fatos técnicos, use prioritariamente documentação oficial Microsoft Learn.
+- Não use dumps, ExamTopics, questões reais protegidas ou reconstruções de itens do exame.
+- Crie perguntas originais de memorização baseadas nos conceitos oficiais.
+
+FORMATO OBRIGATÓRIO PARA ESTA APLICAÇÃO
+Todas as questões DEVEM usar:
+
+"question_type": "single_choice"
+"origin": "legacy"
+"status": "pendente"
+"exam": "[CÓDIGO DP-XXX]"
+"realism_level": 1
+"points": 1
+
+O campo "topic" DEVE começar exatamente com "Decoreba".
+
+Exemplos válidos:
+"Decoreba — Performance — Query Store"
+"Decoreba — Performance — DMVs"
+"Decoreba — Azure SQL — Service tiers"
+"Decoreba — HA/DR — Backup"
+
+NUNCA use "origin": "real" para este banco.
+Essas questões devem entrar na aba Decoreba e ficar fora do Simulado REAL.
+
+QUESTION_TYPE
+- Use SOMENTE "single_choice".
+- Sempre forneça option_a, option_b, option_c e option_d.
+- Sempre forneça correct com A/B/C/D.
+- Preencha também correct_payload no formato {"selected":"A"}.
+- Deve existir UMA única melhor resposta.
+
+TIPO DE CONHECIMENTO A COBRAR
+Priorize perguntas sobre:
+- nome de recurso -> função;
+- função -> nome de recurso;
+- diferenças entre recursos muito parecidos;
+- DMVs e catalog views;
+- comandos, cmdlets, parâmetros e propriedades;
+- service tiers e compute tiers;
+- purchasing models;
+- defaults importantes;
+- comportamentos e limitações relevantes;
+- compatibilidade entre serviços;
+- opções de migração;
+- HA/DR;
+- backup e restore;
+- automação;
+- índices, estatísticas, Query Store e planos;
+- recursos que o candidato costuma trocar de nome ou finalidade.
+
+Evite perguntas genéricas que podem ser respondidas por bom senso.
+A resposta deve depender de conhecimento factual específico do exame.
+
+REPETIÇÃO INTENCIONAL É PERMITIDA
+Diferente de um banco de simulado, neste banco é PERMITIDO revisar o mesmo conceito em ângulos diferentes.
+
+Exemplo:
+1. "Qual DMV mostra requests em execução?"
+2. "Qual é a diferença entre sys.dm_exec_requests e sys.dm_exec_sessions?"
+3. "Qual DMV você usaria para obter blocking_session_id de uma request ativa?"
+
+Isso é desejado para consolidação de memória.
+
+Não faça apenas paráfrases triviais. Cada repetição deve reforçar uma distinção diferente.
+
+QUALIDADE DAS ALTERNATIVAS
+As quatro alternativas devem ser reais, técnicas e próximas entre si.
+
+BOM exemplo:
+A) sys.dm_exec_requests
+B) sys.dm_exec_sessions
+C) sys.dm_exec_connections
+D) sys.dm_exec_query_stats
+
+RUIM exemplo:
+A) sys.dm_exec_requests
+B) Reiniciar o servidor
+C) Microsoft Word
+D) Criar uma senha
+
+As incorretas devem pertencer ao mesmo espaço técnico da correta sempre que possível.
+Não use alternativas absurdas apenas para completar A/B/C/D.
+
+ESTUDO REVERSO — REGRA MAIS IMPORTANTE
+Toda questão deve ensinar também pelas alternativas erradas.
+
+O campo "explanation" é obrigatório e deve funcionar como uma mini-ficha de estudo do conceito.
+
+O campo "why_correct" é obrigatório e deve explicar:
+1. o que é a alternativa correta;
+2. por que corresponde exatamente à pergunta;
+3. qual característica a diferencia das demais;
+4. quando esse recurso/comando/conceito é utilizado.
+
+Para CADA alternativa incorreta, o respectivo why_*_wrong é obrigatório e deve responder aos quatro pontos:
+1. O que essa alternativa É?
+2. Por que ela parece plausível nesta questão?
+3. Por que ela NÃO é a resposta correta neste caso?
+4. Em que cenário ela SERIA a resposta adequada?
+
+Exemplo de padrão de explicação incorreta:
+"sys.dm_exec_sessions é plausível porque também trata da atividade conectada ao SQL Server. Ela retorna uma linha por sessão autenticada e mostra login, programa cliente e configurações da sessão. Porém, não representa especificamente cada request atualmente em execução; para isso, use sys.dm_exec_requests. sys.dm_exec_sessions seria apropriada quando o objetivo fosse identificar ou caracterizar a sessão antes de investigar sua request."
+
+PROIBIDO usar explicações vazias como:
+- "B está errada."
+- "Não atende ao requisito."
+- "Essa não é a resposta."
+
+A explicação precisa ensinar o conceito da alternativa errada.
+
+CAMPOS DE MEMORIZAÇÃO — OBRIGATÓRIOS
+"exam_keyword": conceito principal da questão.
+
+"memory_rule": regra curta e contrastiva para memorização.
+Exemplo:
+"REQUEST = executando agora | SESSION = contexto | CONNECTION = canal | QUERY_STATS = histórico agregado."
+
+"trap": explique a confusão concreta que leva ao erro.
+Exemplo:
+"Pegadinha: confundir sys.dm_exec_sessions com sys.dm_exec_requests porque ambas mostram atividade. Session descreve o contexto; request descreve o trabalho em execução."
+
+DIFICULDADE
+Neste banco, difficulty NÃO mede complexidade de cenário.
+
+Use:
+- "facil": associação direta de um fato básico;
+- "medio": distinção entre conceitos próximos;
+- "dificil": quatro alternativas muito confundíveis, nomes parecidos, defaults, limites ou comportamentos específicos.
+
+Mesmo questões "dificil" devem continuar curtas e focadas em recall.
+
+FONTES E VALIDAÇÃO
+- Valide cada fato técnico na documentação oficial atual sempre que possível.
+- "verified": true SOMENTE quando o gabarito e a afirmação central tiverem sido realmente confirmados.
+- Quando verified=true, forneça source_name e source_url oficiais e reais.
+- Nunca invente URL.
+- Se não conseguir verificar adequadamente, use:
+  "verified": false,
+  "source_name": null,
+  "source_url": null
+- Evite números, limites e defaults voláteis quando não conseguir confirmar a versão atual.
+
+DISTRIBUIÇÃO DO GABARITO
+Planeje a posição das respostas corretas ANTES de redigir o lote.
+
+- Distribua A/B/C/D aproximadamente de forma uniforme.
+- Em quantidade múltipla de 4, busque distribuição exatamente equilibrada.
+- Não use padrões previsíveis como A,B,C,D,A,B,C,D.
+- Não tenha mais de 2 respostas consecutivas na mesma letra.
+- Nunca altere uma verdade técnica apenas para equilibrar letras; reordene as opções.
+- Depois de reordenar, atualize correct, correct_payload e why_*_wrong.
+- O why_*_wrong da correta deve ser null.
+
+DOMAIN_CODE
+Use domain_code coerente com os domínios da aplicação/exame, por exemplo:
+"platform"
+"security"
+"performance"
+"automation"
+"hadr"
+
+Quando o score report indicar uma habilidade fraca, mapeie-a ao domain_code mais apropriado sem perder o topic detalhado.
+
+SCHEMA DE CADA QUESTÃO
+{
+  "question": "Pergunta curta e direta de memorização.",
+  "question_type": "single_choice",
+  "origin": "legacy",
+  "domain_code": "performance",
+  "topic": "Decoreba — Performance — DMVs",
+  "difficulty": "medio",
+  "realism_level": 1,
+  "points": 1,
+  "option_a": "Alternativa A",
+  "option_b": "Alternativa B",
+  "option_c": "Alternativa C",
+  "option_d": "Alternativa D",
+  "correct": "C",
+  "correct_payload": {"selected":"C"},
+  "explanation": "Mini-ficha detalhada que compara o conceito correto com os próximos.",
+  "why_correct": "Explicação detalhada da correta, incluindo quando usar.",
+  "why_a_wrong": "Explicação reversa completa da alternativa A ou null se A for correta.",
+  "why_b_wrong": "Explicação reversa completa da alternativa B ou null se B for correta.",
+  "why_c_wrong": null,
+  "why_d_wrong": "Explicação reversa completa da alternativa D ou null se D for correta.",
+  "exam_keyword": "conceito central",
+  "memory_rule": "regra curta e contrastiva",
+  "trap": "confusão concreta que leva ao erro",
+  "source_name": "Microsoft Learn",
+  "source_url": "https://learn.microsoft.com/...",
+  "verified": true,
+  "status": "pendente",
+  "exam": "[CÓDIGO DP-XXX]"
+}
+
+ESTRUTURA DO ARQUIVO
+{
+  "version": "2.0",
+  "exam": "[CÓDIGO DP-XXX]",
+  "origin": "legacy",
+  "exportedAt": "DATA_ATUAL_EM_ISO_8601",
+  "total": [QUANTIDADE],
+  "questions": []
+}
+
+ANTES DE ENTREGAR — AUDITORIA OBRIGATÓRIA
+1. Confirme EXATAMENTE [QUANTIDADE] questões.
+2. Confirme que TODAS são single_choice.
+3. Confirme que TODAS têm origin="legacy".
+4. Confirme que TODOS os topics começam por "Decoreba".
+5. Confirme status="pendente".
+6. Confirme UMA única resposta correta em cada questão.
+7. Confirme correct_payload igual a correct.
+8. Confirme que why_*_wrong da correta é null.
+9. Confirme que as outras 3 why_*_wrong são detalhadas e não vazias.
+10. Confirme explanation, why_correct, memory_rule e trap em todas as questões.
+11. Rejeite distratores absurdos ou de outra categoria técnica.
+12. Verifique distribuição A/B/C/D e que não há padrão mecânico.
+13. Valide fontes e URLs.
+14. Valide o JSON final.
+15. Não inclua user_id.
+16. Não use comentários ou trailing commas.
+17. Não deixe placeholders ou "..." dentro do JSON final.
+
+ENTREGA
+Entregue um arquivo .json pronto para importação direta na aplicação.
+Não misture comentários dentro do JSON.
+
+Depois do arquivo, fora do JSON, informe:
+- quantidade total;
+- quantidade por domain_code;
+- quantidade por topic;
+- quantidade por dificuldade;
+- distribuição A/B/C/D;
+- quais habilidades do score report foram priorizadas, se um relatório tiver sido anexado;
+- quantidade de questões verified=true e verified=false.
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+        <button class="btn bs" onclick="copyDecorebaPrompt()">Copiar prompt Decoreba</button>
+      </div>
+    </details>
 
     <p style="background:#fff8e8;border:1px solid #ffe0b2;border-radius:8px;padding:10px;margin-top:12px;">
       <strong>Importante:</strong> o formato interativo melhora o treino, mas o conteúdo continua precisando de validação técnica. Use documentação oficial atual e não transforme dumps/questões reais em banco próprio.
@@ -1485,11 +1772,13 @@ Informe:
     document.getElementById('tutorialModal').classList.remove('open');
   }
 
-  async function copyTutorialPrompt() {
-    const promptText = document.getElementById('tutorialPrompt').innerText;
+  async function copyPromptElement(id, successMessage) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const promptText = el.innerText;
     try {
       await navigator.clipboard.writeText(promptText);
-      alert('Prompt copiado!');
+      alert(successMessage);
     } catch {
       const ta = document.createElement('textarea');
       ta.value = promptText;
@@ -1497,8 +1786,16 @@ Informe:
       ta.select();
       document.execCommand('copy');
       ta.remove();
-      alert('Prompt copiado!');
+      alert(successMessage);
     }
+  }
+
+  async function copyTutorialPrompt() {
+    return copyPromptElement('tutorialPrompt', 'Prompt REAL copiado!');
+  }
+
+  async function copyDecorebaPrompt() {
+    return copyPromptElement('decorebaPrompt', 'Prompt Decoreba copiado!');
   }
 
   // ── fetch ────────────────────────────────────────────────
