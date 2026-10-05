@@ -30,7 +30,7 @@ Sistema de revisão com **flashcards de múltipla escolha** para a certificaçã
 Execute [`setup.sql`](setup.sql) no banco `NossaRotina` antes de fazer o deploy:
 
 ```bash
-sqlcmd -S 191.101.71.175,1433 -U sa -P "Aa##91684895" -d NossaRotina -i setup.sql
+sqlcmd -S localhost,1433 -U sa -P "senha" -d Banco -i setup.sql
 ```
 
 Ou abra no SSMS e execute.
