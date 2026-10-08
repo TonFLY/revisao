@@ -2,3 +2,19 @@
 
 .lessonlist{display:grid;gap:7px;margin:22px 0}.lessonlist button{display:flex;justify-content:space-between;align-items:center;gap:15px;text-align:left;background:#f5f8f7;border:1px solid #e2eae5;border-radius:8px;padding:14px;color:#233a36}.lessonlist small{white-space:nowrap;color:#087f6c}.materials ul,.references{list-style:none;padding:0}.materials li,.references li{padding:12px 0;border-bottom:1px solid #e5e8ed;font-size:13px;overflow-wrap:anywhere}.materials small,.references small{display:block;color:#8b959b;margin-top:6px}.materials h3{font-size:16px;margin-top:25px}.materials h3 span{color:#87908a;font-weight:normal}.back{border:0;background:none;color:#087f6c;padding:8px 0;cursor:pointer}.lessonnav{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px}.lessonnav button{border:1px solid #dae4df;background:#f3f7f4;color:#087f6c;border-radius:6px;padding:10px}.lessonnav button:disabled{opacity:.35;cursor:default}details{margin:20px 0;font-size:12px;color:#6c7974}dialog{width:min(1050px,94vw)}@media(max-width:700px){.lessonlist button{align-items:start;flex-direction:column;gap:6px}.lessonnav{flex-wrap:wrap}}
 .accessnotice{background:#eef4ff;border:1px solid #c9d8f5;padding:18px;border-radius:10px;margin-bottom:22px;font-size:13px;line-height:1.5}.accessnotice p{margin:7px 0}.sidefoot #syncStatus{display:block}.primary{border:0;cursor:pointer}body{padding-bottom:20px}
+html,body{max-width:100%;}main,.grid,.card{min-width:0;} .card h4, .lessonlist span{overflow-wrap:anywhere;}
+@media(max-width:700px){
+ aside{width:100%;padding:14px;}
+ .sidefoot{display:block;margin-top:12px;}
+ .sidefoot p,.sidefoot>small{display:none;}
+ .sidefoot #syncStatus{display:block;font-size:11px;}
+ .sidefoot button,.sidefoot .import{display:inline-block;padding:9px 8px 9px 0;font-size:11px;}
+ main{padding:12px;}
+ header{flex-wrap:wrap;line-height:1.5;}
+ .hero{padding:22px;}h1{font-size:30px;}
+ .trackhead{gap:10px;align-items:flex-start;}.trackhead h3{font-size:15px;overflow-wrap:anywhere;}.trackhead>span{white-space:nowrap;}
+ dialog{padding:18px;width:calc(100% - 16px);max-height:92dvh;}
+ iframe{height:auto;aspect-ratio:16/9;}
+ .lessonnav{gap:8px;}.lessonnav button{min-height:44px;}
+ input[type=search],textarea{font-size:16px;}
+}
