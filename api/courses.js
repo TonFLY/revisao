@@ -1,5 +1,4 @@
-const crypto = require('crypto');
-const {sql,config} = require('../lib/db');
+const {sql,config,cleanUid} = require('../lib/db');
 const catalog = require('../public/courses/catalog.json');
 const modules = new Set(catalog.map(m=>m.id));
 const lessons = new Set(catalog.flatMap(m=>m.lessons.map(l=>l.id)));
@@ -13,13 +12,11 @@ async function pool(){
   return poolPromise;
 }
 function identity(req) {
-  const h=req.headers.authorization||'';
-  if(!/^Bearer [a-f0-9]{64}$/.test(h))return null;
-  return 'course_'+crypto.createHash('sha256').update(h.slice(7)).digest('hex');
+  const name=String(req.query?.uid||'').trim();
+  return name?cleanUid(name):null;
 }
 module.exports=async(req,res)=>{
   res.setHeader('Cache-Control','private, no-store');
-  res.setHeader('Vary','Authorization');
   if(!['GET','POST'].includes(req.method)){res.setHeader('Allow','GET, POST');return res.status(405).json({error:'Método não permitido.'});}
   const uid=identity(req);
   if(!uid)return res.status(401).json({error:'Abra a aba Cursos a partir do seu perfil.'});

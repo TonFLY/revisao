@@ -6,7 +6,7 @@ Execute sql/004_cursos_sql.sql no banco DB_NAME, usando a versão com AS [refere
 
 ## Acesso e perfis
 
-O site atual identifica perfis por nome, sem autenticação de contas. Os cursos utilizam uma credencial aleatória de 256 bits por perfil neste navegador, enviada em Authorization, fora de URLs. A API deriva user_id com SHA-256 e não aceita uid para escolher registros de outra pessoa. A credencial fica no armazenamento local; limpar esse armazenamento perde a conexão com o progresso remoto. Outro navegador ou dispositivo recebe outra credencial, mesmo escolhendo o mesmo nome. Isso não substitui contas autenticadas; para sincronização de uma conta entre dispositivos será necessário integrar autenticação real. Perfis no mesmo navegador compartilhado não são protegidos uns dos outros por senha.
+O progresso é vinculado apenas ao nome do perfil, usando uid como nas outras abas. O mesmo nome em outro navegador recupera o mesmo progresso. Não há senha ou chave: qualquer pessoa que escolher o mesmo nome pode ler e alterar esse progresso. Permissões dos vídeos continuam sendo controladas pelo Google Drive. A cópia local da versão anterior é importada para o nome do perfil na primeira abertura, sem apagar registros antigos no banco.
 
 Progresso, favoritos e notas são separados no banco. A API usa parâmetros SQL, verifica IDs do catálogo e limita notas a 4000 caracteres e lotes a 25 registros. A cópia local é preservada em falhas, com indicação e opção de tentar novamente. Exportar/importar progresso não exporta a credencial.
 
