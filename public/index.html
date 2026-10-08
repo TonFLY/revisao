@@ -488,6 +488,7 @@
     <div class="tab" onclick="goTab('add')">Adicionar</div>
     <div class="tab" onclick="goTab('pdf')">Exportar PDF</div>
     <div class="tab" id="labsTab" onclick="goTab('labs')">Labs DP-300</div>
+    <div class="tab" id="coursesTab" onclick="goTab('courses')">Cursos SQL</div>
   </div>
 
   <!-- ── STUDY ── -->
@@ -691,6 +692,7 @@
 <!-- tutorial de criação de questões com ChatGPT -->
 
   <!-- ── LABS DP-300 ── -->
+  <div class="panel" id="panel-courses"><div id="coursesContainer"></div></div>
   <div class="panel" id="panel-labs">
     <div class="labs-shell">
       <div class="lab-index" id="labsIndex">
@@ -1706,6 +1708,7 @@ Depois do arquivo, fora do JSON, informe:
   }
 
   function doLogout() {
+    CourseBridge.leave();
     currentUid = '';
     qs = [];
     document.getElementById('loginInput').value = '';
@@ -1868,7 +1871,8 @@ Depois do arquivo, fora do JSON, informe:
 
   // ── tabs ─────────────────────────────────────────────────
   function goTab(name) {
-    const names=['study','decoreba','list','add','pdf','labs'];
+    const names=['study','decoreba','list','add','pdf','labs','courses'];
+    if(name!=='courses') CourseBridge.leave();
     document.querySelectorAll('.tab').forEach((t,i)=> t.classList.toggle('active',names[i]===name));
     document.querySelectorAll('.panel').forEach(p=> p.classList.remove('active'));
     const panel = document.getElementById('panel-'+name);
@@ -1878,6 +1882,7 @@ Depois do arquivo, fora do JSON, informe:
     if (name==='decoreba') startDecoreba('all');
     if (name==='pdf')      pdfApplyFilters();
     if (name==='labs')     loadLabs();
+    if (name==='courses')  CourseBridge.enter();
   }
 
   function optionText(q, letter) {
@@ -3672,5 +3677,7 @@ Depois do arquivo, fora do JSON, informe:
     doLogin();
   }
 </script>
+<script src="/courses/bridge.js"></script>
 </body>
 </html>
+
