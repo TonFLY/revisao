@@ -70,7 +70,8 @@
     .sc.g .n{color:#2e7d32} .sc.o .n{color:#e65100} .sc.r .n{color:#c62828}
 
     /* tabs */
-    .tabs { display:flex; gap:4px; }
+    .tabs { display:flex; gap:4px; max-width:100%; min-width:0; overflow-x:auto; overscroll-behavior-x:contain; -webkit-overflow-scrolling:touch; }
+    .tab { flex:0 0 auto; white-space:nowrap; }
     .tab { padding:7px 16px; border-radius:8px 8px 0 0; border:1px solid #e5e7eb; border-bottom:none; background:#e9ecef; cursor:pointer; font-size:13px; font-weight:600; color:#57606a; }
     .tab.active { background:#fff; color:#1a237e; }
     .panel { display:none; background:#fff; border:1px solid #e5e7eb; border-radius:0 10px 10px 10px; padding:20px; }
@@ -1883,6 +1884,7 @@ Depois do arquivo, fora do JSON, informe:
     if (name==='pdf')      pdfApplyFilters();
     if (name==='labs')     loadLabs();
     if (name==='courses')  CourseBridge.enter();
+    document.querySelector('.tab.active')?.scrollIntoView({block:'nearest',inline:'nearest'});
   }
 
   function optionText(q, letter) {
