@@ -2,10 +2,7 @@ const CourseBridge=(()=>{
   let frame;
   function send(){
     if(!frame||!currentUid)return;
-    const key='review_course_token_'+currentUid;
-    let token=localStorage.getItem(key);
-    if(!/^[a-f0-9]{64}$/.test(token||'')){const bytes=crypto.getRandomValues(new Uint8Array(32));token=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');localStorage.setItem(key,token)}
-    frame.contentWindow.postMessage({type:'course-profile',profile:currentUid,token},location.origin);
+    frame.contentWindow.postMessage({type:'course-profile',profile:currentUid},location.origin);
   }
   window.addEventListener('message',e=>{if(e.origin===location.origin&&frame&&e.source===frame.contentWindow&&e.data?.type==='course-ready')send()});
   function enter(){
