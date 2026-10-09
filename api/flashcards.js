@@ -54,6 +54,18 @@ module.exports=async(req,res)=>{
    return res.json({ok:true});
   }
   return res.status(400).json({error:'Ação inválida'});
- }catch(e){console.error('[flashcards]',e);return res.status(500).json({error:'Falha ao acessar flashcards. Verifique a migração SQL.'})}
+ }catch(e){
+  const code=String(e?.code||e?.originalError?.info?.number||'UNKNOWN');
+  const msg=String(e?.message||'');
+  console.error('[flashcards]',{code,message:msg,operation:req.method});
+  let error='Não foi possível acessar os flashcards. Consulte os logs da Vercel.';
+  let hint='Verifique os logs da função /api/flashcards.';
+  if(/Invalid object name|208/.test(msg+' '+code)){error='Tabela de flashcards não encontrada no banco conectado à Vercel.';hint='Confirme DB_NAME e execute a migração nesse banco.'}
+  else if(/Invalid column name|207/.test(msg+' '+code)){error='Estrutura da tabela de flashcards incompatível com a API.';hint='Confira as colunas das tabelas de flashcards.'}
+  else if(/permission|denied|229/.test(msg+' '+code)){error='Usuário do SQL Server sem permissão para acessar os flashcards.';hint='Verifique SELECT, INSERT, UPDATE e DELETE nas tabelas.'}
+  else if(/login failed|ELOGIN|18456/.test(msg+' '+code)){error='Falha de autenticação no SQL Server.';hint='Confira as credenciais DB_* na Vercel.'}
+  else if(/ETIMEOUT|ESOCKET|ECONN|timeout|network/i.test(msg+' '+code)){error='Falha de conexão ou tempo esgotado ao consultar o SQL Server.';hint='Confira rede, firewall e disponibilidade do servidor.'}
+  return res.status(500).json({error,code:code.replace(/[^A-Z0-9_-]/gi,'').slice(0,30),hint});
+ }
  finally{if(pool)await pool.close().catch(()=>{})}
 };
